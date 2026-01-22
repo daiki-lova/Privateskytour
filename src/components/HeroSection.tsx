@@ -1,0 +1,88 @@
+"use client";
+
+import { Button } from "./ui/button";
+import { ArrowDown } from "lucide-react";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { motion } from "motion/react";
+import heroImage from "figma:asset/39fdbe1977ac0c1619c6517e736679ea072d8574.png";
+
+interface HeroSectionProps {
+  onViewPlansClick?: () => void;
+}
+
+export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
+  const handleScrollToPlans = () => {
+    if (onViewPlansClick) {
+      onViewPlansClick();
+    } else {
+      // Default behavior: smooth scroll to plans section
+      const element = document.getElementById('plans');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  return (
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Background with parallax effect */}
+      <div className="absolute inset-0 z-0">
+        <ImageWithFallback
+          src={heroImage}
+          alt="Aerial View of Tokyo Skyline with Helicopter"
+          className="w-full h-full object-cover scale-110 brightness-75"
+        />
+        <motion.div
+          initial={{ opacity: 0.1 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ duration: 2 }}
+          className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 w-[90%] max-w-7xl mx-auto flex flex-col items-center justify-center h-full text-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="mb-12"
+        >
+          <h1 className="text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] mb-6 font-serif tracking-widest text-4xl md:text-6xl lg:text-7xl leading-tight font-light">
+            SKYVIEW TOKYO
+          </h1>
+          <div className="w-24 h-[1px] bg-white mx-auto my-8 opacity-80"></div>
+          <p className="text-white/90 text-lg md:text-xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] leading-relaxed max-w-2xl mx-auto font-light tracking-wider">
+            上質な空の旅を、あなたに。
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5 }}
+        >
+          <Button 
+            onClick={handleScrollToPlans}
+            variant="outline"
+            className="bg-transparent text-white border-white hover:bg-white hover:text-black transition-all duration-300 px-10 py-6 text-sm tracking-[0.2em] rounded-sm uppercase"
+          >
+            View Plans
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 1 }}
+        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/70 flex flex-col items-center animate-bounce cursor-pointer"
+        onClick={handleScrollToPlans}
+      >
+        <span className="text-[10px] tracking-[0.3em] mb-2 uppercase">Scroll</span>
+        <ArrowDown className="w-4 h-4" />
+      </motion.div>
+    </section>
+  );
+}
