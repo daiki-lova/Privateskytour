@@ -12,7 +12,7 @@ import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { cn } from "../ui/utils";
 import { PLANS, TIME_SLOTS, Plan } from "./constants";
 import { format } from "date-fns";
-import { getBookedSlots } from "../../lib/supabase";
+import { getBookedSlots } from "@/lib/supabase";
 import { motion } from "motion/react";
 
 interface Step1Props {

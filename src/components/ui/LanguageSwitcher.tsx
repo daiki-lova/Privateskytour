@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "./button";
-import { useTranslation } from "../../lib/i18n/TranslationContext";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 import { Globe } from "lucide-react";
 
 interface LanguageSwitcherProps {

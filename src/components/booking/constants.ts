@@ -1,10 +1,9 @@
-import imgSightseeingCommon from "figma:asset/d82e3b03b105008565f6e2fa654c3fad40cdb2c9.png";
-
-// New Route Map Assets for Transfers
-import imgRouteHakone from "figma:asset/655f62d52eb301631ea1c408a9392905d4e69db2.png";
-import imgRouteYamanakako from "figma:asset/e2eaf02c17cb392303d201d1ea4665e8b69d5fd5.png";
-import imgRouteIzu from "figma:asset/fe8c1ab9a87fc0702089949fbb0761d455cfb877.png";
-import imgRouteIse from "figma:asset/76609b088e6fb86a8a3cc2ccdd396ff5689ee2ea.png";
+// Route map placeholder images (replace with actual assets later)
+const imgSightseeingCommon = "/images/route-maps/sightseeing-common.png";
+const imgRouteHakone = "/images/route-maps/hakone.png";
+const imgRouteYamanakako = "/images/route-maps/yamanakako.png";
+const imgRouteIzu = "/images/route-maps/izu.png";
+const imgRouteIse = "/images/route-maps/ise.png";
 
 export interface Plan {
   id: string;

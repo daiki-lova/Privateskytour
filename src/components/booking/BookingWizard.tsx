@@ -7,8 +7,8 @@ import { Check, ArrowLeft, Home } from "lucide-react";
 import { Step1PlanSelection } from "./Step1PlanSelection";
 import { Step2PassengerDetails } from "./Step2PassengerDetails";
 import { Step3Confirmation } from "./Step3Confirmation";
-import { Header } from "../Header";
-import { Footer } from "../Footer";
+import { Header } from "../public/Header";
+import { Footer } from "../public/Footer";
 
 export type BookingData = {
   planId?: string;

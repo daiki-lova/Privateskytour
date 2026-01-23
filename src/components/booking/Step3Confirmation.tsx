@@ -10,7 +10,7 @@ import { CheckCircle, Calendar, Clock, Users, MapPin } from "lucide-react";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { PLANS } from "./constants";
-import { saveBooking } from "../../lib/supabase";
+import { saveBooking } from "@/lib/supabase";
 import { toast } from "sonner";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 

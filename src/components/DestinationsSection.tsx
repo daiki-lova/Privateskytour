@@ -24,7 +24,7 @@ export function DestinationsSection({ onPlanSelect }: DestinationsSectionProps) 
     ? PLANS 
     : PLANS.filter(dest => {
         if (selectedCategory === "fuji") {
-            return dest.category === "fuji" || dest.title.includes("富士") || dest.description.includes("富士") || dest.area.includes("富士") || dest.area.includes("箱根") || dest.area.includes("伊豆");
+            return dest.title.includes("富士") || dest.description.includes("富士") || dest.area.includes("富士") || dest.area.includes("箱根") || dest.area.includes("伊豆");
         }
         return dest.area.toLowerCase().includes(selectedCategory) || (selectedCategory === "tokyo" && dest.area === "東京");
     });

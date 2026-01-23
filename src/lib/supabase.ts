@@ -1,35 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-// Helper to safely access environment variables in various environments (Vite, Next.js, etc.)
-const getEnvVar = (key: string) => {
-  // Check for import.meta.env (Vite)
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
-      return import.meta.env[`VITE_${key}`] || import.meta.env[`NEXT_PUBLIC_${key}`] || import.meta.env[key];
-    }
-  } catch (e) {
-    // Ignore errors accessing import.meta
-  }
-
-  // Check for process.env (Next.js / Webpack / Node)
-  try {
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env[`NEXT_PUBLIC_${key}`] || process.env[key];
-    }
-  } catch (e) {
-    // Ignore errors accessing process
-  }
-
-  return undefined;
-};
-
-const supabaseUrl = getEnvVar('SUPABASE_URL') || 'https://placeholder.supabase.co';
-const supabaseAnonKey = getEnvVar('SUPABASE_ANON_KEY') || 'placeholder';
-
-// Only create a real client if the URL is valid
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { createClient } from '@/lib/supabase/client';
 
 export interface DbPlan {
   id: string;
@@ -57,14 +26,18 @@ export interface DbBooking {
   created_at?: string;
 }
 
-const isConfigured = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseUrl !== 'YOUR_SUPABASE_URL';
+function isConfigured() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return url && url !== 'https://placeholder.supabase.co' && url !== 'YOUR_SUPABASE_URL' && url !== 'your-supabase-url';
+}
 
 /**
  * Fetch all plans from the CMS (Supabase)
  */
 export async function getPlans() {
-  if (!isConfigured) return null;
+  if (!isConfigured()) return null;
 
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('plans')
     .select('*')
@@ -81,13 +54,14 @@ export async function getPlans() {
  * Save a new booking
  */
 export async function saveBooking(booking: DbBooking) {
-  if (!isConfigured) {
+  if (!isConfigured()) {
     console.log('Mock saving booking:', booking);
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     return { ...booking, id: 'mock-id' };
   }
 
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('bookings')
     .insert([booking])
@@ -104,8 +78,9 @@ export async function saveBooking(booking: DbBooking) {
  * Check if a slot is already booked (Inventory management)
  */
 export async function checkAvailability(date: string, timeSlot: string) {
-  if (!isConfigured) return true;
+  if (!isConfigured()) return true;
 
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('bookings')
     .select('id')
@@ -116,7 +91,7 @@ export async function checkAvailability(date: string, timeSlot: string) {
     console.error('Error checking availability:', error);
     return false;
   }
-  
+
   // Return true if NO booking exists for this slot
   return data.length === 0;
 }
@@ -125,8 +100,9 @@ export async function checkAvailability(date: string, timeSlot: string) {
  * Get all booked slots for a specific date
  */
 export async function getBookedSlots(date: string) {
-  if (!isConfigured) return [];
+  if (!isConfigured()) return [];
 
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('bookings')
     .select('time_slot')

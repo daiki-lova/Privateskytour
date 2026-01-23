@@ -5,7 +5,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Button } from "./ui/button";
 import { Clock, Users, MapPin, ArrowLeft, CheckCircle2, Map, ExternalLink } from "lucide-react";
 import { Plan } from "./booking/constants";
-import { FAQSection } from "./FAQSection";
+import { FAQSection } from "./public/FAQSection";
 
 interface CourseDetailProps {
   plan: Plan;
