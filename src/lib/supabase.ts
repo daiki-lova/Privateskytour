@@ -337,6 +337,58 @@ export async function getCourseById(id: string): Promise<Course | null> {
   return course;
 }
 
+export async function updateCourse(
+  id: string,
+  updates: {
+    title?: string;
+    titleEn?: string;
+    titleZh?: string;
+    subtitle?: string;
+    description?: string;
+    price?: number;
+    durationMinutes?: number;
+    maxPax?: number;
+    minPax?: number;
+    isActive?: boolean;
+    displayOrder?: number;
+    tags?: string[];
+    images?: string[];
+  }
+): Promise<Course | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const updateData: Record<string, unknown> = {};
+
+  if (updates.title !== undefined) updateData.title = updates.title;
+  if (updates.titleEn !== undefined) updateData.title_en = updates.titleEn;
+  if (updates.titleZh !== undefined) updateData.title_zh = updates.titleZh;
+  if (updates.subtitle !== undefined) updateData.subtitle = updates.subtitle;
+  if (updates.description !== undefined) updateData.description = updates.description;
+  if (updates.price !== undefined) updateData.price = updates.price;
+  if (updates.durationMinutes !== undefined) updateData.duration_minutes = updates.durationMinutes;
+  if (updates.maxPax !== undefined) updateData.max_pax = updates.maxPax;
+  if (updates.minPax !== undefined) updateData.min_pax = updates.minPax;
+  if (updates.isActive !== undefined) updateData.is_active = updates.isActive;
+  if (updates.displayOrder !== undefined) updateData.display_order = updates.displayOrder;
+  if (updates.tags !== undefined) updateData.tags = updates.tags;
+  if (updates.images !== undefined) updateData.images = updates.images;
+
+  const { data, error } = await supabase
+    .from('courses')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating course:', error);
+    return null;
+  }
+
+  return toCourse(data);
+}
+
 // ============================================================
 // Slot Operations
 // ============================================================
@@ -397,6 +449,70 @@ export async function checkSlotAvailability(slotId: string, requiredPax: number)
   if (error || !data) return false;
 
   return data.status === 'open' && (data.max_pax - data.current_pax) >= requiredPax;
+}
+
+export async function updateSlot(
+  id: string,
+  updates: {
+    maxPax?: number;
+    currentPax?: number;
+    status?: Slot['status'];
+    suspendedReason?: string;
+  }
+): Promise<boolean> {
+  if (!isConfigured()) return false;
+
+  const supabase = createClient();
+  const updateData: Record<string, unknown> = {};
+
+  if (updates.maxPax !== undefined) updateData.max_pax = updates.maxPax;
+  if (updates.currentPax !== undefined) updateData.current_pax = updates.currentPax;
+  if (updates.status !== undefined) updateData.status = updates.status;
+  if (updates.suspendedReason !== undefined) updateData.suspended_reason = updates.suspendedReason;
+
+  const { error } = await supabase
+    .from('slots')
+    .update(updateData)
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating slot:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function updateSlotStatus(
+  id: string,
+  status: Slot['status'],
+  reason?: string
+): Promise<boolean> {
+  return updateSlot(id, { status, suspendedReason: reason });
+}
+
+export async function getSlotsByDate(date: string): Promise<Slot[] | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('slots')
+    .select('*, courses(*)')
+    .eq('slot_date', date)
+    .order('slot_time');
+
+  if (error) {
+    console.error('Error fetching slots by date:', error);
+    return null;
+  }
+
+  return data.map(row => {
+    const slot = toSlot(row);
+    if (row.courses) {
+      slot.course = toCourse(row.courses as Record<string, unknown>);
+    }
+    return slot;
+  });
 }
 
 // ============================================================
@@ -465,6 +581,97 @@ export async function getCustomerByToken(token: string): Promise<Customer | null
   }
 
   return toCustomer(data);
+}
+
+export async function getCustomerById(id: string): Promise<Customer | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching customer:', error);
+    return null;
+  }
+
+  return toCustomer(data);
+}
+
+export async function updateCustomer(
+  id: string,
+  updates: {
+    name?: string;
+    nameKana?: string;
+    email?: string;
+    phone?: string;
+    preferredLang?: SupportedLang;
+    notes?: string;
+    tags?: string[];
+  }
+): Promise<Customer | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const updateData: Record<string, unknown> = {};
+
+  if (updates.name !== undefined) updateData.name = updates.name;
+  if (updates.nameKana !== undefined) updateData.name_kana = updates.nameKana;
+  if (updates.email !== undefined) updateData.email = updates.email;
+  if (updates.phone !== undefined) updateData.phone = updates.phone;
+  if (updates.preferredLang !== undefined) updateData.preferred_lang = updates.preferredLang;
+  if (updates.notes !== undefined) updateData.notes = updates.notes;
+  if (updates.tags !== undefined) updateData.tags = updates.tags;
+
+  const { data, error } = await supabase
+    .from('customers')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating customer:', error);
+    return null;
+  }
+
+  return toCustomer(data);
+}
+
+export async function getCustomers(options?: {
+  search?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<Customer[] | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  let query = supabase
+    .from('customers')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (options?.search) {
+    query = query.or(`name.ilike.%${options.search}%,email.ilike.%${options.search}%`);
+  }
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+  if (options?.offset) {
+    query = query.range(options.offset, options.offset + (options.limit || 50) - 1);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching customers:', error);
+    return null;
+  }
+
+  return data.map(toCustomer);
 }
 
 // ============================================================
@@ -583,15 +790,27 @@ export async function getReservationById(id: string): Promise<Reservation | null
 
   if (data.customers) {
     reservation.customer = toCustomer(data.customers as Record<string, unknown>);
+    // Denormalized fields for legacy compatibility
+    reservation.customerName = reservation.customer.name;
+    reservation.customerEmail = reservation.customer.email;
+    reservation.customerPhone = reservation.customer.phone;
+    reservation.customerLang = reservation.customer.preferredLang;
   }
   if (data.courses) {
     reservation.course = toCourse(data.courses as Record<string, unknown>);
+    // Denormalized field for legacy compatibility
+    reservation.planName = reservation.course.title;
   }
   if (data.slots) {
     reservation.slot = toSlot(data.slots as Record<string, unknown>);
   }
   if (data.passengers) {
     reservation.passengers = (data.passengers as Record<string, unknown>[]).map(toPassenger);
+    // Calculate total weight from passengers for legacy compatibility
+    const totalWeight = reservation.passengers.reduce((sum, p) => sum + (p.weightKg || 0), 0);
+    if (totalWeight > 0) {
+      reservation.weight = totalWeight;
+    }
   }
   if (data.payments) {
     reservation.payments = (data.payments as Record<string, unknown>[]).map(toPayment);
@@ -624,12 +843,24 @@ export async function getReservationByBookingNumber(bookingNumber: string): Prom
 
   if (data.customers) {
     reservation.customer = toCustomer(data.customers as Record<string, unknown>);
+    // Denormalized fields for legacy compatibility
+    reservation.customerName = reservation.customer.name;
+    reservation.customerEmail = reservation.customer.email;
+    reservation.customerPhone = reservation.customer.phone;
+    reservation.customerLang = reservation.customer.preferredLang;
   }
   if (data.courses) {
     reservation.course = toCourse(data.courses as Record<string, unknown>);
+    // Denormalized field for legacy compatibility
+    reservation.planName = reservation.course.title;
   }
   if (data.passengers) {
     reservation.passengers = (data.passengers as Record<string, unknown>[]).map(toPassenger);
+    // Calculate total weight from passengers for legacy compatibility
+    const totalWeight = reservation.passengers.reduce((sum, p) => sum + (p.weightKg || 0), 0);
+    if (totalWeight > 0) {
+      reservation.weight = totalWeight;
+    }
   }
 
   return reservation;
@@ -654,6 +885,8 @@ export async function getCustomerReservations(customerId: string): Promise<Reser
     const reservation = toReservation(row);
     if (row.courses) {
       reservation.course = toCourse(row.courses as Record<string, unknown>);
+      // Denormalized field for legacy compatibility
+      reservation.planName = reservation.course.title;
     }
     return reservation;
   });
@@ -691,6 +924,134 @@ export async function updateReservationStatus(
   }
 
   return true;
+}
+
+export async function updateReservation(
+  id: string,
+  updates: {
+    pax?: number;
+    customerNotes?: string;
+    adminNotes?: string;
+    healthConfirmed?: boolean;
+    reservationDate?: string;
+    reservationTime?: string;
+  }
+): Promise<Reservation | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const updateData: Record<string, unknown> = {};
+
+  if (updates.pax !== undefined) updateData.pax = updates.pax;
+  if (updates.customerNotes !== undefined) updateData.customer_notes = updates.customerNotes;
+  if (updates.adminNotes !== undefined) updateData.admin_notes = updates.adminNotes;
+  if (updates.healthConfirmed !== undefined) updateData.health_confirmed = updates.healthConfirmed;
+  if (updates.reservationDate !== undefined) updateData.reservation_date = updates.reservationDate;
+  if (updates.reservationTime !== undefined) updateData.reservation_time = updates.reservationTime;
+
+  const { data, error } = await supabase
+    .from('reservations')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating reservation:', error);
+    return null;
+  }
+
+  return toReservation(data);
+}
+
+export async function getReservations(options?: {
+  status?: Reservation['status'];
+  date?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<Reservation[] | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  let query = supabase
+    .from('reservations')
+    .select('*, customers(*), courses(*)')
+    .order('reservation_date', { ascending: false });
+
+  if (options?.status) {
+    query = query.eq('status', options.status);
+  }
+  if (options?.date) {
+    query = query.eq('reservation_date', options.date);
+  }
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+  if (options?.offset) {
+    query = query.range(options.offset, options.offset + (options.limit || 50) - 1);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching reservations:', error);
+    return null;
+  }
+
+  return data.map(row => {
+    const reservation = toReservation(row);
+    if (row.customers) {
+      reservation.customer = toCustomer(row.customers as Record<string, unknown>);
+      reservation.customerName = reservation.customer.name;
+      reservation.customerEmail = reservation.customer.email;
+      reservation.customerPhone = reservation.customer.phone;
+      reservation.customerLang = reservation.customer.preferredLang;
+    }
+    if (row.courses) {
+      reservation.course = toCourse(row.courses as Record<string, unknown>);
+      reservation.planName = reservation.course.title;
+    }
+    return reservation;
+  });
+}
+
+export async function getReservationsBySlot(slotId: string): Promise<Reservation[] | null> {
+  if (!isConfigured()) return null;
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*, customers(*), courses(*), passengers(*)')
+    .eq('slot_id', slotId)
+    .order('created_at');
+
+  if (error) {
+    console.error('Error fetching reservations by slot:', error);
+    return null;
+  }
+
+  return data.map(row => {
+    const reservation = toReservation(row);
+    if (row.customers) {
+      reservation.customer = toCustomer(row.customers as Record<string, unknown>);
+      reservation.customerName = reservation.customer.name;
+      reservation.customerEmail = reservation.customer.email;
+      reservation.customerPhone = reservation.customer.phone;
+      reservation.customerLang = reservation.customer.preferredLang;
+    }
+    if (row.courses) {
+      reservation.course = toCourse(row.courses as Record<string, unknown>);
+      reservation.planName = reservation.course.title;
+    }
+    if (row.passengers) {
+      reservation.passengers = (row.passengers as Record<string, unknown>[]).map(toPassenger);
+      const totalWeight = reservation.passengers.reduce((sum, p) => sum + (p.weightKg || 0), 0);
+      if (totalWeight > 0) {
+        reservation.weight = totalWeight;
+      }
+    }
+    return reservation;
+  });
 }
 
 // ============================================================

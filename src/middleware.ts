@@ -8,10 +8,20 @@ type CookieToSet = {
   options?: Partial<ResponseCookie>;
 };
 
+/**
+ * Check if the path requires admin authentication
+ */
+function isProtectedAdminPath(pathname: string): boolean {
+  // Protect all /admin/* paths except /admin/login
+  return pathname.startsWith('/admin') && pathname !== '/admin/login';
+}
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({
     request,
   });
+
+  const { pathname } = request.nextUrl;
 
   // Skip Supabase auth if environment variables are not configured
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,7 +52,27 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  // Check authentication for protected admin routes
+  if (isProtectedAdminPath(pathname)) {
+    // Allow access in development when DEV_SKIP_AUTH is enabled
+    if (process.env.DEV_SKIP_AUTH === 'true') {
+      return supabaseResponse;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      // Redirect to login page with return URL
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('returnUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  } else {
+    // For non-protected routes, still refresh the session
+    await supabase.auth.getUser();
+  }
 
   return supabaseResponse;
 }
