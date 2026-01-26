@@ -1,18 +1,14 @@
 "use client";
 
-import { Card } from "../ui/card";
+import Link from "next/link";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { motion } from "motion/react";
 import { PLANS, Plan } from "../booking/constants";
-import { MapPin, Clock } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../ui/utils";
 
-interface PopularToursProps {
-  onPlanSelect?: (planId: string) => void;
-}
-
-export function PopularTours({ onPlanSelect }: PopularToursProps) {
+export function PopularTours() {
   const sightseeingPlans = PLANS.filter(plan => plan.category === "sightseeing");
   const transferPlans = PLANS.filter(plan => plan.category === "transfer");
 
@@ -39,39 +35,50 @@ export function PopularTours({ onPlanSelect }: PopularToursProps) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             viewport={{ once: true }}
-            className="group cursor-pointer"
-            onClick={() => onPlanSelect?.(tour.id)}
+            className="group"
           >
-            <div className="flex flex-col h-full bg-white transition-all duration-300">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
-                <ImageWithFallback
-                  src={tour.image}
-                  alt={tour.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold text-slate-900 leading-tight group-hover:text-vivid-blue transition-colors line-clamp-2">
-                  {tour.title}
-                </h3>
-
-                {/* Price and Duration */}
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex items-center gap-1.5 text-slate-500">
-                    <Clock className="w-4 h-4" />
-                    <span>{tour.duration}</span>
-                  </div>
-                  <div className="w-px h-3 bg-slate-200" />
-                  <div className="font-bold text-vivid-blue">
-                    ¥{tour.price.toLocaleString()}
-                  </div>
+            <Link href={`/tours/${tour.id}`} className="block">
+              <div className="flex flex-col h-full bg-white transition-all duration-300">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
+                  <ImageWithFallback
+                    src={tour.image}
+                    alt={tour.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
                 </div>
 
-                <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mt-1">
-                  {tour.description}
-                </p>
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 leading-tight group-hover:text-vivid-blue transition-colors line-clamp-2">
+                    {tour.title}
+                  </h3>
+
+                  {/* Price and Duration */}
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <Clock className="w-4 h-4" />
+                      <span>{tour.duration}</span>
+                    </div>
+                    <div className="w-px h-3 bg-slate-200" />
+                    <div className="font-bold text-vivid-blue">
+                      ¥{tour.price.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mt-1">
+                    {tour.description}
+                  </p>
+                </div>
               </div>
+            </Link>
+
+            {/* Book Now Button */}
+            <div className="mt-4">
+              <Button asChild variant="outline" size="sm" className="w-full group/btn">
+                <Link href={`/booking?planId=${tour.id}`}>
+                  予約する
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </div>
           </motion.div>
         ))}

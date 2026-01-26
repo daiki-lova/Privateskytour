@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'ヘリフロント | プライベートスカイツアー',
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className="antialiased">
         <Providers>{children}</Providers>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

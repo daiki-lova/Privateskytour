@@ -1,23 +1,21 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Menu, Search, User, X } from "lucide-react";
+import { Menu, User, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
 import { useTranslation } from "@/lib/i18n/TranslationContext";
+import Link from "next/link";
 import logoImageData from "../../assets/logo-header.png";
 
 interface HeaderProps {
-  onLoginClick?: () => void;
-  onLogoClick?: () => void;
-  onNavigate?: (sectionId: string) => void;
   isLoggedIn?: boolean;
   alwaysVisible?: boolean;
 }
 
-export function Header({ onLoginClick, onLogoClick, onNavigate, isLoggedIn = false, alwaysVisible = false }: HeaderProps) {
+export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
@@ -34,15 +32,10 @@ export function Header({ onLoginClick, onLogoClick, onNavigate, isLoggedIn = fal
   const isVisible = alwaysVisible || isScrolled;
 
   const scrollToSection = (sectionId: string) => {
-    if (onNavigate) {
-      onNavigate(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
       setIsMobileMenuOpen(false);
-    } else {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-        setIsMobileMenuOpen(false);
-      }
     }
   };
 
@@ -66,28 +59,23 @@ export function Header({ onLoginClick, onLogoClick, onNavigate, isLoggedIn = fal
         <div className="w-[93%] md:w-[90%] mx-auto">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center cursor-pointer"
-              onClick={() => {
-                if (onLogoClick) {
-                  onLogoClick();
-                } else {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-              }}
-            >
-              <div className="flex-shrink-0">
-                <div className={`h-8 w-auto transition-all duration-300 ${isVisible ? "" : "brightness-0 invert"
-                  }`}>
-                  <ImageWithFallback
-                    src={logoImageData.src}
-                    alt="PRIVATESKY TOUR"
-                    className="h-8 w-auto object-contain"
-                  />
+            <Link href="/">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center cursor-pointer"
+              >
+                <div className="flex-shrink-0">
+                  <div className={`h-8 w-auto transition-all duration-300 ${isVisible ? "" : "brightness-0 invert"
+                    }`}>
+                    <ImageWithFallback
+                      src={logoImageData.src}
+                      alt="PRIVATESKY TOUR"
+                      className="h-8 w-auto object-contain"
+                    />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:block">
@@ -116,15 +104,16 @@ export function Header({ onLoginClick, onLogoClick, onNavigate, isLoggedIn = fal
 
               <div className="w-[1px] h-6 bg-slate-200/20 mx-1"></div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  onClick={onLoginClick}
-                  className="bg-white text-black hover:bg-slate-100 font-bold rounded-full px-6 shadow-md transition-all duration-300 border border-slate-200"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  {isLoggedIn ? t("common.myPage") : t("common.login")}
-                </Button>
-              </motion.div>
+              <Link href={isLoggedIn ? "/mypage" : "/login"}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    className="bg-white text-black hover:bg-slate-100 font-bold rounded-full px-6 shadow-md transition-all duration-300 border border-slate-200"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {isLoggedIn ? t("common.myPage") : t("common.login")}
+                  </Button>
+                </motion.div>
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -179,17 +168,18 @@ export function Header({ onLoginClick, onLogoClick, onNavigate, isLoggedIn = fal
                   </motion.button>
                 ))}
                 <div className="border-t pt-6 mt-4 space-y-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      onLoginClick?.();
-                    }}
-                    className="w-full justify-start text-lg font-medium text-slate-700 hover:text-[#003366]"
+                  <Link
+                    href={isLoggedIn ? "/mypage" : "/login"}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <User className="mr-2 h-5 w-5" />
-                    {isLoggedIn ? t("common.myPage") : t("common.login")}
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-lg font-medium text-slate-700 hover:text-[#003366]"
+                    >
+                      <User className="mr-2 h-5 w-5" />
+                      {isLoggedIn ? t("common.myPage") : t("common.login")}
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

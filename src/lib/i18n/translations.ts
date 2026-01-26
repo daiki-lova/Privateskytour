@@ -17,6 +17,7 @@ export interface Translations {
     faq: string;
     access: string;
     company: string;
+    contact: string;
     terms: string;
     privacy: string;
     legal: string;
@@ -59,6 +60,7 @@ export const translations: Record<Language, Translations> = {
       faq: "よくあるご質問",
       access: "ヘリポート",
       company: "運営会社",
+      contact: "お問い合わせ",
       terms: "利用規約",
       privacy: "プライバシーポリシー",
       legal: "特定商取引法に基づく表記",
@@ -99,6 +101,7 @@ export const translations: Record<Language, Translations> = {
       faq: "FAQ",
       access: "Access",
       company: "Company",
+      contact: "Contact",
       terms: "Terms of Service",
       privacy: "Privacy Policy",
       legal: "Legal Notice",

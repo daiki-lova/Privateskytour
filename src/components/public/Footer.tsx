@@ -1,16 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { Facebook, Twitter, Instagram, Youtube, ArrowUp } from "lucide-react";
-import { motion } from "motion/react";
 import { Button } from "../ui/button";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import logoImageData from "../../assets/logo-footer.png";
 
-export interface FooterProps {
-  onNavigate?: (view: string) => void;
-}
-
-export function Footer({ onNavigate }: FooterProps) {
+export function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -23,10 +19,11 @@ export function Footer({ onNavigate }: FooterProps) {
   ];
 
   const legalLinks = [
-    { name: "運営会社", id: "company" },
-    { name: "プライバシーポリシー", id: "privacy" },
-    { name: "特定商取引法に基づく表記", id: "legal" },
-    { name: "利用規約", id: "terms" }
+    { name: "運営会社", href: "/company" },
+    { name: "プライバシーポリシー", href: "/privacy" },
+    { name: "特定商取引法に基づく表記", href: "/legal" },
+    { name: "利用規約", href: "/terms" },
+    { name: "お問い合わせ", href: "/contact" }
   ];
 
   const socialIcons = [
@@ -36,21 +33,10 @@ export function Footer({ onNavigate }: FooterProps) {
     { icon: <Youtube className="h-5 w-5" />, href: "#" }
   ];
 
-  const handleLinkClick = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    // もし既存のセクションリンクならスクロール
-    if (["plans", "flow", "faq", "access"].includes(id)) {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-      return;
-    }
-
-    // それ以外は親に通知してページ切り替え
-    if (onNavigate) {
-      onNavigate(id);
-      window.scrollTo(0, 0);
+  const handleScrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -94,7 +80,7 @@ export function Footer({ onNavigate }: FooterProps) {
               {navLinks.map((link) => (
                 <li key={link.id}>
                   <button
-                    onClick={(e) => handleLinkClick(e, link.id)}
+                    onClick={() => handleScrollToSection(link.id)}
                     className="text-slate-400 hover:text-white transition-colors text-sm text-left"
                   >
                     {link.name}
@@ -108,14 +94,14 @@ export function Footer({ onNavigate }: FooterProps) {
           <div className="col-span-1 lg:col-span-2">
             <h4 className="font-bold text-white mb-6 text-sm tracking-wider uppercase">Information</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {legalLinks.map((link, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => handleLinkClick(e, link.id)}
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
                   className="text-slate-400 hover:text-white transition-colors text-sm block text-left"
                 >
                   {link.name}
-                </button>
+                </Link>
               ))}
             </div>
             <div className="mt-8 pt-8 border-t border-slate-800">
