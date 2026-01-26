@@ -41,7 +41,16 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
         const res = await fetch(`/api/public/slots/available?date=${dateStr}`);
         const json = await res.json();
         if (json.success) {
-          setAvailableSlots(json.data || []);
+          // Deduplicate by time (multiple course_id can have same time)
+          const slots = json.data || [];
+          const uniqueByTime = slots.reduce((acc: typeof slots, slot: typeof slots[0]) => {
+            const slotTime = slot.slotTime || slot.time || '';
+            if (!acc.find((s: typeof slot) => (s.slotTime || s.time) === slotTime)) {
+              acc.push(slot);
+            }
+            return acc;
+          }, []);
+          setAvailableSlots(uniqueByTime);
         } else {
           console.error("Failed to fetch slots:", json.error);
           setAvailableSlots([]);
@@ -297,6 +306,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                     ) : (
                       availableSlots.map((slot) => {
                         const slotTime = slot.slotTime || slot.time || '';
+                        const displayTime = slotTime.slice(0, 5); // "09:00:00" -> "09:00"
                         const isSelected = time === slotTime;
                         const isFull = (slot.availablePax ?? 0) <= 0;
                         return (
@@ -311,7 +321,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                             )}
                             onClick={() => setTime(slotTime)}
                           >
-                            <span className={isFull ? "line-through opacity-50" : ""}>{slotTime}</span>
+                            <span className={isFull ? "line-through opacity-50" : ""}>{displayTime}</span>
                           </Button>
                         );
                       })
