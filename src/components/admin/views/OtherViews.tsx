@@ -113,7 +113,7 @@ export const CustomersView = () => {
                
                <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
                   <div className="flex gap-1.5">
-                    {c.tags.slice(0, 2).map(t => (
+                    {(c.tags ?? []).slice(0, 2).map(t => (
                        <Badge key={t} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 border-transparent px-1.5 py-0">{t}</Badge>
                     ))}
                   </div>
@@ -165,7 +165,7 @@ export const CustomersView = () => {
                 </TableCell>
                 <TableCell className="pr-6">
                   <div className="flex gap-1 flex-wrap">
-                    {c.tags.map(t => (
+                    {(c.tags ?? []).map(t => (
                       <Badge key={t} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200">{t}</Badge>
                     ))}
                   </div>

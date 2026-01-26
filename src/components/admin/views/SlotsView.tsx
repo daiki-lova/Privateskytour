@@ -190,7 +190,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                        "w-full h-full rounded p-1.5 cursor-pointer transition-all border flex flex-col justify-between gap-1",
                                        slot.status === 'suspended' ? "bg-amber-50 border-amber-200 hover:bg-amber-100" :
                                        slot.status === 'closed' ? "bg-slate-100 border-slate-200 opacity-60 hover:opacity-100" :
-                                       slot.reservations.length > 0 ? "bg-indigo-50 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300" :
+                                       (slot.reservations ?? []).length > 0 ? "bg-indigo-50 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300" :
                                        "bg-white border-slate-200 hover:border-indigo-300 hover:shadow-sm"
                                      )}
                                    >
@@ -198,14 +198,14 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                        <Badge variant="outline" className={cn("text-[9px] px-1 py-0 h-4 border-0",
                                          slot.status === 'suspended' ? "bg-amber-100 text-amber-700" :
                                          slot.status === 'closed' ? "bg-slate-200 text-slate-600" :
-                                         slot.reservations.length > 0 ? "bg-white text-indigo-700 border border-indigo-100 shadow-sm" :
+                                         (slot.reservations ?? []).length > 0 ? "bg-white text-indigo-700 border border-indigo-100 shadow-sm" :
                                          "bg-slate-100 text-slate-500"
                                        )}>
-                                         {slot.status === 'suspended' ? '運休' : slot.status === 'closed' ? '売止' : slot.reservations.length > 0 ? '予約済' : '空き'}
+                                         {slot.status === 'suspended' ? '運休' : slot.status === 'closed' ? '売止' : (slot.reservations ?? []).length > 0 ? '予約済' : '空き'}
                                        </Badge>
                                      </div>
                                      <div className="text-right">
-                                       {slot.reservations.length > 0 ? (
+                                       {(slot.reservations ?? []).length > 0 ? (
                                          <div className="text-[10px] font-bold text-slate-900">
                                            {slot.currentPax}名
                                          </div>
@@ -248,7 +248,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
   const isSuspended = slot.status === 'suspended';
   const isClosed = slot.status === 'closed';
-  const hasReservation = slot.reservations.length > 0;
+  const hasReservation = (slot.reservations ?? []).length > 0;
   
   return (
     <div 
@@ -318,9 +318,9 @@ const SlotDetail = ({ slot, onBack, currentUser }: { slot: Slot, onBack: () => v
   const [suspendReason, setSuspendReason] = useState('weather');
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   
-  const reservations = MOCK_RESERVATIONS.filter(r => slot.reservations.includes(r.id));
+  const reservations = MOCK_RESERVATIONS.filter(r => (slot.reservations ?? []).includes(r.id));
   const isSuspended = slot.status === 'suspended';
-  const hasReservation = slot.reservations.length > 0;
+  const hasReservation = (slot.reservations ?? []).length > 0;
 
   const handleSuspend = () => {
     setIsSuspendModalOpen(false);

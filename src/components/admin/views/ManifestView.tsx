@@ -72,7 +72,7 @@ export const ManifestView = () => {
 
       <div className="space-y-8 print:space-y-6">
         {slots.map(slot => {
-          const reservations = MOCK_RESERVATIONS.filter(r => slot.reservations.includes(r.id));
+          const reservations = MOCK_RESERVATIONS.filter(r => (slot.reservations ?? []).includes(r.id));
           if (reservations.length === 0) return null;
           
           const totalPax = reservations.reduce((acc, r) => acc + r.pax, 0);
@@ -208,7 +208,7 @@ export const ManifestView = () => {
             </div>
           );
         })}
-        {slots.every(s => MOCK_RESERVATIONS.filter(r => s.reservations.includes(r.id)).length === 0) && (
+        {slots.every(s => MOCK_RESERVATIONS.filter(r => (s.reservations ?? []).includes(r.id)).length === 0) && (
             <div className="py-20 text-center text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-lg">
                <p className="text-sm">本日のフライト予約はありません</p>
             </div>
