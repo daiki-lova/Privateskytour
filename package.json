@@ -70,9 +70,11 @@
         "@types/react-dom": "^18.3.5",
         "@vitejs/plugin-react": "^5.1.2",
         "@vitest/coverage-v8": "^4.0.18",
+        "dotenv": "^17.2.3",
         "eslint": "^9.19.0",
         "eslint-config-next": "^15.1.6",
         "jsdom": "^27.4.0",
+        "tsx": "^4.7.0",
         "typescript": "^5.7.3",
         "vitest": "^4.0.18"
     },
@@ -83,6 +85,7 @@
         "lint": "next lint",
         "test": "vitest",
         "test:run": "vitest run",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "seed:slots": "tsx scripts/seed-test-slots.ts"
     }
 }

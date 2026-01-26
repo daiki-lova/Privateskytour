@@ -10,9 +10,7 @@ import { ja } from "date-fns/locale";
 import { Clock, MapPin, Check } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { cn } from "../ui/utils";
-import { TIME_SLOTS } from "./constants";
 import { format } from "date-fns";
-import { getBookedSlots } from "@/lib/supabase";
 import { motion } from "motion/react";
 import type { Course } from "@/lib/data/types";
 
@@ -27,28 +25,35 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
   const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(data.planId);
   const [date, setDate] = useState<Date | undefined>(data.date);
   const [time, setTime] = useState<string>(data.time || "");
-  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<{ id: string; slotTime: string; time?: string; availablePax?: number }[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Fetch booked slots when date changes
+  // Fetch available slots when date changes
   useEffect(() => {
-    async function fetchSlots() {
-      if (date) {
-        setIsLoadingSlots(true);
-        try {
-          const dateStr = format(date, "yyyy-MM-dd");
-          const slots = await getBookedSlots(dateStr);
-          setBookedSlots(slots || []);
-        } catch (error) {
-          console.error("Failed to fetch slots", error);
-        } finally {
-          setIsLoadingSlots(false);
+    async function fetchAvailableSlots() {
+      if (!date) {
+        setAvailableSlots([]);
+        return;
+      }
+      setIsLoadingSlots(true);
+      try {
+        const dateStr = format(date, "yyyy-MM-dd");
+        const res = await fetch(`/api/public/slots/available?date=${dateStr}`);
+        const json = await res.json();
+        if (json.success) {
+          setAvailableSlots(json.data || []);
+        } else {
+          console.error("Failed to fetch slots:", json.error);
+          setAvailableSlots([]);
         }
-      } else {
-        setBookedSlots([]);
+      } catch (error) {
+        console.error("Failed to fetch slots", error);
+        setAvailableSlots([]);
+      } finally {
+        setIsLoadingSlots(false);
       }
     }
-    fetchSlots();
+    fetchAvailableSlots();
   }, [date]);
 
   // Derived state - find course from courses prop
@@ -285,25 +290,32 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                     {isLoadingSlots && <span className="ml-2 text-[10px] text-vivid-blue lowercase">loading...</span>}
                   </Label>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {TIME_SLOTS.map((slot) => {
-                      const isBooked = bookedSlots.includes(slot);
-                      const isSelected = time === slot;
-                      return (
-                        <Button
-                          key={slot}
-                          variant={isSelected ? "default" : "outline"}
-                          disabled={!date || isLoadingSlots || isBooked}
-                          className={cn(
-                            "w-full h-10 text-sm rounded-lg transition-all",
-                            isSelected ? "bg-vivid-blue hover:bg-vivid-blue/90 text-white border-vivid-blue" : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900",
-                            isBooked ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed" : ""
-                          )}
-                          onClick={() => setTime(slot)}
-                        >
-                          <span className={isBooked ? "line-through opacity-50" : ""}>{slot}</span>
-                        </Button>
-                      );
-                    })}
+                    {availableSlots.length === 0 && !isLoadingSlots && date ? (
+                      <div className="col-span-full text-center py-8 text-slate-400 text-sm">
+                        この日に利用可能なスロットはありません
+                      </div>
+                    ) : (
+                      availableSlots.map((slot) => {
+                        const slotTime = slot.slotTime || slot.time || '';
+                        const isSelected = time === slotTime;
+                        const isFull = (slot.availablePax ?? 0) <= 0;
+                        return (
+                          <Button
+                            key={slot.id}
+                            variant={isSelected ? "default" : "outline"}
+                            disabled={!date || isLoadingSlots || isFull}
+                            className={cn(
+                              "w-full h-10 text-sm rounded-lg transition-all",
+                              isSelected ? "bg-vivid-blue hover:bg-vivid-blue/90 text-white border-vivid-blue" : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900",
+                              isFull ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed" : ""
+                            )}
+                            onClick={() => setTime(slotTime)}
+                          >
+                            <span className={isFull ? "line-through opacity-50" : ""}>{slotTime}</span>
+                          </Button>
+                        );
+                      })
+                    )}
                   </div>
                   <p className="text-[10px] text-slate-400 mt-3 text-center">
                     {!date ? "※ まずはフライト日を選択してください" : "※ 1機のみの運航のため、各時間帯1組様限定です。"}

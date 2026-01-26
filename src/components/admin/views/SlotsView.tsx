@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle,
-  Mail, Clock, LayoutGrid, List
+  Mail, Clock, LayoutGrid, List, Plus
 } from 'lucide-react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -13,6 +13,8 @@ import { useSlots } from '@/lib/api/hooks';
 import { suspendSlot } from '@/lib/api/mutations/slots';
 import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -29,6 +31,14 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [viewMode, setViewMode] = useState<'day' | 'week'>('week');
+
+  // スロット一括生成用state
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
+  const [generateStartDate, setGenerateStartDate] = useState('');
+  const [generateEndDate, setGenerateEndDate] = useState('');
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [generateMaxPax, setGenerateMaxPax] = useState(3);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // 週カレンダー用のデータ処理
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 }); // 月曜始まり
@@ -56,6 +66,14 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
     ];
   }, []);
 
+  // スロット生成用の時間帯オプション
+  const ALL_TIME_OPTIONS = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+    '18:00', '18:30', '19:00'
+  ];
+
   const getSlotForDayTime = (date: Date, time: string) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return slots.find(s => (s.slotDate ?? s.date) === dateStr && (s.slotTime ?? s.time) === time);
@@ -68,6 +86,61 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
       setSelectedDate(prev => addDays(prev, amount * 7));
     }
     setSelectedSlot(null);
+  };
+
+  // スロット生成用ハンドラー
+  const handleToggleTime = (time: string) => {
+    setSelectedTimes(prev =>
+      prev.includes(time)
+        ? prev.filter(t => t !== time)
+        : [...prev, time]
+    );
+  };
+
+  const handleSelectAllTimes = () => {
+    setSelectedTimes(ALL_TIME_OPTIONS);
+  };
+
+  const handleDeselectAllTimes = () => {
+    setSelectedTimes([]);
+  };
+
+  const handleGenerateSlots = async () => {
+    if (!generateStartDate || !generateEndDate || selectedTimes.length === 0) {
+      toast.error('開始日、終了日、時間帯を選択してください');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const res = await fetch('/api/admin/slots/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate: generateStartDate,
+          endDate: generateEndDate,
+          times: selectedTimes.sort(),
+          maxPax: generateMaxPax,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        toast.success(`${json.data.created}件のスロットを生成しました`);
+        setIsGenerateDialogOpen(false);
+        setGenerateStartDate('');
+        setGenerateEndDate('');
+        setSelectedTimes([]);
+        mutate(); // SWRの再取得
+      } else {
+        toast.error(json.error || 'スロット生成に失敗しました');
+      }
+    } catch (error) {
+      console.error('Generate slots error:', error);
+      toast.error('スロット生成に失敗しました');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (selectedSlot) {
@@ -117,11 +190,126 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
-        <div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
-          <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+          </div>
+          <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700">
+                <Plus className="w-3.5 h-3.5 mr-1" /> スロット生成
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>スロット一括生成</DialogTitle>
+                <DialogDescription className="text-xs">
+                  指定した期間と時間帯でスロットを一括生成します
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {/* 日付範囲 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">開始日</Label>
+                    <Input
+                      type="date"
+                      value={generateStartDate}
+                      onChange={(e) => setGenerateStartDate(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">終了日</Label>
+                    <Input
+                      type="date"
+                      value={generateEndDate}
+                      onChange={(e) => setGenerateEndDate(e.target.value)}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* 時間帯選択 */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">時間帯</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-[10px] px-2"
+                        onClick={handleSelectAllTimes}
+                      >
+                        全選択
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-[10px] px-2"
+                        onClick={handleDeselectAllTimes}
+                      >
+                        全解除
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 p-3 border rounded-lg bg-slate-50/50">
+                    {ALL_TIME_OPTIONS.map((time) => (
+                      <label
+                        key={time}
+                        className="flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={selectedTimes.includes(time)}
+                          onCheckedChange={() => handleToggleTime(time)}
+                          className="h-3.5 w-3.5"
+                        />
+                        <span className="text-xs font-mono">{time}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    選択中: {selectedTimes.length}件
+                  </p>
+                </div>
+
+                {/* 最大人数 */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">最大搭乗人数</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={generateMaxPax}
+                    onChange={(e) => setGenerateMaxPax(Number(e.target.value))}
+                    className="h-9 text-sm w-24"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsGenerateDialogOpen(false)}
+                  className="h-8 text-xs"
+                  disabled={isGenerating}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  onClick={handleGenerateSlots}
+                  className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
+                  disabled={isGenerating || !generateStartDate || !generateEndDate || selectedTimes.length === 0}
+                >
+                  {isGenerating ? '生成中...' : `${selectedTimes.length}件の時間帯で生成`}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
-        
+
         <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 w-full sm:w-auto">
            <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 flex-1 xs:flex-none">
             <button
