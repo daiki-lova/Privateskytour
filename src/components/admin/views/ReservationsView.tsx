@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { 
-  Search, Filter, ArrowLeft, Download, Mail, Ban, 
-  RefreshCcw, ShieldAlert, CheckCircle2, XCircle, AlertCircle, 
+import {
+  Search, Filter, ArrowLeft, Download, Mail, Ban,
+  RefreshCcw, CheckCircle2, XCircle, AlertCircle,
   ExternalLink, MoreHorizontal, CalendarDays, ArrowUpDown, Plus
 } from 'lucide-react';
-import { Reservation, User, Course } from '@/lib/data/types';
-import { MOCK_RESERVATIONS, MOCK_COURSES } from '@/lib/data/mockData';
+import { Reservation, User, ReservationStatus } from '@/lib/data/types';
+import { useReservations, useCourses } from '@/lib/api/hooks';
+import { updateReservation, cancelReservation } from '@/lib/api/mutations/reservations';
+import { TableSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/components/ui/utils";
 import { toast } from "sonner";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+// Note: DropdownMenu reserved for future context menu implementation
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -34,7 +36,10 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false);
-  
+  const [page, _setPage] = useState(1);
+  const [pageSize] = useState(50);
+  // Note: _setPage reserved for future pagination UI implementation
+
   // 新規予約フォーム用のstate
   const [newReservation, setNewReservation] = useState({
     customerName: '',
@@ -50,11 +55,24 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
   const [selectedMonth, setSelectedMonth] = useState<string>((new Date().getMonth() + 1).toString());
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
+  // SWR フックでデータ取得
+  const { data: reservationsData, error: reservationsError, isLoading: reservationsLoading, mutate } = useReservations({
+    page,
+    pageSize,
+    status: filterStatus !== 'all' ? filterStatus : undefined,
+  });
+
+  const { data: coursesData } = useCourses();
+
+  const reservations = reservationsData?.data ?? [];
+  const courses = coursesData?.data ?? [];
+  const totalCount = reservationsData?.pagination?.total ?? 0;
+
   // 予約データから利用可能な「年」のリストを抽出
   const availableYears = useMemo(() => {
-    const years = new Set(MOCK_RESERVATIONS.map(res => res.date.split('-')[0]));
+    const years = new Set(reservations.map(res => res.date?.split('-')[0] ?? new Date().getFullYear().toString()));
     return Array.from(years).sort().reverse();
-  }, []);
+  }, [reservations]);
 
   const handleCreateReservation = () => {
     // 簡易バリデーション
@@ -79,13 +97,49 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
     });
   };
 
-  // フィルタリングとソートのロジック
+  // ステータス更新ハンドラ（オプティミスティック更新）
+  const handleStatusChange = async (id: string, newStatus: ReservationStatus) => {
+    // オプティミスティック更新用のデータを作成
+    const optimisticData = reservationsData ? {
+      ...reservationsData,
+      data: reservationsData.data?.map(r =>
+        r.id === id ? { ...r, status: newStatus } : r
+      ) ?? [],
+    } : undefined;
+
+    try {
+      await mutate(
+        async () => {
+          await updateReservation(id, { status: newStatus });
+          return reservationsData; // 再フェッチで上書きされる
+        },
+        {
+          optimisticData,
+          rollbackOnError: true,
+          revalidate: true,
+        }
+      );
+      toast.success('ステータスを更新しました');
+    } catch (_err) {
+      toast.error('更新に失敗しました');
+    }
+  };
+
+  // キャンセルハンドラ
+  const handleCancel = async (id: string) => {
+    try {
+      await cancelReservation(id);
+      toast.success('予約をキャンセルしました');
+      mutate();
+    } catch (_err) {
+      toast.error('キャンセルに失敗しました');
+    }
+  };
+
+  // フィルタリングとソートのロジック（クライアントサイド検索を維持）
   const filteredReservations = useMemo(() => {
-    let result = MOCK_RESERVATIONS.filter(res => {
-      // ステータスフィルタ
-      if (filterStatus !== 'all' && res.status !== filterStatus) return false;
-      
-      // テキスト検索
+    let result = reservations.filter(res => {
+      // テキスト検索（クライアントサイド）
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesSearch = (
@@ -96,8 +150,9 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
         if (!matchesSearch) return false;
       }
 
-      // 年月フィルタ
-      const [year, month] = res.date.split('-');
+      // 年月フィルタ（クライアントサイド）
+      const dateParts = res.date?.split('-') ?? [];
+      const [year, month] = dateParts;
       if (selectedYear !== 'all' && year !== selectedYear) return false;
       if (selectedMonth !== 'all' && parseInt(month).toString() !== selectedMonth) return false;
 
@@ -108,20 +163,58 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
     result.sort((a, b) => {
       const dateA = new Date(`${a.date}T${a.time}`);
       const dateB = new Date(`${b.date}T${b.time}`);
-      return sortOrder === 'asc' 
-        ? dateA.getTime() - dateB.getTime() 
+      return sortOrder === 'asc'
+        ? dateA.getTime() - dateB.getTime()
         : dateB.getTime() - dateA.getTime();
     });
 
     return result;
-  }, [filterStatus, searchQuery, selectedYear, selectedMonth, sortOrder]);
+  }, [reservations, searchQuery, selectedYear, selectedMonth, sortOrder]);
+
+  // ローディング状態
+  if (reservationsLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">予約管理</h1>
+            <p className="text-xs text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
+          </div>
+        </div>
+        <Card className="shadow-sm border-slate-200 bg-white overflow-hidden">
+          <TableSkeleton rows={10} columns={7} />
+        </Card>
+      </div>
+    );
+  }
+
+  // エラー状態
+  if (reservationsError) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">予約管理</h1>
+            <p className="text-xs text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message={reservationsError.message ?? 'データの取得に失敗しました'}
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
 
   if (selectedRes) {
     return (
-      <ReservationDetail 
-        reservation={selectedRes} 
-        onBack={() => setSelectedRes(null)} 
+      <ReservationDetail
+        reservation={selectedRes}
+        onBack={() => setSelectedRes(null)}
         currentUser={currentUser}
+        onStatusChange={handleStatusChange}
+        onCancel={handleCancel}
+        mutate={mutate}
       />
     );
   }
@@ -196,7 +289,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                           <SelectValue placeholder="プランを選択" />
                         </SelectTrigger>
                         <SelectContent>
-                          {MOCK_COURSES.map(course => (
+                          {courses.map(course => (
                             <SelectItem key={course.id} value={course.id} className="text-xs">
                               {course.title} (¥{course.price.toLocaleString()})
                             </SelectItem>
@@ -322,9 +415,9 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
             
             <div className="lg:col-span-4 flex justify-end">
               <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
-                <span className="font-medium">合計:</span>
+                <span className="font-medium">表示:</span>
                 <span className="font-mono font-bold text-indigo-600 text-sm">{filteredReservations.length}</span>
-                <span className="font-medium">件</span>
+                <span className="font-medium">/ {totalCount}件</span>
               </div>
             </div>
           </div>
@@ -517,9 +610,18 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
 };
 
 // 詳細ビューコンポーネント
-const ReservationDetail = ({ reservation, onBack, currentUser }: { reservation: Reservation, onBack: () => void, currentUser: User }) => {
+interface ReservationDetailProps {
+  reservation: Reservation;
+  onBack: () => void;
+  currentUser: User;
+  onStatusChange: (id: string, status: ReservationStatus) => Promise<void>;
+  onCancel: (id: string) => Promise<void>;
+  mutate: () => void;
+}
+
+const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _onStatusChange, onCancel, mutate }: ReservationDetailProps) => {
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
-  const [refundAmount, setRefundAmount] = useState(reservation.price);
+  const [_refundAmount, _setRefundAmount] = useState(reservation.price);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const canRefund = currentUser.role === 'admin' && reservation.paymentStatus === 'paid' && reservation.price > 0;
@@ -530,6 +632,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser }: { reservation: 
     setIsProcessing(false);
     setIsRefundModalOpen(false);
     toast.success("返金処理が完了しました。お客様への着金には数日かかる場合があります。");
+    mutate(); // リストを再取得
   };
 
   return (
@@ -682,8 +785,13 @@ const ReservationDetail = ({ reservation, onBack, currentUser }: { reservation: 
                <Button variant="outline" className="w-full justify-start h-10 text-xs border-slate-200 bg-white hover:bg-slate-50">
                   <Mail className="w-3.5 h-3.5 mr-2 text-slate-400" /> 予約確認メール再送
                </Button>
-               <Button variant="outline" className="w-full justify-start h-10 text-xs border-slate-200 text-red-600 bg-white hover:text-red-700 hover:bg-red-50">
-                  <Ban className="w-3.5 h-3.5 mr-2" /> 予約キャンセル
+               <Button
+                 variant="outline"
+                 className="w-full justify-start h-10 text-xs border-slate-200 text-red-600 bg-white hover:text-red-700 hover:bg-red-50"
+                 onClick={() => onCancel(reservation.id)}
+                 disabled={reservation.status === 'cancelled'}
+               >
+                  <Ban className="w-3.5 h-3.5 mr-2" /> {reservation.status === 'cancelled' ? 'キャンセル済み' : '予約キャンセル'}
                </Button>
                
                {currentUser.role === 'admin' && (

@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Users, Search, RefreshCcw, Activity, Settings, 
+import {
+  Users, Search, RefreshCcw, Activity, Settings,
   CheckCircle2, AlertCircle, XCircle, RotateCcw, Save,
   CreditCard, History, FileText, Phone, Mail, MapPin, Tag,
   ExternalLink, ChevronRight, Copy, Terminal, Sun, Moon
 } from 'lucide-react';
-import { User, LogEntry, Customer, Reservation } from '@/lib/data/types';
-import { MOCK_CUSTOMERS, MOCK_LOGS, MOCK_RESERVATIONS } from '@/lib/data/mockData';
+import { User, AuditLog, Customer, Reservation } from '@/lib/data/types';
+import { MOCK_RESERVATIONS } from '@/lib/data/mockData';
+import { useCustomers, useLogs } from '@/lib/api/hooks';
+import { TableSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -33,10 +35,19 @@ import { toast } from "sonner";
 
 // --- Customers View ---
 export const CustomersView = () => {
-  const [customers, setCustomers] = useState<Customer[]>(MOCK_CUSTOMERS);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Customer | null>(null);
+
+  const { data, error, isLoading, mutate } = useCustomers({
+    page,
+    pageSize: 20,
+    search: searchTerm || undefined,
+  });
+
+  const customers = data?.data ?? [];
 
   // 顧客の予約履歴を取得
   const getCustomerHistory = (email: string) => {
@@ -71,6 +82,23 @@ export const CustomersView = () => {
     }
   };
 
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">顧客管理</h1>
+            <p className="text-xs text-slate-500">顧客情報の検索・編集・予約履歴の確認</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message="顧客データの取得に失敗しました"
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -79,15 +107,27 @@ export const CustomersView = () => {
           <p className="text-xs text-slate-500">顧客情報の検索・編集・予約履歴の確認</p>
         </div>
       </div>
-      
+
       <Card className="shadow-sm border-slate-200 bg-white overflow-hidden">
         <div className="py-4 px-4 sm:px-6 border-b border-slate-100 bg-slate-50/30">
            <div className="relative max-w-sm">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <Input placeholder="検索..." className="pl-9 h-9 text-xs border-slate-200" />
+              <Input
+                placeholder="検索..."
+                className="pl-9 h-9 text-xs border-slate-200"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+              />
             </div>
         </div>
-        
+
+        {isLoading ? (
+          <TableSkeleton rows={5} columns={5} />
+        ) : (
+          <>
         {/* モバイル用カードリスト */}
          <div className="md:hidden divide-y divide-slate-100">
            {customers.map(c => (
@@ -175,6 +215,8 @@ export const CustomersView = () => {
           </TableBody>
         </Table>
         </div>
+          </>
+        )}
       </Card>
 
       <Sheet open={!!selectedCustomer} onOpenChange={handleSheetOpenChange}>
@@ -485,7 +527,80 @@ export const RefundsView = () => {
 
 // --- Logs View ---
 export const LogsView = () => {
-  const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+  const [page, setPage] = useState(1);
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+
+  const { data, error, isLoading, mutate } = useLogs({
+    page,
+    pageSize: 50,
+  });
+
+  const logs = data?.data ?? [];
+
+  // Helper to get status icon
+  const getStatusIcon = (status: AuditLog['status']) => {
+    switch (status) {
+      case 'success':
+        return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
+      case 'failure':
+        return <XCircle className="w-4 h-4 text-red-600" />;
+      case 'warning':
+        return <AlertCircle className="w-4 h-4 text-amber-600" />;
+      case 'info':
+        return <AlertCircle className="w-4 h-4 text-blue-600" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-slate-400" />;
+    }
+  };
+
+  // Helper to get status display
+  const getStatusDisplay = (status: AuditLog['status']) => {
+    switch (status) {
+      case 'success':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Success
+          </div>
+        );
+      case 'failure':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-red-600 font-medium">
+            <XCircle className="w-3.5 h-3.5" /> Failure
+          </div>
+        );
+      case 'warning':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium">
+            <AlertCircle className="w-3.5 h-3.5" /> Warning
+          </div>
+        );
+      case 'info':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-blue-600 font-medium">
+            <AlertCircle className="w-3.5 h-3.5" /> Info
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">連携・ログ</h1>
+            <p className="text-sm text-slate-500">システム連携ログと操作履歴</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message="ログデータの取得に失敗しました"
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -494,7 +609,7 @@ export const LogsView = () => {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">連携・ログ</h1>
           <p className="text-sm text-slate-500">システム連携ログと操作履歴</p>
         </div>
-        <Button variant="outline" size="sm" className="h-9 text-xs">
+        <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => mutate()}>
           <RefreshCcw className="w-3.5 h-3.5 mr-2" /> ログ更新
         </Button>
       </div>
@@ -508,35 +623,33 @@ export const LogsView = () => {
         </TabsList>
         <TabsContent value="all">
           <Card>
+            {isLoading ? (
+              <TableSkeleton rows={10} columns={5} />
+            ) : (
+              <>
             {/* モバイル用カードリスト */}
             <div className="md:hidden divide-y divide-slate-100">
-              {MOCK_LOGS.map(log => (
-                <div 
-                  key={log.id} 
+              {logs.map(log => (
+                <div
+                  key={log.id}
                   className="p-4 active:bg-slate-50 transition-colors"
                   onClick={() => setSelectedLog(log)}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
-                      {log.status === 'success' ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      ) : log.status === 'failure' ? (
-                        <XCircle className="w-4 h-4 text-red-600" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 text-amber-600" />
-                      )}
+                      {getStatusIcon(log.status)}
                       <span className="font-bold text-xs text-slate-900">{log.action}</span>
                     </div>
-                    <span className="font-mono text-[10px] text-slate-400">{log.timestamp}</span>
+                    <span className="font-mono text-[10px] text-slate-400">{log.createdAt}</span>
                   </div>
-                  
+
                   <div className="text-xs text-slate-600 line-clamp-2 mb-2">
-                     {log.message}
+                     {log.message || '-'}
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal bg-slate-50 border-slate-200 text-slate-500">
-                      {log.type.toUpperCase()}
+                      {log.logType.toUpperCase()}
                     </Badge>
                   </div>
                 </div>
@@ -556,35 +669,23 @@ export const LogsView = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {MOCK_LOGS.map(log => (
-                  <TableRow 
-                    key={log.id} 
+                {logs.map(log => (
+                  <TableRow
+                    key={log.id}
                     className="cursor-pointer hover:bg-slate-50"
                     onClick={() => setSelectedLog(log)}
                   >
-                    <TableCell className="font-mono text-xs text-slate-500 pl-6">{log.timestamp}</TableCell>
+                    <TableCell className="font-mono text-xs text-slate-500 pl-6">{log.createdAt}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-[10px] font-normal text-slate-500 bg-slate-50">
-                        {log.type.toUpperCase()}
+                        {log.logType.toUpperCase()}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium text-xs text-slate-700">{log.action}</TableCell>
                     <TableCell>
-                      {log.status === 'success' ? (
-                        <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Success
-                        </div>
-                      ) : log.status === 'failure' ? (
-                        <div className="flex items-center gap-1.5 text-xs text-red-600 font-medium">
-                          <XCircle className="w-3.5 h-3.5" /> Failure
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium">
-                          <AlertCircle className="w-3.5 h-3.5" /> Warning
-                        </div>
-                      )}
+                      {getStatusDisplay(log.status)}
                     </TableCell>
-                    <TableCell className="text-xs text-slate-600 truncate max-w-[300px]">{log.message}</TableCell>
+                    <TableCell className="text-xs text-slate-600 truncate max-w-[300px]">{log.message || '-'}</TableCell>
                     <TableCell className="pr-6 text-right">
                       <ChevronRight className="w-4 h-4 text-slate-300 inline-block" />
                     </TableCell>
@@ -593,6 +694,8 @@ export const LogsView = () => {
               </TableBody>
             </Table>
             </div>
+              </>
+            )}
           </Card>
         </TabsContent>
       </Tabs>
@@ -611,6 +714,10 @@ export const LogsView = () => {
                       <div className="p-2 bg-red-100 rounded-full">
                         <XCircle className="w-5 h-5 text-red-600" />
                       </div>
+                    ) : selectedLog.status === 'info' ? (
+                      <div className="p-2 bg-blue-100 rounded-full">
+                        <AlertCircle className="w-5 h-5 text-blue-600" />
+                      </div>
                     ) : (
                       <div className="p-2 bg-amber-100 rounded-full">
                          <AlertCircle className="w-5 h-5 text-amber-600" />
@@ -624,15 +731,15 @@ export const LogsView = () => {
               </SheetHeader>
               <div className="flex-1 overflow-y-auto">
                 <div className="p-6 space-y-6">
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs text-slate-500 uppercase tracking-wider">Type</Label>
-                      <div className="font-medium text-sm text-slate-900">{selectedLog.type.toUpperCase()}</div>
+                      <div className="font-medium text-sm text-slate-900">{selectedLog.logType.toUpperCase()}</div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs text-slate-500 uppercase tracking-wider">Timestamp</Label>
-                      <div className="font-mono text-sm text-slate-900">{selectedLog.timestamp}</div>
+                      <div className="font-mono text-sm text-slate-900">{selectedLog.createdAt}</div>
                     </div>
                   </div>
 
@@ -642,11 +749,11 @@ export const LogsView = () => {
                       "p-3 rounded-md text-sm border",
                       selectedLog.status === 'failure' ? "bg-red-50 border-red-100 text-red-700" : "bg-slate-50 border-slate-100 text-slate-700"
                     )}>
-                      {selectedLog.message}
+                      {selectedLog.message || '-'}
                     </div>
                   </div>
 
-                  {/* Mock Payload Data */}
+                  {/* Payload Data from metadata */}
                   <div className="space-y-2">
                     <Label className="text-xs text-slate-500 uppercase tracking-wider flex items-center gap-2">
                       <Terminal className="w-3.5 h-3.5" /> Request Payload
@@ -654,8 +761,10 @@ export const LogsView = () => {
                     <div className="bg-slate-950 text-slate-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
                       <pre>{JSON.stringify({
                         resource: selectedLog.action.split(' ')[0],
-                        timestamp: new Date().toISOString(),
-                        params: { id: "req_123456789", user: "admin" }
+                        timestamp: selectedLog.createdAt,
+                        targetTable: selectedLog.targetTable,
+                        targetId: selectedLog.targetId,
+                        user: selectedLog.userEmail || 'system'
                       }, null, 2)}</pre>
                     </div>
                   </div>
@@ -666,16 +775,17 @@ export const LogsView = () => {
                     </Label>
                     <div className="bg-slate-950 text-slate-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
                       <pre>{JSON.stringify({
-                         status: selectedLog.status === 'success' ? 200 : 500,
+                         status: selectedLog.status === 'success' ? 200 : selectedLog.status === 'failure' ? 500 : 200,
                          message: selectedLog.message,
-                         data: { id: "res_987654321", processed: true }
+                         oldValues: selectedLog.oldValues,
+                         newValues: selectedLog.newValues
                       }, null, 2)}</pre>
                     </div>
                   </div>
 
                 </div>
               </div>
-              
+
               <div className="p-4 border-t bg-slate-50 flex justify-end gap-2">
                 <Button variant="outline" size="sm" className="h-8 text-xs bg-white">
                   <Copy className="w-3.5 h-3.5 mr-2" /> JSONをコピー

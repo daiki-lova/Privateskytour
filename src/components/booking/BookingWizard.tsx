@@ -7,8 +7,11 @@ import { Check, ArrowLeft, Home } from "lucide-react";
 import { Step1PlanSelection } from "./Step1PlanSelection";
 import { Step2PassengerDetails } from "./Step2PassengerDetails";
 import { Step3Confirmation } from "./Step3Confirmation";
-import { Header } from "../public/Header";
-import { Footer } from "../public/Footer";
+import type { Course } from "@/lib/data/types";
+
+export type Guest = {
+  name: string;
+};
 
 export type BookingData = {
   planId?: string;
@@ -18,6 +21,7 @@ export type BookingData = {
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
+  guests?: Guest[];
   requestTransfer?: boolean;
   pickupAddress?: string;
   dropoffAddress?: string;
@@ -25,15 +29,26 @@ export type BookingData = {
   notes?: string;
 };
 
-export function BookingWizard({ onClose, initialData }: { onClose: () => void; initialData?: BookingData }) {
+interface BookingWizardProps {
+  courses: Course[];
+  initialPlanId?: string;
+}
+
+export function BookingWizard({ courses, initialPlanId }: BookingWizardProps) {
   const [step, setStep] = useState(1);
-  const [bookingData, setBookingData] = useState<BookingData>(initialData || {});
+  const [bookingData, setBookingData] = useState<BookingData>(
+    initialPlanId ? { planId: initialPlanId } : {}
+  );
+
+  const handleGoHome = () => {
+    window.location.href = "/";
+  };
 
   const nextStep = () => {
     setStep((s) => s + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
+
   const prevStep = () => {
     setStep((s) => s - 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -44,14 +59,12 @@ export function BookingWizard({ onClose, initialData }: { onClose: () => void; i
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Header />
-      
-      <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50">
+      <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header of Wizard */}
           <div className="flex items-center justify-between mb-12">
-            <Button variant="ghost" onClick={step === 1 ? onClose : prevStep} className="hover:bg-slate-200">
+            <Button variant="ghost" onClick={step === 1 ? handleGoHome : prevStep} className="hover:bg-slate-200">
               {step === 1 ? <Home className="mr-2 h-4 w-4" /> : <ArrowLeft className="mr-2 h-4 w-4" />}
               {step === 1 ? "トップへ戻る" : "前へ"}
             </Button>
@@ -77,10 +90,11 @@ export function BookingWizard({ onClose, initialData }: { onClose: () => void; i
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Step1PlanSelection 
-                  data={bookingData} 
-                  updateData={updateData} 
-                  onNext={nextStep} 
+                <Step1PlanSelection
+                  courses={courses}
+                  data={bookingData}
+                  updateData={updateData}
+                  onNext={nextStep}
                 />
               </motion.div>
             )}
@@ -107,17 +121,16 @@ export function BookingWizard({ onClose, initialData }: { onClose: () => void; i
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Step3Confirmation 
-                  data={bookingData} 
-                  onClose={onClose}
+                <Step3Confirmation
+                  courses={courses}
+                  data={bookingData}
+                  onClose={handleGoHome}
                 />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 }

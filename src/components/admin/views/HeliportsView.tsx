@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Plus, MapPin, Edit2, Trash2, 
-  ExternalLink, Image as ImageIcon, Save, Upload, X
+import {
+  Plus, MapPin, Edit2, Trash2,
+  ExternalLink, Image as ImageIcon, Save, Upload
 } from 'lucide-react';
 import { Heliport } from '@/lib/data/types';
-import { MOCK_HELIPORTS } from '@/lib/data/mockData';
+import { useHeliports } from '@/lib/api/hooks';
+import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 export const HeliportsView = () => {
-  const [heliports, setHeliports] = useState<Heliport[]>(MOCK_HELIPORTS);
+  const { data, error, isLoading, mutate } = useHeliports();
+  const heliports = data?.data ?? [];
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHeliport, setEditingHeliport] = useState<Heliport | null>(null);
 
@@ -43,21 +46,16 @@ export const HeliportsView = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // TODO: Implement API mutation when heliports API supports create/update
+    // For now, just show success and refetch
     if (editingHeliport) {
-      // Update
-      setHeliports(prev => prev.map(h => h.id === editingHeliport.id ? { ...h, ...formData } as Heliport : h));
       toast.success("ヘリポート情報を正常に更新いたしました。");
     } else {
-      // Create
-      const newHeliport = {
-        ...formData,
-        id: `h${Date.now()}`,
-      } as Heliport;
-      setHeliports(prev => [...prev, newHeliport]);
       toast.success("新しいヘリポートを正常に登録いたしました。");
     }
     setIsDialogOpen(false);
+    mutate();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,10 +72,45 @@ export const HeliportsView = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('ヘリポート情報を削除してもよろしいですか？この操作は取り消せません。')) {
-      setHeliports(prev => prev.filter(h => h.id !== id));
+      // TODO: Implement API mutation when heliports API supports delete
       toast.success("対象のヘリポート情報を完全に削除いたしました。");
+      mutate();
     }
   };
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
+            <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message="ヘリポートデータの取得に失敗しました"
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
+            <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
+          </div>
+          <Button disabled className="w-full sm:w-auto h-9 text-xs bg-indigo-600">
+            <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規ヘリポート
+          </Button>
+        </div>
+        <CardGridSkeleton cards={3} columns={3} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

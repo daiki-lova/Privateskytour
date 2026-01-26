@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -18,6 +19,7 @@ interface LoginFormData {
 
 export function LoginView() {
   const auth = useAuth();
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -34,7 +36,12 @@ export function LoginView() {
   const onSubmit = async (data: LoginFormData) => {
     setError(null);
     try {
-      await auth.login(data.email, data.password);
+      const result = await auth.login(data.email, data.password);
+      if (result.success) {
+        router.push('/admin/dashboard');
+      } else {
+        setError(result.error ?? "ログインに失敗しました。");
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  Plus, Edit2, Trash2, Image as ImageIcon, 
+import {
+  Plus, Edit2, Trash2, Image as ImageIcon,
   Clock, Users, MapPin, Tag, X, ChevronRight, Save, Upload
 } from 'lucide-react';
 import { Course, Heliport } from '@/lib/data/types';
-import { MOCK_COURSES, MOCK_HELIPORTS } from '@/lib/data/mockData';
+import { useCourses, useHeliports } from '@/lib/api/hooks';
+import { createCourse, updateCourse, deleteCourse, CreateCourseInput, UpdateCourseInput } from '@/lib/api/mutations/courses';
+import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -16,14 +18,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 
 export const CoursesView = () => {
-  const [courses, setCourses] = useState<Course[]>(MOCK_COURSES);
+  const { data, error, isLoading, mutate } = useCourses();
+  const { data: heliportsData } = useHeliports();
+  const courses = data?.data ?? [];
+  const heliports = heliportsData?.data ?? [];
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  
+  const [isSaving, setIsSaving] = useState(false);
+
   const [formData, setFormData] = useState<Partial<Course>>({});
 
   const handleOpenDialog = (course?: Course) => {
@@ -36,7 +41,7 @@ export const CoursesView = () => {
         title: '',
         subtitle: '',
         description: '',
-        duration: 0,
+        durationMinutes: 0,
         price: 0,
         maxPax: 3,
         heliportId: '',
@@ -48,27 +53,68 @@ export const CoursesView = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (editingCourse) {
-      setCourses(prev => prev.map(c => c.id === editingCourse.id ? { ...c, ...formData } as Course : c));
-      toast.success("コース情報を正常に更新いたしました。");
-    } else {
-      const newCourse = {
-        ...formData,
-        id: `c${Date.now()}`,
-      } as Course;
-      setCourses(prev => [...prev, newCourse]);
-      toast.success("新しいコースを正常に作成いたしました。");
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (editingCourse) {
+        const updateData: UpdateCourseInput = {
+          name: formData.title,
+          description: formData.description,
+          durationMinutes: formData.durationMinutes ?? formData.duration,
+          basePrice: formData.price,
+          maxPassengers: formData.maxPax,
+          isActive: formData.isActive,
+        };
+        await updateCourse(editingCourse.id, updateData);
+        toast.success("コース情報を正常に更新いたしました。");
+      } else {
+        if (!formData.title || !formData.heliportId) {
+          toast.error("コース名と出発ヘリポートは必須です。");
+          setIsSaving(false);
+          return;
+        }
+        const createData: CreateCourseInput = {
+          name: formData.title,
+          description: formData.description,
+          durationMinutes: formData.durationMinutes ?? formData.duration ?? 0,
+          basePrice: formData.price ?? 0,
+          maxPassengers: formData.maxPax ?? 3,
+          heliportId: formData.heliportId,
+          isActive: true,
+        };
+        await createCourse(createData);
+        toast.success("新しいコースを正常に作成いたしました。");
+      }
+      mutate();
+      setIsDialogOpen(false);
+    } catch (err) {
+      toast.error(editingCourse ? "更新に失敗しました。" : "作成に失敗しました。");
+    } finally {
+      setIsSaving(false);
     }
-    setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('このコースを削除してもよろしいですか？関連する予約がある場合はご注意ください。')) {
-      setCourses(prev => prev.filter(c => c.id !== id));
-      toast.success("コース情報を削除いたしました。");
+      try {
+        await deleteCourse(id);
+        toast.success("コース情報を削除いたしました。");
+        mutate();
+      } catch (err) {
+        toast.error("削除に失敗しました。");
+      }
     }
   };
+
+  if (isLoading) {
+    return <CardGridSkeleton cards={8} columns={4} />;
+  }
+
+  if (error) {
+    return <ErrorAlert message={error.message} onRetry={() => mutate()} />;
+  }
 
   return (
     <div className="space-y-4">
@@ -84,30 +130,34 @@ export const CoursesView = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {courses.map(course => (
-          <CourseCard 
-            key={course.id} 
-            course={course} 
+          <CourseCard
+            key={course.id}
+            course={course}
+            heliports={heliports}
             onEdit={() => handleOpenDialog(course)}
             onDelete={() => handleDelete(course.id)}
           />
         ))}
       </div>
 
-      <CourseEditDialog 
-        open={isDialogOpen} 
+      <CourseEditDialog
+        open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         formData={formData}
         setFormData={setFormData}
         isEditing={!!editingCourse}
+        isSaving={isSaving}
+        heliports={heliports}
         onSave={handleSave}
       />
     </div>
   );
 };
 
-const CourseCard = ({ course, onEdit, onDelete }: { course: Course, onEdit: () => void, onDelete: () => void }) => {
+const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, heliports: Heliport[], onEdit: () => void, onDelete: () => void }) => {
   const mainImage = course.images && course.images.length > 0 ? course.images[0] : null;
-  const heliportName = MOCK_HELIPORTS.find(h => h.id === course.heliportId)?.name || '未設定';
+  const heliportName = heliports.find(h => h.id === course.heliportId)?.name || course.heliport?.name || '未設定';
+  const duration = course.durationMinutes ?? course.duration ?? 0;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden group hover:border-indigo-300 transition-colors shadow-sm bg-white">
@@ -142,7 +192,7 @@ const CourseCard = ({ course, onEdit, onDelete }: { course: Course, onEdit: () =
         <div className="flex justify-between items-start gap-2">
           <h3 className="text-sm font-bold text-slate-900 line-clamp-1 leading-tight">{course.title}</h3>
           <span className="text-[10px] font-mono font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
-            {course.duration}min
+            {duration}min
           </span>
         </div>
         <p className="text-[10px] text-slate-500 line-clamp-1">{course.subtitle || 'No subtitle'}</p>
@@ -169,14 +219,16 @@ const CourseCard = ({ course, onEdit, onDelete }: { course: Course, onEdit: () =
   );
 };
 
-const CourseEditDialog = ({ 
-  open, onOpenChange, formData, setFormData, isEditing, onSave 
-}: { 
+const CourseEditDialog = ({
+  open, onOpenChange, formData, setFormData, isEditing, isSaving, heliports, onSave
+}: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   formData: Partial<Course>;
   setFormData: React.Dispatch<React.SetStateAction<Partial<Course>>>;
   isEditing: boolean;
+  isSaving: boolean;
+  heliports: Heliport[];
   onSave: () => void;
 }) => {
   
@@ -247,10 +299,10 @@ const CourseEditDialog = ({
                   <div className="space-y-1">
                     <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">所要時間 (分)</Label>
                     <div className="relative">
-                      <Input 
+                      <Input
                         type="number"
-                        value={formData.duration || ''} 
-                        onChange={e => setFormData({...formData, duration: Number(e.target.value)})} 
+                        value={formData.durationMinutes ?? formData.duration ?? ''}
+                        onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})}
                         className="h-8 text-sm pr-8 font-mono"
                       />
                       <span className="absolute right-3 top-2 text-[10px] text-slate-400">min</span>
@@ -293,7 +345,7 @@ const CourseEditDialog = ({
                       <SelectValue placeholder="選択してください" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MOCK_HELIPORTS.map(h => (
+                      {heliports.map(h => (
                         <SelectItem key={h.id} value={h.id} className="text-xs">{h.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -469,9 +521,9 @@ const CourseEditDialog = ({
         </div>
         
         <DialogFooter className="p-4 border-t bg-white">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">キャンセル</Button>
-          <Button onClick={onSave} className="h-8 text-xs min-w-[100px] gap-2">
-            <Save className="w-3.5 h-3.5" /> 保存する
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} className="h-8 text-xs">キャンセル</Button>
+          <Button onClick={onSave} disabled={isSaving} className="h-8 text-xs min-w-[100px] gap-2">
+            <Save className="w-3.5 h-3.5" /> {isSaving ? '保存中...' : '保存する'}
           </Button>
         </DialogFooter>
       </DialogContent>

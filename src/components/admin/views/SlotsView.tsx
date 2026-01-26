@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { 
-  Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle, 
-  Mail, Clock, LayoutGrid, List, Users
+import {
+  Calendar as CalendarIcon, ChevronLeft, ChevronRight, AlertTriangle,
+  Mail, Clock, LayoutGrid, List
 } from 'lucide-react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { Slot, User } from '@/lib/data/types';
-import { MOCK_SLOTS, MOCK_RESERVATIONS, MOCK_TEMPLATES } from '@/lib/data/mockData';
+import { MOCK_RESERVATIONS, MOCK_TEMPLATES } from '@/lib/data/mockData';
+import { useSlots } from '@/lib/api/hooks';
+import { suspendSlot } from '@/lib/api/mutations/slots';
+import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,16 +26,25 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 
 export const SlotsView = ({ currentUser }: { currentUser: User }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date('2025-12-25'));
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [viewMode, setViewMode] = useState<'day' | 'week'>('week');
-
-  const todaysSlots = MOCK_SLOTS.filter(s => s.date === format(selectedDate, 'yyyy-MM-dd'));
 
   // 週カレンダー用のデータ処理
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 }); // 月曜始まり
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  // SWRによるデータ取得（週全体をカバーする日付範囲）
+  const { data, error, isLoading, mutate } = useSlots({
+    startDate: format(weekStart, 'yyyy-MM-dd'),
+    endDate: format(weekEnd, 'yyyy-MM-dd'),
+  });
+
+  const slots = data?.data ?? [];
+
+  // 日次ビュー用のスロットフィルタ
+  const todaysSlots = slots.filter(s => (s.slotDate ?? s.date) === format(selectedDate, 'yyyy-MM-dd'));
   
   // 表示する時間帯（9:00 - 19:00 の30分刻み）
   const timeSlots = useMemo(() => {
@@ -46,7 +58,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
   const getSlotForDayTime = (date: Date, time: string) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return MOCK_SLOTS.find(s => s.date === dateStr && s.time === time);
+    return slots.find(s => (s.slotDate ?? s.date) === dateStr && (s.slotTime ?? s.time) === time);
   };
 
   const handleDateChange = (amount: number) => {
@@ -60,11 +72,45 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
   if (selectedSlot) {
     return (
-      <SlotDetail 
-        slot={selectedSlot} 
-        onBack={() => setSelectedSlot(null)} 
-        currentUser={currentUser} 
+      <SlotDetail
+        slot={selectedSlot}
+        onBack={() => setSelectedSlot(null)}
+        currentUser={currentUser}
+        onMutate={mutate}
       />
+    );
+  }
+
+  // ローディング状態
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+          </div>
+        </div>
+        <CardGridSkeleton cards={8} columns={4} />
+      </div>
+    );
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message="スロットデータの取得に失敗しました"
+          onRetry={() => mutate()}
+        />
+      </div>
     );
   }
 
@@ -313,18 +359,44 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
   );
 };
 
-const SlotDetail = ({ slot, onBack, currentUser }: { slot: Slot, onBack: () => void, currentUser: User }) => {
+const SlotDetail = ({
+  slot,
+  onBack,
+  currentUser,
+  onMutate
+}: {
+  slot: Slot;
+  onBack: () => void;
+  currentUser: User;
+  onMutate: () => void;
+}) => {
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [suspendReason, setSuspendReason] = useState('weather');
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  
-  const reservations = MOCK_RESERVATIONS.filter(r => (slot.reservations ?? []).includes(r.id));
+  const [isSuspending, setIsSuspending] = useState(false);
+
+  const reservations = MOCK_RESERVATIONS.filter(r => {
+    const slotReservations = slot.reservations ?? [];
+    return slotReservations.some(res =>
+      typeof res === 'string' ? res === r.id : res.id === r.id
+    );
+  });
   const isSuspended = slot.status === 'suspended';
   const hasReservation = (slot.reservations ?? []).length > 0;
 
-  const handleSuspend = () => {
-    setIsSuspendModalOpen(false);
-    toast.success('指定された時間枠を運休状態に変更いたしました。');
+  const handleSuspend = async () => {
+    setIsSuspending(true);
+    try {
+      await suspendSlot(slot.id);
+      toast.success('指定された時間枠を運休状態に変更いたしました。');
+      setIsSuspendModalOpen(false);
+      onMutate();
+      onBack();
+    } catch (_err) {
+      toast.error('運休処理に失敗しました');
+    } finally {
+      setIsSuspending(false);
+    }
   };
 
   const handleSendMail = () => {
@@ -486,8 +558,10 @@ const SlotDetail = ({ slot, onBack, currentUser }: { slot: Slot, onBack: () => v
                        </div>
                     </div>
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)} className="h-8 text-xs">キャンセル</Button>
-                      <Button variant="destructive" onClick={handleSuspend} className="h-8 text-xs">実行する</Button>
+                      <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)} className="h-8 text-xs" disabled={isSuspending}>キャンセル</Button>
+                      <Button variant="destructive" onClick={handleSuspend} className="h-8 text-xs" disabled={isSuspending}>
+                        {isSuspending ? '処理中...' : '実行する'}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
