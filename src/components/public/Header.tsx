@@ -36,6 +36,9 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
       setIsMobileMenuOpen(false);
+    } else {
+      // 要素が見つからない場合はトップページへ遷移してセクションへ移動
+      window.location.href = `/#${sectionId}`;
     }
   };
 
@@ -147,9 +150,9 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-0 right-0 z-40 md:hidden"
+            className="fixed inset-0 top-20 z-[60] md:hidden overflow-y-auto"
           >
-            <div className="backdrop-blur-lg bg-white/95 shadow-xl border-b border-white/20 px-4 py-6">
+            <div className="min-h-full backdrop-blur-lg bg-white/95 shadow-xl px-4 py-6">
               <div className="space-y-6">
                 <div className="flex justify-between items-center px-3 mb-4">
                   <span className="text-sm font-semibold text-slate-400 uppercase tracking-widest">{t("navigation.menu")}</span>
