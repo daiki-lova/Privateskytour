@@ -18,12 +18,13 @@ export function reservationReminder1DayTemplate(params: ReservationReminderParam
     heliportName,
     heliportAddress,
     googleMapUrl,
+    emergencyPhone: emergencyPhoneParam,
   } = params;
 
   const mapLink = googleMapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(heliportAddress)}`;
 
-  // 当日緊急連絡先（実際の運用時は環境変数から取得することを推奨）
-  const emergencyPhone = '03-XXXX-XXXX';
+  // 当日緊急連絡先（パラメータから取得、フォールバックは通常の電話番号）
+  const emergencyPhone = emergencyPhoneParam ?? '03-4446-6125';
 
   const html = `
 <!DOCTYPE html>

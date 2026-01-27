@@ -52,6 +52,7 @@ export type ReservationReminderParams = {
   heliportName: string;
   heliportAddress: string;
   googleMapUrl?: string;
+  emergencyPhone?: string;
 };
 
 // キャンセル確認メールのパラメータ
