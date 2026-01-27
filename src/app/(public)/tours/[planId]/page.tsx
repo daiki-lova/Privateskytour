@@ -4,7 +4,7 @@ import { getPublicCourseById } from "@/lib/supabase/actions/courses";
 
 // ベースURLを環境変数から取得（フォールバック付き）
 const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://helifront.jp";
+  process.env.NEXT_PUBLIC_APP_URL || "https://tour.privatesky.co.jp";
 
 // 型定義: ルートパラメータ
 type Props = {

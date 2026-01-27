@@ -27,7 +27,7 @@ export function reservationThankYouTemplate(params: ThankYouEmailParams): {
   } = params;
 
   // 次回予約URL
-  const bookingUrl = 'https://privatesky-tour.com/booking';
+  const bookingUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tour.privatesky.co.jp'}/booking`;
   // SNSシェア用ハッシュタグ
   const hashtag = '#PrivateSkyTour #ヘリコプター遊覧 #空の旅';
 
@@ -157,7 +157,7 @@ export function reservationThankYouTemplate(params: ThankYouEmailParams): {
                 ご意見・ご感想がございましたら、お気軽にお知らせください。
               </p>
               <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">
-                PrivateSky Tour | info@privatesky-tour.com
+                PrivateSky Tour | info@privatesky.co.jp
               </p>
             </td>
           </tr>
@@ -213,7 +213,7 @@ ${mypageUrl}
 ご意見・ご感想がございましたら、お気軽にお知らせください。
 
 PrivateSky Tour
-info@privatesky-tour.com
+info@privatesky.co.jp
   `.trim();
 
   return { html, text };

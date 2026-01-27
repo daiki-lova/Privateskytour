@@ -189,7 +189,7 @@ export function reservationCancelledTemplate(params: CancellationConfirmationPar
                 ご不明な点がございましたら、お気軽にお問い合わせください。
               </p>
               <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">
-                PrivateSky Tour | info@privatesky-tour.com
+                PrivateSky Tour | info@privatesky.co.jp
               </p>
             </td>
           </tr>
@@ -238,7 +238,7 @@ ${customerName} 様
 ご不明な点がございましたら、お気軽にお問い合わせください。
 
 PrivateSky Tour
-info@privatesky-tour.com
+info@privatesky.co.jp
   `.trim();
 
   return { html, text };
