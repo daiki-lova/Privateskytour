@@ -39,7 +39,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
   const accessPoint = DEFAULT_ACCESS_POINT;
 
   return (
-    <div className="bg-white min-h-screen pt-24 pb-20">
+    <div className="bg-white min-h-screen pt-24 pb-32 lg:pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb / Back Button */}
         <BackButton className="mb-8" />
@@ -183,7 +183,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
           </div>
 
           {/* Right Sidebar - Booking Card */}
-          <div className="md:col-span-1 lg:col-span-4">
+          <div id="booking-section" className="md:col-span-1 lg:col-span-4 scroll-mt-28">
             <div className="sticky top-32 space-y-6">
               <div className="bg-vivid-blue text-white p-8 rounded-3xl shadow-2xl">
                 <div className="mb-8">
@@ -236,6 +236,21 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
               <ContactButton />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* モバイル用固定予約バナー */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-slate-900 truncate">{course.title}</p>
+            <p className="text-sm text-blue-600 font-bold">¥{course.price.toLocaleString()}</p>
+          </div>
+          <a href="#booking-section" className="scroll-smooth">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 whitespace-nowrap">
+              予約する
+            </Button>
+          </a>
         </div>
       </div>
     </div>
