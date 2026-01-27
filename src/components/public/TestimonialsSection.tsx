@@ -69,7 +69,7 @@ export function TestimonialsSection() {
 
   return (
     <section className="py-24 bg-slate-50 relative overflow-hidden">
-      <div className="max-w-[1080px] w-[93%] md:w-full mx-auto relative z-10">
+      <div className="max-w-[1080px] w-[93%] md:w-full mx-auto md:px-4 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -96,7 +96,7 @@ export function TestimonialsSection() {
           >
             <CarouselContent className="-ml-4 pb-4">
               {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="pl-4 basis-1/2 md:basis-1/4">
+                <CarouselItem key={index} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                   <div className="h-full p-2">
                     <Card className="h-full border-none shadow-lg bg-white">
                       <CardContent className="p-6 flex flex-col h-full">

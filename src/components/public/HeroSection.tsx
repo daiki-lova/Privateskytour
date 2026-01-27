@@ -53,7 +53,7 @@ export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-[93%] md:w-[90%] max-w-7xl mx-auto flex flex-col items-center justify-center h-full text-center px-4">
+      <div className="relative z-10 w-[93%] md:w-[90%] max-w-7xl mx-auto flex flex-col items-center justify-center h-full text-center px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

@@ -140,20 +140,20 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
   };
 
   return (
-    <div className="space-y-8 max-w-2xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-2xl mx-auto">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-slate-900">お客様情報の入力</h2>
         <p className="text-slate-500">ご予約に必要な情報を入力してください</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* Personal Info */}
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
               <Label htmlFor="contactName" className="text-sm font-bold flex items-center justify-between">
                 お名前 (カタカナ)
-                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
               </Label>
               <Input
                 id="contactName"
@@ -170,7 +170,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               <div className="space-y-2">
                 <Label htmlFor="contactEmail" className="text-sm font-bold flex items-center justify-between">
                   メールアドレス
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
                 </Label>
                 <Input
                   id="contactEmail"
@@ -186,7 +186,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               <div className="space-y-2">
                 <Label htmlFor="contactPhone" className="text-sm font-bold flex items-center justify-between">
                   電話番号
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
                 </Label>
                 <Input
                   id="contactPhone"
@@ -197,7 +197,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                 {errors.contactPhone && (
                   <p className="text-xs text-red-500 mt-1">{errors.contactPhone.message}</p>
                 )}
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[11px] sm:text-xs text-slate-400">
                   ※国際電話番号も入力可能です（例: +81-90-1234-5678）
                 </p>
               </div>
@@ -206,7 +206,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
             <div className="space-y-2">
               <Label htmlFor="passengers" className="text-sm font-bold flex items-center justify-between">
                 搭乗人数
-                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
               </Label>
               <Select
                 value={watchPassengers}
@@ -221,7 +221,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                   <SelectItem value="3">3名</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="text-[11px] sm:text-xs text-slate-400 mt-1">
                 ※搭乗者様の合計体重制限は220kgまでとなります。
               </p>
             </div>
@@ -237,7 +237,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">同乗者様のお名前</h3>
-                <p className="text-[10px] text-slate-500">搭乗される方全員のお名前をご入力ください</p>
+                <p className="text-[11px] sm:text-xs text-slate-500">搭乗される方全員のお名前をご入力ください</p>
               </div>
             </div>
 
@@ -253,7 +253,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                       className="text-xs font-bold text-slate-500 flex items-center justify-between"
                     >
                       お名前（カタカナ）
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
                     </Label>
                     <Input
                       id={`guests.${index}.name`}
@@ -273,7 +273,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                       className="text-xs font-bold text-slate-500 flex items-center justify-between"
                     >
                       お名前（ローマ字）
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
                     </Label>
                     <Input
                       id={`guests.${index}.nameRomaji`}
@@ -289,7 +289,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                     {errors.guests?.[index]?.nameRomaji && (
                       <p className="text-xs text-red-500">{errors.guests[index]?.nameRomaji?.message}</p>
                     )}
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-[11px] sm:text-xs text-slate-400">
                       ※パスポートと同じ表記で入力してください（半角英字）
                     </p>
                   </div>
@@ -308,7 +308,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">無料ハイヤー送迎のご案内</h3>
-                <p className="text-[10px] text-vivid-blue font-bold tracking-wider uppercase">Alphard Transfer Service</p>
+                <p className="text-[11px] sm:text-xs text-vivid-blue font-bold tracking-wider uppercase">Alphard Transfer Service</p>
               </div>
             </div>
 
@@ -332,7 +332,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                 <div className="space-y-2">
                   <Label htmlFor="pickupAddress" className="text-xs font-bold text-slate-500 flex items-center justify-between">
                     お迎え先住所
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
                   </Label>
                   <Input
                     id="pickupAddress"
@@ -354,7 +354,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                   />
                   <div className="flex items-start gap-1.5 mt-2">
                     <Info className="w-3 h-3 text-slate-400 mt-0.5" />
-                    <p className="text-[10px] text-slate-400 leading-relaxed">※対象エリア：東京23区内・横浜市内・舞浜エリア等</p>
+                    <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">※対象エリア：東京23区内・横浜市内・舞浜エリア等</p>
                   </div>
                 </div>
               </div>
@@ -367,7 +367,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-bold flex items-center justify-between">
               備考欄
-              <Badge variant="outline" className="text-slate-400 text-[10px] py-0 px-1.5 border-slate-200 font-normal">任意</Badge>
+              <Badge variant="outline" className="text-slate-400 text-[11px] sm:text-xs py-0 px-1.5 border-slate-200 font-normal">任意</Badge>
             </Label>
             <Textarea
               id="notes"

@@ -185,7 +185,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
         <div className="flex items-center gap-2 mb-4 px-1 border-l-4 border-vivid-blue pl-3">
           <h3 className="text-xl font-bold text-slate-900">{title}</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {coursesData.map((course) => (
             <motion.div
               key={course.id}
@@ -197,7 +197,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                 className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border-slate-100 ring-1 ring-slate-100 h-full flex flex-col"
                 onClick={() => handleSelectPlan(course.id)}
               >
-                <div className="relative h-40 overflow-hidden flex-shrink-0 bg-slate-50">
+                <div className="relative h-32 sm:h-36 md:h-40 overflow-hidden flex-shrink-0 bg-slate-50">
                   <ImageWithFallback
                     src={course.images?.[0] || "/images/placeholder.jpg"}
                     alt={course.title}
@@ -279,7 +279,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
         <p className="text-slate-500">ご希望のフライト日時を選択してください</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         {/* Left Column: Selected Plan Details */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
           </div>
 
           <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
-            <div className="relative h-56">
+            <div className="relative h-40 sm:h-48 md:h-56">
               <ImageWithFallback
                 src={selectedCourse?.images?.[0] || "/images/placeholder.jpg"}
                 alt={selectedCourse?.title || ""}
@@ -404,7 +404,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                       </span>
                     )}
                   </Label>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                     {availableSlots.length === 0 && !isLoadingSlots && date ? (
                       <div className="col-span-full text-center py-8 text-slate-400 text-sm">
                         この日に利用可能なスロットはありません
@@ -443,7 +443,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                           >
                             <span className={isFull || isOutsideHours ? "line-through" : ""}>{displayTime}</span>
                             <span className={cn(
-                              "text-[9px]",
+                              "text-[10px] sm:text-xs",
                               isSelected ? "text-white/80" : "text-slate-400",
                               isOutsideHours && "text-slate-300",
                               !isOutsideHours && isUnavailable && "text-slate-400"

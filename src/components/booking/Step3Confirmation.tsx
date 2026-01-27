@@ -226,11 +226,11 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         <div className="md:col-span-2 space-y-6">
           {/* Flight Information Card */}
           <Card className="overflow-hidden">
-            <div className="h-48 w-full relative">
+            <div className="h-36 sm:h-40 md:h-48 w-full relative">
               <ImageWithFallback
                 src={selectedCourse?.images?.[0] || "/images/placeholder.jpg"}
                 alt={selectedCourse?.title || ""}
@@ -447,7 +447,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
 
         {/* Payment Summary Sidebar */}
         <div className="md:col-span-1">
-          <Card className="sticky top-8 bg-slate-50 border-vivid-blue/20">
+          <Card className="md:sticky md:top-8 bg-slate-50 border-vivid-blue/20">
             <CardContent className="p-6 space-y-6">
               <h3 className="font-bold text-lg">お支払い金額</h3>
 
