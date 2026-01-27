@@ -514,13 +514,13 @@ export const RefundsView = () => {
       </div>
 
       {refundCandidates.length > 0 && (
-        <div className="bg-red-50/50 border border-red-100 rounded-xl p-4 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-2">
-          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-            <AlertCircle className="w-5 h-5 text-red-600" />
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
           </div>
           <div>
-            <h3 className="font-bold text-red-900 text-sm">未処理の返金が {refundCandidates.length} 件あります</h3>
-            <p className="text-[11px] text-red-700/80 mt-1 leading-relaxed max-w-2xl">
+            <h3 className="font-bold text-yellow-900 text-sm">未処理の返金が {refundCandidates.length} 件あります</h3>
+            <p className="text-[11px] text-yellow-700/80 mt-1 leading-relaxed max-w-2xl">
               これらの予約は運休またはキャンセルされましたが、まだ返金処理が完了していません。
               Stripeダッシュボードまたは本システムから速やかに返金処理を実行してください。
             </p>
@@ -579,7 +579,7 @@ export const RefundsView = () => {
                    {processingId === res.id ? (
                      <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 処理中...</>
                    ) : (
-                     <>返金処理</>
+                     <>詳細・返金へ</>
                    )}
                  </Button>
                </div>
@@ -638,7 +638,7 @@ export const RefundsView = () => {
                       {processingId === res.id ? (
                         <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 処理中...</>
                       ) : (
-                        <>返金処理</>
+                        <>詳細・返金へ</>
                       )}
                     </Button>
                   </TableCell>
@@ -764,6 +764,7 @@ export const RefundsView = () => {
 export const LogsView = () => {
   const [page, setPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'stripe' | 'crm' | 'operation'>('all');
 
   const { data, error, isLoading, mutate } = useLogs({
     page,
@@ -771,6 +772,30 @@ export const LogsView = () => {
   });
 
   const logs = data?.data ?? [];
+
+  // タブに応じたフィルタリング
+  const filteredLogs = logs.filter(log => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'stripe') return log.logType === 'stripe';
+    if (activeTab === 'crm') return log.logType === 'crm';
+    if (activeTab === 'operation') return log.logType === 'operation' || log.logType === 'system';
+    return true;
+  });
+
+  // 種別バッジの色を取得
+  const getLogTypeBadgeClass = (logType: string) => {
+    switch (logType.toLowerCase()) {
+      case 'stripe':
+        return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'crm':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'operation':
+        return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'system':
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
 
   // Helper to get status icon
   const getStatusIcon = (status: AuditLog['status']) => {
@@ -849,14 +874,14 @@ export const LogsView = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="all" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">すべて</TabsTrigger>
           <TabsTrigger value="stripe">Stripe連携</TabsTrigger>
           <TabsTrigger value="crm">CRM同期</TabsTrigger>
           <TabsTrigger value="operation">操作ログ</TabsTrigger>
         </TabsList>
-        <TabsContent value="all">
+        <TabsContent value={activeTab}>
           <Card>
             {isLoading ? (
               <TableSkeleton rows={10} columns={5} />
@@ -864,7 +889,7 @@ export const LogsView = () => {
               <>
             {/* モバイル用カードリスト */}
             <div className="md:hidden divide-y divide-slate-100">
-              {logs.map(log => (
+              {filteredLogs.map(log => (
                 <div
                   key={log.id}
                   className="p-4 active:bg-slate-50 transition-colors"
@@ -883,7 +908,7 @@ export const LogsView = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal bg-slate-50 border-slate-200 text-slate-500">
+                    <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-normal", getLogTypeBadgeClass(log.logType))}>
                       {log.logType.toUpperCase()}
                     </Badge>
                   </div>
@@ -904,7 +929,7 @@ export const LogsView = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map(log => (
+                {filteredLogs.map(log => (
                   <TableRow
                     key={log.id}
                     className="cursor-pointer hover:bg-slate-50"
@@ -912,7 +937,7 @@ export const LogsView = () => {
                   >
                     <TableCell className="font-mono text-xs text-slate-500 pl-6">{log.createdAt}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-[10px] font-normal text-slate-500 bg-slate-50">
+                      <Badge variant="outline" className={cn("text-[10px] font-normal", getLogTypeBadgeClass(log.logType))}>
                         {log.logType.toUpperCase()}
                       </Badge>
                     </TableCell>

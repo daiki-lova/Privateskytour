@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-  LayoutDashboard, Calendar, Clock, Users, FileText, 
+import {
+  LayoutDashboard, Calendar, Clock, Users, FileText,
   Settings, LogOut, Bell, ShieldAlert, CreditCard, Activity,
   Navigation, MapPin, Menu
 } from 'lucide-react';
@@ -12,6 +12,7 @@ import { User } from '@/lib/data/types';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { useRefundCandidates } from '@/lib/api/hooks/useRefunds';
 
 interface SidebarProps {
   currentUser: User;
@@ -21,7 +22,9 @@ interface SidebarProps {
 
 const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
   const pathname = usePathname();
-  
+  const { refundCandidates } = useRefundCandidates();
+  const pendingRefundsCount = refundCandidates.length;
+
   const menuItems = [
     { id: 'dashboard', label: 'ダッシュボード', icon: LayoutDashboard, path: '/admin/dashboard', roles: ['admin', 'staff', 'viewer'] },
     { id: 'reservations', label: '予約管理', icon: Calendar, path: '/admin/reservations', roles: ['admin', 'staff', 'viewer'] },
@@ -47,7 +50,7 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
 
       <div className="flex-1 py-6 px-3 space-y-0.5 overflow-y-auto">
         <div className="mb-2 px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-          Main Menu
+          MAIN MENU
         </div>
         {menuItems.map((item) => {
           if (!item.roles.includes(currentUser.role)) return null;
@@ -67,8 +70,8 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
             >
               <Icon className="w-3.5 h-3.5" />
               {item.label}
-              {item.id === 'refunds' && (
-                <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0 h-4">2</Badge>
+              {item.id === 'refunds' && pendingRefundsCount > 0 && (
+                <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0 h-4">{pendingRefundsCount}</Badge>
               )}
             </Link>
           );
