@@ -33,7 +33,7 @@ export function FlowSection() {
 
   return (
     <section id="flow" className="py-24 bg-white relative">
-      <div className="max-w-[1080px] w-[93%] md:w-full mx-auto">
+      <div className="max-w-[1080px] w-[93%] md:w-full mx-auto md:px-4 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,7 +46,7 @@ export function FlowSection() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {steps.map((item, index) => (
             <motion.div
               key={index}

@@ -51,7 +51,7 @@ export function AccessSection() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Google Map Embed */}
-            <div className="h-80 md:h-auto w-full relative">
+            <div className="h-64 sm:h-72 md:h-80 md:h-auto w-full relative">
               <iframe
                 src={TOKYO_HELIPORT.mapUrl}
                 width="100%"
@@ -65,7 +65,7 @@ export function AccessSection() {
               ></iframe>
             </div>
 
-            <div className="p-10 flex flex-col justify-center">
+            <div className="p-6 md:p-8 lg:p-10 flex flex-col justify-center">
               <div className="flex items-start gap-4 mb-8">
                 <div className="bg-white p-3 rounded-2xl text-vivid-blue shadow-sm flex-shrink-0 mt-1 border border-slate-100">
                   <MapPin className="w-6 h-6" />

@@ -44,9 +44,9 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
         {/* Breadcrumb / Back Button */}
         <BackButton className="mb-8" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-12">
           {/* Left Content */}
-          <div className="lg:col-span-8 space-y-12">
+          <div className="md:col-span-2 lg:col-span-8 space-y-12">
 
             {/* Main Image (16:9 ratio) */}
             <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-100 border border-slate-100">
@@ -68,7 +68,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
             </section>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="bg-slate-50 p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border border-slate-100">
                 <Clock className="w-6 h-6 text-slate-400" />
                 <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">所要時間</span>
@@ -88,7 +88,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
 
             {/* Route Map Section */}
             {course.route_map_url && (
-              <section className="bg-white p-8 rounded-3xl border border-slate-200">
+              <section className="bg-white p-4 sm:p-6 lg:p-8 rounded-3xl border border-slate-200">
                 <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center">
                   <span className="w-10 h-10 bg-vivid-blue text-white rounded-xl flex items-center justify-center mr-4">
                     <Map className="h-5 w-5" />
@@ -124,7 +124,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
                    <span className="w-1.5 h-8 bg-vivid-blue rounded-full mr-4" />
                    プランの魅力
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {course.highlights.map((highlight, idx) => (
                     <div key={idx} className="flex items-start gap-4 p-5 rounded-2xl border border-slate-100 bg-slate-50/50">
                       <CheckCircle2 className="h-6 w-6 text-vivid-blue flex-shrink-0" />
@@ -154,7 +154,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
                 </span>
                 集合場所
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 items-start">
                 <div className="space-y-4">
                   <p className="text-lg font-bold text-slate-900">{accessPoint.name}</p>
                   <p className="text-slate-600 leading-relaxed">{accessPoint.address}</p>
@@ -165,7 +165,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
                     </a>
                   </Button>
                 </div>
-                <div className="rounded-2xl overflow-hidden h-64 border border-slate-200">
+                <div className="rounded-2xl overflow-hidden h-56 sm:h-64 md:h-72 lg:h-80 border border-slate-200">
                   <iframe
                     src={accessPoint.mapUrl}
                     width="100%"
@@ -183,7 +183,7 @@ export async function CourseDetail({ planId }: CourseDetailProps) {
           </div>
 
           {/* Right Sidebar - Booking Card */}
-          <div className="lg:col-span-4">
+          <div className="md:col-span-1 lg:col-span-4">
             <div className="sticky top-32 space-y-6">
               <div className="bg-vivid-blue text-white p-8 rounded-3xl shadow-2xl">
                 <div className="mb-8">

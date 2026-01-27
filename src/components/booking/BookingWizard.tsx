@@ -65,10 +65,15 @@ export function BookingWizard({ courses, initialPlanId }: BookingWizardProps) {
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header of Wizard */}
-          <div className="flex items-center justify-between mb-12">
-            <Button variant="ghost" onClick={step === 1 ? handleGoHome : prevStep} className="hover:bg-slate-200">
-              {step === 1 ? <Home className="mr-2 h-4 w-4" /> : <ArrowLeft className="mr-2 h-4 w-4" />}
-              {step === 1 ? "トップへ戻る" : "前へ"}
+          <div className="flex items-center justify-between mb-12 gap-2">
+            <Button
+              variant="ghost"
+              onClick={step === 1 ? handleGoHome : prevStep}
+              className="hover:bg-slate-200 px-3 py-2 min-w-fit flex-shrink-0"
+            >
+              {step === 1 ? <Home className="mr-1 sm:mr-2 h-4 w-4" /> : <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />}
+              <span className="hidden sm:inline">{step === 1 ? "トップへ戻る" : "前へ"}</span>
+              <span className="sm:hidden">{step === 1 ? "戻る" : "前へ"}</span>
             </Button>
             
             <div className="flex items-center space-x-2 md:space-x-8">
@@ -79,7 +84,7 @@ export function BookingWizard({ courses, initialPlanId }: BookingWizardProps) {
               <StepIndicator currentStep={step} step={3} label="完了" />
             </div>
             
-            <div className="w-24 md:w-32" /> {/* Spacer for centering */}
+            <div className="w-12 sm:w-24 md:w-32 flex-shrink-0" /> {/* Spacer for centering */}
           </div>
 
           {/* Content */}
