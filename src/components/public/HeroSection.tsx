@@ -25,13 +25,25 @@ export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
 
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* Background with parallax effect */}
+      {/* Background Video */}
       <div className="absolute inset-0 z-0">
-        <ImageWithFallback
-          src={heroImageData.src}
-          alt="Aerial View of Tokyo Skyline with Helicopter"
+        {/* Video background - autoplay, muted, loop for background effect */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={heroImageData.src}
           className="w-full h-full object-cover scale-110 brightness-75"
-        />
+        >
+          <source src="/videos/hero-bg.mp4" type="video/mp4" />
+          {/* Fallback image if video fails to load */}
+          <ImageWithFallback
+            src={heroImageData.src}
+            alt="Aerial View of Tokyo Skyline with Helicopter"
+            className="w-full h-full object-cover scale-110 brightness-75"
+          />
+        </video>
         <motion.div
           initial={{ opacity: 0.1 }}
           animate={{ opacity: 0.4 }}
