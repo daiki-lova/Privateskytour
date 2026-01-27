@@ -8,6 +8,7 @@ import {
   type MypageTokenValidationResult,
   type MypageData,
 } from '@/lib/auth/mypage-token';
+import { sendMypageAccessEmail } from '@/lib/email';
 import type { Database } from '@/lib/supabase/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -202,10 +203,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = (await createClient()) as SupabaseClient<Database>;
 
-    // Check if customer exists
+    // Check if customer exists (including mypage token info for reuse)
     const { data: customer, error } = await supabase
       .from('customers')
-      .select('id, email, name')
+      .select('id, email, name, mypage_token, mypage_token_expires_at')
       .eq('email', email.toLowerCase())
       .single();
 
@@ -217,14 +218,59 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // TODO: Implement email verification flow
-    // 1. Generate a short-lived verification code
-    // 2. Store it in a verification_codes table or cache
-    // 3. Send email with verification link
-    // 4. Create endpoint to verify code and issue new token
+    // 顧客の既存のマイページトークンを取得、または新規生成
+    let mypageToken = customer.mypage_token;
+    let tokenExpiresAt = customer.mypage_token_expires_at;
 
-    // For now, return success message (placeholder)
-    console.log(`Mypage token request for customer: ${customer.id}`);
+    // トークンが無い、または期限切れの場合は新規生成
+    const now = new Date();
+    const tokenExpired = tokenExpiresAt ? new Date(tokenExpiresAt) < now : true;
+
+    if (!mypageToken || tokenExpired) {
+      // 新しいトークンを生成（ランダムな64文字の文字列）
+      const newToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+
+      // トークンの有効期限を90日後に設定
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 90);
+
+      const { error: updateError } = await supabase
+        .from('customers')
+        .update({
+          mypage_token: newToken,
+          mypage_token_expires_at: expiresAt.toISOString(),
+        })
+        .eq('id', customer.id);
+
+      if (updateError) {
+        console.error('Failed to update mypage token:', updateError);
+        return errorResponse(
+          'An unexpected error occurred',
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      mypageToken = newToken;
+      tokenExpiresAt = expiresAt.toISOString();
+    }
+
+    // マイページURLを構築
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    const mypageUrl = `${baseUrl}/mypage?token=${mypageToken}`;
+
+    // マイページアクセスメールを送信
+    try {
+      await sendMypageAccessEmail({
+        to: customer.email,
+        customerName: customer.name,
+        mypageUrl,
+        expiresAt: tokenExpiresAt ?? '',
+      });
+      console.log(`Mypage access email sent to customer: ${customer.id}`);
+    } catch (emailError) {
+      // メール送信エラーはログに記録するが、処理は続行
+      console.error('Failed to send mypage access email:', emailError);
+    }
 
     return successResponse({
       message:

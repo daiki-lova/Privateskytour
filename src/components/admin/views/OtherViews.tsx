@@ -6,7 +6,7 @@ import {
   CheckCircle2, AlertCircle, XCircle, RotateCcw, Save,
   CreditCard, History, FileText, Phone, Mail, MapPin, Tag,
   ExternalLink, ChevronRight, Copy, Terminal, Sun, Moon,
-  Cloud, Plus, X
+  Cloud, Plus, X, Percent, Clock, AlertTriangle
 } from 'lucide-react';
 import { User, AuditLog, Customer, Reservation } from '@/lib/data/types';
 import { useCustomers, useLogs, useRefundCandidates, processRefund, RefundCandidate, useReservations } from '@/lib/api/hooks';
@@ -38,7 +38,29 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
+
+/**
+ * キャンセルポリシーの返金率設定（各日数ごとのパーセンテージ）
+ */
+interface CancellationPolicyTier {
+  daysBeforeMin: number;
+  daysBeforeMax: number | null;
+  feePercentage: number;
+  label: string;
+  labelEn: string;
+}
+
+/**
+ * デフォルトのキャンセルポリシー設定
+ */
+const DEFAULT_POLICY_TIERS: CancellationPolicyTier[] = [
+  { daysBeforeMin: 7, daysBeforeMax: null, feePercentage: 0, label: '7日前まで', labelEn: '7+ days before' },
+  { daysBeforeMin: 4, daysBeforeMax: 6, feePercentage: 30, label: '4~6日前', labelEn: '4-6 days before' },
+  { daysBeforeMin: 2, daysBeforeMax: 3, feePercentage: 50, label: '2~3日前', labelEn: '2-3 days before' },
+  { daysBeforeMin: 0, daysBeforeMax: 1, feePercentage: 100, label: '前日〜当日', labelEn: 'Day before or same day' },
+];
 
 // --- Customers View ---
 export const CustomersView = () => {
@@ -1089,6 +1111,12 @@ export const SettingsView = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [newEmail, setNewEmail] = useState("");
 
+  // キャンセルポリシー返金率設定
+  const [policyTiers, setPolicyTiers] = useState<CancellationPolicyTier[]>(DEFAULT_POLICY_TIERS);
+
+  // バリデーションエラー
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   // 9:00 から 19:00 までの時間枠生成 (30分刻み)
   const timeSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -1101,7 +1129,7 @@ export const SettingsView = () => {
   const loadSettings = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/settings?keys=active_hours,holiday_mode,cancellation_policy_ja,cancellation_policy_en,contact_phone,contact_hours,weather_decision_time,weather_notification_enabled,notification_emails,notification_enabled');
+      const response = await fetch('/api/admin/settings?keys=active_hours,holiday_mode,cancellation_policy_ja,cancellation_policy_en,cancellation_policy_tiers,contact_phone,contact_hours,weather_decision_time,weather_notification_enabled,notification_emails,notification_enabled');
       if (response.ok) {
         const result = await response.json();
         const data = result.data || {};
@@ -1155,6 +1183,11 @@ export const SettingsView = () => {
         if (typeof data.notification_enabled === 'boolean') {
           setNotificationEnabled(data.notification_enabled);
         }
+
+        // キャンセルポリシー返金率設定
+        if (Array.isArray(data.cancellation_policy_tiers)) {
+          setPolicyTiers(data.cancellation_policy_tiers);
+        }
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -1198,7 +1231,49 @@ export const SettingsView = () => {
     setNotificationEmails(notificationEmails.filter(e => e !== email));
   };
 
+  // バリデーション関数
+  const validateSettings = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    // 電話番号のバリデーション（任意項目だが入力がある場合はチェック）
+    if (contactPhone && !/^[\d\-+\s()]+$/.test(contactPhone)) {
+      errors.contactPhone = '有効な電話番号を入力してください';
+    }
+
+    // メールアドレスのバリデーション
+    for (const email of notificationEmails) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.notificationEmails = '無効なメールアドレスが含まれています';
+        break;
+      }
+    }
+
+    // キャンセルポリシーのバリデーション（返金率は0-100の範囲）
+    for (let i = 0; i < policyTiers.length; i++) {
+      const tier = policyTiers[i];
+      if (tier.feePercentage < 0 || tier.feePercentage > 100) {
+        errors[`policyTier_${i}`] = 'キャンセル料は0%〜100%の範囲で設定してください';
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // ポリシー返金率を更新
+  const handleUpdatePolicyTier = (index: number, feePercentage: number) => {
+    const newTiers = [...policyTiers];
+    newTiers[index] = { ...newTiers[index], feePercentage };
+    setPolicyTiers(newTiers);
+  };
+
   const handleSaveSettings = async () => {
+    // バリデーション
+    if (!validateSettings()) {
+      toast.error('入力内容にエラーがあります。確認してください。');
+      return;
+    }
+
     try {
       setIsSaving(true);
       const response = await fetch('/api/admin/settings', {
@@ -1210,6 +1285,7 @@ export const SettingsView = () => {
             holiday_mode: holidayMode,
             cancellation_policy_ja: policyJa,
             cancellation_policy_en: policyEn,
+            cancellation_policy_tiers: policyTiers,
             contact_phone: contactPhone,
             contact_hours: contactHours,
             weather_decision_time: weatherDecisionTime,
@@ -1368,6 +1444,88 @@ export const SettingsView = () => {
             </CardContent>
           </Card>
 
+          {/* キャンセルポリシー返金率設定カード */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-indigo-600" />
+                <div>
+                  <CardTitle className="text-sm font-bold">キャンセル料率設定</CardTitle>
+                  <CardDescription className="text-xs">日数ごとのキャンセル料率を設定します（実際の返金計算に使用されます）</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                {policyTiers.map((tier, index) => (
+                  <div key={index} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm font-medium text-slate-700">{tier.label}</span>
+                        <span className="text-xs text-slate-400">({tier.labelEn})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "text-lg font-bold font-mono min-w-[60px] text-right",
+                          tier.feePercentage === 0 ? "text-emerald-600" :
+                          tier.feePercentage < 50 ? "text-amber-600" :
+                          tier.feePercentage < 100 ? "text-orange-600" : "text-red-600"
+                        )}>
+                          {tier.feePercentage}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <Slider
+                        value={[tier.feePercentage]}
+                        onValueChange={(value) => handleUpdatePolicyTier(index, value[0])}
+                        max={100}
+                        min={0}
+                        step={5}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        value={tier.feePercentage}
+                        onChange={(e) => {
+                          const value = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
+                          handleUpdatePolicyTier(index, value);
+                        }}
+                        className="w-20 text-center font-mono"
+                        min={0}
+                        max={100}
+                      />
+                    </div>
+
+                    {validationErrors[`policyTier_${index}`] && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        {validationErrors[`policyTier_${index}`]}
+                      </p>
+                    )}
+
+                    {index < policyTiers.length - 1 && <Separator className="mt-4" />}
+                  </div>
+                ))}
+
+                <div className="bg-amber-50 rounded-lg p-4 border border-amber-100 flex items-start gap-3 mt-4">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-amber-900">
+                      キャンセル料率について
+                    </p>
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      ここで設定した料率は、お客様がキャンセルした際の返金計算に使用されます。
+                      例: 料率50%の場合、支払い金額の50%がキャンセル料として差し引かれ、残り50%が返金されます。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* 当日連絡先設定カード */}
           <Card>
             <CardHeader>
@@ -1385,7 +1543,14 @@ export const SettingsView = () => {
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="03-1234-5678"
+                  className={validationErrors.contactPhone ? "border-red-300 focus:ring-red-200" : ""}
                 />
+                {validationErrors.contactPhone && (
+                  <p className="text-xs text-red-500 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    {validationErrors.contactPhone}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>受付時間</Label>
@@ -1492,6 +1657,13 @@ export const SettingsView = () => {
 
                 {notificationEmails.length === 0 && (
                   <p className="text-xs text-slate-400 mt-2">通知先メールアドレスが登録されていません</p>
+                )}
+
+                {validationErrors.notificationEmails && (
+                  <p className="text-xs text-red-500 flex items-center gap-1 mt-2">
+                    <AlertTriangle className="w-3 h-3" />
+                    {validationErrors.notificationEmails}
+                  </p>
                 )}
               </div>
             </CardContent>

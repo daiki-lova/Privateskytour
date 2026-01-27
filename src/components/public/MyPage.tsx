@@ -366,8 +366,57 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
   );
 }
 
-// Token required state
+// Token required state with email verification form
 function TokenRequiredState() {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // メールアドレスのバリデーション
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // メール送信処理
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isValidEmail(email)) {
+      setErrorMessage("有効なメールアドレスを入力してください");
+      setSubmitStatus("error");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/auth/mypage-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMessage(data.error ?? "エラーが発生しました");
+        setSubmitStatus("error");
+        return;
+      }
+
+      setSubmitStatus("success");
+    } catch {
+      setErrorMessage("通信エラーが発生しました");
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center max-w-md px-6">
@@ -378,16 +427,77 @@ function TokenRequiredState() {
           マイページへのアクセス
         </h1>
         <p className="text-slate-500 mb-6">
-          マイページにアクセスするには、予約完了時にお送りしたメールに記載されているリンクをご利用ください。
+          予約時にご登録いただいたメールアドレスを入力してください。<br />
+          マイページへのアクセスリンクをお送りします。
         </p>
+
+        {/* 成功メッセージ */}
+        {submitStatus === "success" ? (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6">
+            <CheckCircle2 className="h-10 w-10 text-emerald-600 mx-auto mb-3" />
+            <p className="text-emerald-800 font-medium mb-2">
+              メールを送信しました
+            </p>
+            <p className="text-emerald-600 text-sm">
+              ご登録のメールアドレスにマイページへのアクセスリンクをお送りしました。
+              メールが届かない場合は、迷惑メールフォルダをご確認ください。
+            </p>
+          </div>
+        ) : (
+          /* メール入力フォーム */
+          <form onSubmit={handleSubmit} className="mb-6">
+            <div className="mb-4">
+              <label htmlFor="email" className="sr-only">
+                メールアドレス
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (submitStatus === "error") {
+                    setSubmitStatus("idle");
+                    setErrorMessage("");
+                  }
+                }}
+                placeholder="example@email.com"
+                className={`w-full px-4 py-3 border rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-vivid-blue/50 focus:border-vivid-blue transition-colors ${
+                  submitStatus === "error" ? "border-red-300" : "border-slate-200"
+                }`}
+                disabled={isSubmitting}
+                required
+              />
+              {submitStatus === "error" && errorMessage && (
+                <p className="text-red-500 text-sm mt-2 text-left">{errorMessage}</p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-vivid-blue hover:bg-vivid-blue/90 text-white py-3"
+              disabled={isSubmitting || !email}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  送信中...
+                </>
+              ) : (
+                "アクセスリンクを送信"
+              )}
+            </Button>
+          </form>
+        )}
+
+        {/* ヘルプ情報 */}
         <div className="bg-slate-50 rounded-xl p-6 text-left">
           <p className="text-sm text-slate-600 mb-3">
-            <strong>メールが見つからない場合:</strong>
+            <strong>ご注意:</strong>
           </p>
           <ul className="text-sm text-slate-500 space-y-2">
-            <li>* 迷惑メールフォルダをご確認ください</li>
-            <li>* 予約時のメールアドレスをご確認ください</li>
-            <li>* お問い合わせフォームからご連絡ください</li>
+            <li>* 予約時にご登録いただいたメールアドレスをご入力ください</li>
+            <li>* メールが届くまで数分かかる場合があります</li>
+            <li>* 迷惑メールフォルダもご確認ください</li>
           </ul>
         </div>
       </div>

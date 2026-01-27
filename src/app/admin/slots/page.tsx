@@ -1,17 +1,31 @@
 "use client";
 
 import { SlotsView } from "@/components/admin/views";
-import { User } from "@/lib/data/types";
-
-// TODO: Get current user from auth context
-const mockCurrentUser: User = {
-  id: "admin-1",
-  name: "System Admin",
-  role: "admin",
-  email: "admin@privatesky.jp",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
+import { useAuth } from "@/components/providers/AuthProvider";
+import type { User } from "@/lib/data/types";
 
 export default function SlotsPage() {
-  return <SlotsView currentUser={mockCurrentUser} />;
+  const { user } = useAuth();
+
+  // AuthProvider から取得したユーザー情報を User 型に変換
+  const currentUser: User | null = user
+    ? {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+        avatar: user.avatarUrl ?? "",
+      }
+    : null;
+
+  // ユーザー情報がない場合はローディング表示（AuthProvider で認証済みのはず）
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  return <SlotsView currentUser={currentUser} />;
 }

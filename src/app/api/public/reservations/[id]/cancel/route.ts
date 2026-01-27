@@ -12,6 +12,7 @@ import {
   type MypageTokenValidationResult,
 } from '@/lib/auth/mypage-token';
 import { stripe } from '@/lib/stripe/client';
+import { sendCancellationConfirmation } from '@/lib/email';
 import type { Database } from '@/lib/supabase/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -413,7 +414,36 @@ export async function POST(
       }
     }
 
-    // TODO: Send cancellation confirmation email
+    // キャンセル確認メールを送信
+    if (typedReservation.customers?.email) {
+      // コース情報を取得してメール送信
+      const { data: slotWithCourse } = await supabase
+        .from('slots')
+        .select('courses (title)')
+        .eq('id', typedReservation.slot_id)
+        .single();
+
+      const courseName = (slotWithCourse?.courses as { title: string } | null)?.title ?? 'ヘリコプターツアー';
+
+      // メール送信（エラーがあってもキャンセル処理自体は成功させる）
+      try {
+        await sendCancellationConfirmation({
+          to: typedReservation.customers.email,
+          customerName: typedReservation.customers.name,
+          courseName,
+          flightDate: typedReservation.reservation_date,
+          flightTime: typedReservation.reservation_time,
+          bookingNumber: typedReservation.booking_number,
+          cancellationFee: cancellationResult.cancellationFee,
+          refundAmount: cancellationResult.refundAmount,
+          originalAmount: typedReservation.total_price,
+        });
+        console.log(`Cancellation email sent for: ${typedReservation.booking_number}`);
+      } catch (emailError) {
+        // メール送信エラーはログに記録するが、キャンセル処理は成功とする
+        console.error('Failed to send cancellation email:', emailError);
+      }
+    }
 
     return successResponse({
       message: 'Reservation cancelled successfully',
