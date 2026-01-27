@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { CheckCircle, Calendar, Clock, Users, MapPin, Home, Mail, Phone } from "lucide-react";
+import { CheckCircle, Calendar, Clock, Users, MapPin, Home, Mail, Phone, TestTube2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -21,17 +21,51 @@ interface ReservationDetails {
   customerEmail?: string;
   heliportName?: string;
   heliportAddress?: string;
+  testMode?: boolean;
 }
 
 export function BookingSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const reservationId = searchParams.get("reservation_id");
+  const isTestMode = searchParams.get("test_mode") === "true";
   const [reservation, setReservation] = useState<ReservationDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReservation = async () => {
+      // Handle test mode with reservation_id
+      if (isTestMode && reservationId) {
+        try {
+          const res = await fetch(`/api/public/reservations/${reservationId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              setReservation({
+                id: data.data.id,
+                bookingNumber: data.data.booking_number,
+                courseName: data.data.course?.title,
+                reservationDate: data.data.reservation_date,
+                reservationTime: data.data.reservation_time,
+                pax: data.data.pax,
+                totalPrice: data.data.total_price,
+                customerName: data.data.customer?.name,
+                customerEmail: data.data.customer?.email,
+                heliportName: data.data.course?.heliport?.name,
+                heliportAddress: data.data.course?.heliport?.address,
+                testMode: true,
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching reservation:", err);
+          setError("予約情報の取得に失敗しました");
+        }
+        setIsLoading(false);
+        return;
+      }
+
       if (!sessionId) {
         setIsLoading(false);
         return;
@@ -50,7 +84,7 @@ export function BookingSuccessContent() {
     };
 
     fetchReservation();
-  }, [sessionId]);
+  }, [sessionId, reservationId, isTestMode]);
 
   if (isLoading) {
     return (
@@ -80,13 +114,31 @@ export function BookingSuccessContent() {
             transition={{ delay: 0.3 }}
             className="space-y-3"
           >
+            {(isTestMode || reservation?.testMode) && (
+              <div className="bg-amber-100 border border-amber-300 rounded-lg px-4 py-2 inline-flex items-center gap-2 mb-4">
+                <TestTube2 className="w-4 h-4 text-amber-700" />
+                <span className="text-sm font-medium text-amber-800">
+                  テストモード予約
+                </span>
+              </div>
+            )}
             <h1 className="text-3xl font-bold text-slate-900">
               ご予約ありがとうございます
             </h1>
             <p className="text-slate-500 max-w-md mx-auto">
-              決済が完了し、ご予約が確定しました。
-              <br />
-              確認メールをお送りいたしましたので、ご確認ください。
+              {isTestMode || reservation?.testMode ? (
+                <>
+                  テストモードで予約が確定しました。
+                  <br />
+                  実際の決済は行われていません。
+                </>
+              ) : (
+                <>
+                  決済が完了し、ご予約が確定しました。
+                  <br />
+                  確認メールをお送りいたしましたので、ご確認ください。
+                </>
+              )}
             </p>
           </motion.div>
         </div>

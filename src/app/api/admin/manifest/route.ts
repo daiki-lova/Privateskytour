@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     const transformedSlots: ManifestSlot[] = (slots ?? []).map((slot) => {
       // Supabase returns joined data as objects (single relation) or arrays (multiple)
       // courses is a single object (FK), reservations is an array
-      const courseData = slot.courses as Record<string, unknown> | null;
+      const courseData = slot.courses as unknown as Record<string, unknown> | null;
 
       return {
         id: slot.id,

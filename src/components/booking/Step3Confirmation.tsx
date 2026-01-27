@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BookingData } from "./BookingWizard";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   ShieldCheck,
   Loader2,
+  TestTube2,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -44,6 +45,21 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [healthConfirmed, setHealthConfirmed] = useState(false);
+  const [testMode, setTestMode] = useState(false);
+
+  // Check if test mode is enabled
+  useEffect(() => {
+    const checkPaymentMode = async () => {
+      try {
+        const res = await fetch("/api/public/payment-mode");
+        const data = await res.json();
+        setTestMode(data.testMode);
+      } catch (error) {
+        console.error("Failed to check payment mode:", error);
+      }
+    };
+    checkPaymentMode();
+  }, []);
 
   // Find the selected course
   const selectedCourse = useMemo(
@@ -118,7 +134,27 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
       const reservationData = await reservationRes.json();
       const reservation = reservationData.data;
 
-      // 2. Create Stripe checkout session
+      // TEST MODE: Skip Stripe and directly confirm reservation
+      if (testMode) {
+        const confirmRes = await fetch(
+          `/api/public/reservations/${reservation.id}/confirm-test`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!confirmRes.ok) {
+          const errorData = await confirmRes.json();
+          throw new Error(errorData.error || "予約の確定に失敗しました");
+        }
+
+        // Redirect to success page with test mode indicator
+        window.location.href = `/booking/success?test_mode=true&reservation_id=${reservation.id}`;
+        return;
+      }
+
+      // 2. Create Stripe checkout session (normal mode)
       const stripeRes = await fetch("/api/stripe/create-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -442,8 +478,23 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
               </div>
 
               <div className="space-y-3 pt-4">
+                {testMode && (
+                  <div className="bg-amber-100 border border-amber-300 rounded-lg p-3 mb-3">
+                    <div className="flex items-center gap-2 text-amber-800">
+                      <TestTube2 className="w-4 h-4" />
+                      <span className="text-sm font-medium">テストモード</span>
+                    </div>
+                    <p className="text-xs text-amber-700 mt-1">
+                      決済はスキップされ、予約が直接確定されます
+                    </p>
+                  </div>
+                )}
                 <Button
-                  className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold h-14 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full font-bold h-14 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                    testMode
+                      ? "bg-amber-500 hover:bg-amber-600 text-white"
+                      : "bg-orange-400 hover:bg-orange-500 text-white"
+                  }`}
                   onClick={handlePayment}
                   disabled={isSubmitting || !canProceedToPayment}
                 >
@@ -451,6 +502,11 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       処理中...
+                    </>
+                  ) : testMode ? (
+                    <>
+                      <TestTube2 className="w-5 h-5 mr-2" />
+                      テスト予約を確定
                     </>
                   ) : (
                     <>
@@ -464,19 +520,23 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                     上記の同意事項全てにチェックを入れてください
                   </p>
                 )}
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <img
-                    src="/images/stripe-badge.svg"
-                    alt="Powered by Stripe"
-                    className="h-6 opacity-60"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-                <p className="text-xs text-center text-slate-500">
-                  安全な決済はStripeによって処理されます
-                </p>
+                {!testMode && (
+                  <>
+                    <div className="flex items-center justify-center gap-2 pt-2">
+                      <img
+                        src="/images/stripe-badge.svg"
+                        alt="Powered by Stripe"
+                        className="h-6 opacity-60"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-center text-slate-500">
+                      安全な決済はStripeによって処理されます
+                    </p>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -49,6 +49,19 @@ export async function getCurrentUser(
 export async function getAdminUser(
   supabase: SupabaseClient
 ): Promise<AdminUser | null> {
+  // DEV_SKIP_AUTH mode: return mock admin user for development
+  if (process.env.DEV_SKIP_AUTH === 'true') {
+    return {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'admin@privatesky.jp',
+      name: 'Admin User',
+      role: 'admin' as UserRole,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
   const user = await getCurrentUser(supabase);
 
   if (!user) {
@@ -93,6 +106,18 @@ export async function getAdminUser(
  * @returns The authenticated Supabase user
  */
 export async function requireAuth(supabase: SupabaseClient): Promise<User> {
+  // DEV_SKIP_AUTH mode: return mock user for development
+  if (process.env.DEV_SKIP_AUTH === 'true') {
+    return {
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'admin@privatesky.jp',
+      app_metadata: {},
+      user_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as User;
+  }
+
   const user = await getCurrentUser(supabase);
 
   if (!user) {
