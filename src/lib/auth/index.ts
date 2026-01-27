@@ -1,5 +1,6 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import type { AdminUser, UserRole } from '@/lib/data/types';
+import { createAdminClient } from '@/lib/supabase/server';
 
 /**
  * Authentication error thrown when user is not authenticated
@@ -54,7 +55,10 @@ export async function getAdminUser(
     return null;
   }
 
-  const { data, error } = await supabase
+  // Use admin client to bypass RLS for admin_users table
+  // This is safe because we already verified the user is authenticated above
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
     .from('admin_users')
     .select('id, email, name, role, avatar_url, is_active, last_login_at, created_at, updated_at')
     .eq('id', user.id)
