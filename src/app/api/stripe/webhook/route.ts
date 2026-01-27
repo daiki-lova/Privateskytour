@@ -126,7 +126,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     }
 
     // Build mypage URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const mypageUrl = customer.mypage_token
       ? `${baseUrl}/mypage?token=${customer.mypage_token}`
       : `${baseUrl}/mypage`;

@@ -42,7 +42,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   process.env = { ...originalEnv };
   process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_secret';
-  process.env.NEXT_PUBLIC_BASE_URL = 'http://localhost:3000';
+  process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
 });
 
 describe('POST /api/stripe/create-session', () => {

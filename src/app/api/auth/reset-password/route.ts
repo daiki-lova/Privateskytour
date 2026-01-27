@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Get the base URL for the redirect
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ||
         (request.headers.get('origin') ?? 'http://localhost:3000');
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
