@@ -116,7 +116,7 @@ export const HeliportsView = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
-            <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
+            <p className="text-sm text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
           </div>
         </div>
         <ErrorAlert
@@ -133,10 +133,10 @@ export const HeliportsView = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
-            <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
+            <p className="text-sm text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
           </div>
-          <Button disabled className="w-full sm:w-auto h-9 text-xs bg-indigo-600">
-            <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規ヘリポート
+          <Button disabled className="w-full sm:w-auto h-10 text-sm bg-indigo-600">
+            <Plus className="w-4 h-4 mr-1.5" /> 新規ヘリポート
           </Button>
         </div>
         <CardGridSkeleton cards={3} columns={3} />
@@ -151,8 +151,8 @@ export const HeliportsView = () => {
           <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
           <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto h-9 text-xs bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規ヘリポート
+        <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto h-10 text-sm bg-indigo-600 hover:bg-indigo-700">
+          <Plus className="w-4 h-4 mr-1.5" /> 新規ヘリポート
         </Button>
       </div>
 
@@ -178,7 +178,7 @@ export const HeliportsView = () => {
           
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
             <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">ヘリポート名称</Label>
+              <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">ヘリポート名称</Label>
               <Input 
                 value={formData.name || ''} 
                 onChange={e => setFormData({...formData, name: e.target.value})}
@@ -189,7 +189,7 @@ export const HeliportsView = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">郵便番号</Label>
+                <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">郵便番号</Label>
                 <Input 
                   value={formData.postalCode || ''} 
                   onChange={e => setFormData({...formData, postalCode: e.target.value})}
@@ -198,7 +198,7 @@ export const HeliportsView = () => {
                 />
               </div>
               <div className="md:col-span-2 space-y-1">
-                <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">住所</Label>
+                <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">住所</Label>
                 <Input 
                   value={formData.address || ''} 
                   onChange={e => setFormData({...formData, address: e.target.value})}
@@ -209,7 +209,7 @@ export const HeliportsView = () => {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">最寄り駅（電車）</Label>
+              <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">最寄り駅（電車）</Label>
               <Input 
                 value={formData.accessRail || ''} 
                 onChange={e => setFormData({...formData, accessRail: e.target.value})}
@@ -220,7 +220,7 @@ export const HeliportsView = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">タクシーアクセス</Label>
+                <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">タクシーアクセス</Label>
                 <Textarea 
                   value={formData.accessTaxi || ''} 
                   onChange={e => setFormData({...formData, accessTaxi: e.target.value})}
@@ -229,7 +229,7 @@ export const HeliportsView = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">車アクセス（任意）</Label>
+                <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">車アクセス（任意）</Label>
                 <Textarea 
                   value={formData.accessCar || ''} 
                   onChange={e => setFormData({...formData, accessCar: e.target.value})}
@@ -240,7 +240,7 @@ export const HeliportsView = () => {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Google Map URL</Label>
+              <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Google Map URL</Label>
               <div className="flex gap-2">
                 <Input 
                   value={formData.googleMapUrl || ''} 
@@ -248,14 +248,14 @@ export const HeliportsView = () => {
                   placeholder="https://goo.gl/maps/..." 
                   className="h-8 text-xs font-mono text-slate-600"
                 />
-                <Button variant="outline" size="icon" title="確認" className="h-8 w-8 shrink-0">
-                  <ExternalLink className="w-3.5 h-3.5" />
+                <Button variant="outline" size="icon" title="確認" className="h-9 w-9 shrink-0">
+                  <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">ヘリポート画像</Label>
+              <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">ヘリポート画像</Label>
               
               {formData.imageUrl ? (
                 <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-200 group bg-slate-50">
@@ -286,8 +286,8 @@ export const HeliportsView = () => {
                     <div className="p-2 bg-indigo-50 rounded-full mb-2">
                       <Upload className="w-5 h-5 text-indigo-500" />
                     </div>
-                    <p className="text-sm text-slate-600 font-medium">クリックして画像をアップロード</p>
-                    <p className="text-xs text-slate-400 mt-1">またはドラッグ＆ドロップ (PNG, JPG)</p>
+                    <p className="text-base text-slate-600 font-medium">クリックして画像をアップロード</p>
+                    <p className="text-sm text-slate-400 mt-1">またはドラッグ＆ドロップ (PNG, JPG)</p>
                   </div>
                   <Input 
                     type="file" 
@@ -301,9 +301,9 @@ export const HeliportsView = () => {
           </div>
 
           <DialogFooter className="p-4 border-t bg-white">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="h-8 text-xs">キャンセル</Button>
-            <Button onClick={handleSave} className="h-8 text-xs min-w-[100px] gap-2">
-              <Save className="w-3.5 h-3.5" /> 保存する
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="h-9 text-sm">キャンセル</Button>
+            <Button onClick={handleSave} className="h-9 text-sm min-w-[100px] gap-2">
+              <Save className="w-4 h-4" /> 保存する
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -334,18 +334,18 @@ const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEd
       </div>
       <CardHeader className="p-3 pb-2">
         <CardTitle className="text-sm font-bold text-slate-900">{heliport.name}</CardTitle>
-        <CardDescription className="flex items-center gap-1 text-[10px] mt-0.5">
-          <MapPin className="w-2.5 h-2.5" /> 〒{heliport.postalCode}
+        <CardDescription className="flex items-center gap-1 text-xs mt-0.5">
+          <MapPin className="w-3 h-3" /> 〒{heliport.postalCode}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 p-3 pt-0 space-y-2">
-        <p className="text-[10px] text-slate-600 line-clamp-1">{heliport.address}</p>
+        <p className="text-xs text-slate-600 line-clamp-1">{heliport.address}</p>
         <div className="space-y-1 pt-1 border-t border-slate-50">
-          <div className="flex gap-2 text-[10px] text-slate-500">
+          <div className="flex gap-2 text-xs text-slate-500">
             <span className="font-semibold w-10 shrink-0 text-slate-400">電車</span>
             <span className="truncate">{heliport.accessRail || '-'}</span>
           </div>
-          <div className="flex gap-2 text-[10px] text-slate-500">
+          <div className="flex gap-2 text-xs text-slate-500">
              <span className="font-semibold w-10 shrink-0 text-slate-400">Taxi</span>
              <span className="truncate">{heliport.accessTaxi || '-'}</span>
           </div>
@@ -356,9 +356,9 @@ const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEd
           href={heliport.googleMapUrl} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-[10px] text-indigo-600 hover:underline flex items-center gap-1 w-full justify-center font-medium"
+          className="text-xs text-indigo-600 hover:underline flex items-center gap-1 w-full justify-center font-medium"
         >
-          <ExternalLink className="w-2.5 h-2.5" /> Mapを開く
+          <ExternalLink className="w-3 h-3" /> Mapを開く
         </a>
       </CardFooter>
     </Card>

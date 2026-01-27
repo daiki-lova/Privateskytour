@@ -121,10 +121,10 @@ export const CoursesView = () => {
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
         <div>
           <h1 className="text-lg font-bold tracking-tight text-slate-900">コース管理</h1>
-          <p className="text-xs text-slate-500 mt-1">Webサイト掲載用の遊覧プラン編集 (CMS)</p>
+          <p className="text-sm text-slate-500 mt-1">Webサイト掲載用の遊覧プラン編集 (CMS)</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto h-9 text-xs bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規コース
+        <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto h-10 text-sm bg-indigo-600 hover:bg-indigo-700">
+          <Plus className="w-4 h-4 mr-1.5" /> 新規コース
         </Button>
       </div>
 
@@ -180,7 +180,7 @@ const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, h
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2">
           <div className="flex flex-wrap gap-1">
             {course.tags?.slice(0, 2).map(tag => (
-              <Badge key={tag} variant="secondary" className="bg-white/90 text-slate-900 text-[10px] h-4 px-1.5 py-0 backdrop-blur-sm border-0">
+              <Badge key={tag} variant="secondary" className="bg-white/90 text-slate-900 text-xs h-5 px-1.5 py-0 backdrop-blur-sm border-0">
                 {tag}
               </Badge>
             ))}
@@ -191,29 +191,29 @@ const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, h
       <CardHeader className="p-3 pb-2 space-y-1">
         <div className="flex justify-between items-start gap-2">
           <h3 className="text-sm font-bold text-slate-900 line-clamp-1 leading-tight">{course.title}</h3>
-          <span className="text-[10px] font-mono font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
+          <span className="text-xs font-mono font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
             {duration}min
           </span>
         </div>
-        <p className="text-[10px] text-slate-500 line-clamp-1">{course.subtitle || 'No subtitle'}</p>
+        <p className="text-xs text-slate-500 line-clamp-1">{course.subtitle || 'No subtitle'}</p>
       </CardHeader>
       
       <CardContent className="p-3 pt-0 flex-1 space-y-2">
-        <div className="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+        <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 mt-1">
           <div className="flex items-center gap-1 truncate max-w-[60%]">
-            <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
+            <MapPin className="w-4 h-4 shrink-0 text-slate-400" />
             <span className="truncate">{heliportName}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Users className="w-3 h-3 shrink-0 text-slate-400" />
+            <Users className="w-4 h-4 shrink-0 text-slate-400" />
             <span>Max {course.maxPax}</span>
           </div>
         </div>
       </CardContent>
       
       <CardFooter className="p-3 pt-2 border-t bg-slate-50/50 flex justify-between items-baseline">
-        <span className="text-[10px] text-slate-400">Price (inc. tax)</span>
-        <span className="text-sm font-bold text-slate-900 font-mono">¥{course.price.toLocaleString()}</span>
+        <span className="text-xs text-slate-400">Price (inc. tax)</span>
+        <span className="text-base font-bold text-slate-900 font-mono">¥{course.price.toLocaleString()}</span>
       </CardFooter>
     </Card>
   );
@@ -270,13 +270,13 @@ const CourseEditDialog = ({
             {/* Left Column: Basic Info */}
             <div className="col-span-1 md:col-span-12 lg:col-span-5 space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Tag className="w-3.5 h-3.5 text-indigo-500" />
+                <Tag className="w-4 h-4 text-indigo-500" />
                 <h4 className="text-sm font-semibold text-slate-800">基本設定</h4>
               </div>
               
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">コース名称 <span className="text-red-500">*</span></Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">コース名称 <span className="text-red-500">*</span></Label>
                   <Input 
                     value={formData.title || ''} 
                     onChange={e => setFormData({...formData, title: e.target.value})} 
@@ -286,7 +286,7 @@ const CourseEditDialog = ({
                 </div>
                 
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">キャッチコピー</Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">キャッチコピー</Label>
                   <Input 
                     value={formData.subtitle || ''} 
                     onChange={e => setFormData({...formData, subtitle: e.target.value})}
@@ -297,7 +297,7 @@ const CourseEditDialog = ({
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">所要時間 (分)</Label>
+                    <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">所要時間 (分)</Label>
                     <div className="relative">
                       <Input
                         type="number"
@@ -305,11 +305,11 @@ const CourseEditDialog = ({
                         onChange={e => setFormData({...formData, durationMinutes: Number(e.target.value)})}
                         className="h-8 text-sm pr-8 font-mono"
                       />
-                      <span className="absolute right-3 top-2 text-[10px] text-slate-400">min</span>
+                      <span className="absolute right-3 top-2 text-xs text-slate-400">min</span>
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">定員 (名)</Label>
+                    <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">定員 (名)</Label>
                     <div className="relative">
                       <Input 
                         type="number"
@@ -317,13 +317,13 @@ const CourseEditDialog = ({
                         onChange={e => setFormData({...formData, maxPax: Number(e.target.value)})} 
                         className="h-8 text-sm pr-8 font-mono"
                       />
-                      <span className="absolute right-3 top-2 text-[10px] text-slate-400">pax</span>
+                      <span className="absolute right-3 top-2 text-xs text-slate-400">pax</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                   <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">販売価格 (税込)</Label>
+                   <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">販売価格 (税込)</Label>
                    <div className="relative">
                      <span className="absolute left-3 top-2 text-xs text-slate-500 font-sans">¥</span>
                      <Input 
@@ -336,7 +336,7 @@ const CourseEditDialog = ({
                 </div>
 
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">出発ヘリポート</Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">出発ヘリポート</Label>
                   <Select 
                     value={formData.heliportId} 
                     onValueChange={val => setFormData({...formData, heliportId: val})}
@@ -353,7 +353,7 @@ const CourseEditDialog = ({
                 </div>
                 
                  <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">タグ (カンマ区切り)</Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">タグ (カンマ区切り)</Label>
                   <Input 
                     value={formData.tags?.join(',') || ''} 
                     onChange={e => setFormData({...formData, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)})}
@@ -362,7 +362,7 @@ const CourseEditDialog = ({
                   />
                   <div className="flex flex-wrap gap-1 mt-1.5 min-h-[20px]">
                     {formData.tags?.map(tag => (
-                      <Badge key={tag} variant="outline" className="text-[10px] h-5 px-1.5 font-normal text-slate-600 bg-slate-50">
+                      <Badge key={tag} variant="outline" className="text-xs h-5 px-1.5 font-normal text-slate-600 bg-slate-50">
                         {tag}
                       </Badge>
                     ))}
@@ -374,13 +374,13 @@ const CourseEditDialog = ({
             {/* Right Column: Detailed Content */}
             <div className="col-span-1 md:col-span-12 lg:col-span-7 space-y-5">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <ImageIcon className="w-3.5 h-3.5 text-indigo-500" />
+                <ImageIcon className="w-4 h-4 text-indigo-500" />
                 <h4 className="text-sm font-semibold text-slate-800">コンテンツ詳細 & スケジュール</h4>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1 col-span-1 md:col-span-2">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">メイン画像</Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">メイン画像</Label>
                   <div className="mt-2">
                     <div className="relative group cursor-pointer">
                       <Input 
@@ -425,8 +425,8 @@ const CourseEditDialog = ({
                               <Upload className="w-5 h-5 text-indigo-500" />
                             </div>
                             <div className="text-center">
-                              <p className="text-xs font-medium text-slate-600">クリックして画像をアップロード</p>
-                              <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, GIF (Max 5MB)</p>
+                              <p className="text-sm font-medium text-slate-600">クリックして画像をアップロード</p>
+                              <p className="text-xs text-slate-400 mt-0.5">PNG, JPG, GIF (Max 5MB)</p>
                             </div>
                           </div>
                         )}
@@ -450,7 +450,7 @@ const CourseEditDialog = ({
                 </div>
 
                 <div className="space-y-1 col-span-1 md:col-span-2">
-                  <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">コース説明文</Label>
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">コース説明文</Label>
                   <Textarea 
                     className="min-h-[120px] text-xs leading-relaxed resize-none" 
                     value={formData.description || ''}
@@ -465,8 +465,8 @@ const CourseEditDialog = ({
                    <Label className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold flex items-center gap-1">
                      <Clock className="w-3 h-3" /> タイムライン
                    </Label>
-                   <Button type="button" variant="outline" size="sm" onClick={addScheduleStep} className="h-6 text-[10px] px-2">
-                     <Plus className="w-3 h-3 mr-1" /> 追加
+                   <Button type="button" variant="outline" size="sm" onClick={addScheduleStep} className="h-7 text-xs px-2">
+                     <Plus className="w-4 h-4 mr-1" /> 追加
                    </Button>
                 </div>
                 
@@ -474,37 +474,37 @@ const CourseEditDialog = ({
                   {formData.flightSchedule?.map((step, index) => (
                     <div key={index} className="flex gap-2 items-start group">
                       <div className="w-16 shrink-0 pt-0.5">
-                        <Input 
-                          placeholder="0分" 
-                          className="h-7 text-[10px] text-center font-mono" 
+                        <Input
+                          placeholder="0分"
+                          className="h-8 text-xs text-center font-mono"
                           value={step.time}
                           onChange={e => updateScheduleStep(index, 'time', e.target.value)}
                         />
                       </div>
                       <div className="mt-2 text-slate-300">
-                        <ChevronRight className="w-3 h-3" />
+                        <ChevronRight className="w-4 h-4" />
                       </div>
                       <div className="flex-1 space-y-1.5">
-                        <Input 
-                          placeholder="タイトル (例: 離陸)" 
-                          className="h-7 text-[10px] font-bold text-slate-700"
+                        <Input
+                          placeholder="タイトル (例: 離陸)"
+                          className="h-8 text-xs font-bold text-slate-700"
                           value={step.title || ''}
                           onChange={e => updateScheduleStep(index, 'title', e.target.value)}
                         />
-                        <Input 
-                          placeholder="詳細説明" 
-                          className="h-7 text-[10px] text-slate-600"
+                        <Input
+                          placeholder="詳細説明"
+                          className="h-8 text-xs text-slate-600"
                           value={step.description}
                           onChange={e => updateScheduleStep(index, 'description', e.target.value)}
                         />
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => removeScheduleStep(index)}
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   ))}
@@ -521,9 +521,9 @@ const CourseEditDialog = ({
         </div>
         
         <DialogFooter className="p-4 border-t bg-white">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} className="h-8 text-xs">キャンセル</Button>
-          <Button onClick={onSave} disabled={isSaving} className="h-8 text-xs min-w-[100px] gap-2">
-            <Save className="w-3.5 h-3.5" /> {isSaving ? '保存中...' : '保存する'}
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} className="h-9 text-sm">キャンセル</Button>
+          <Button onClick={onSave} disabled={isSaving} className="h-9 text-sm min-w-[100px] gap-2">
+            <Save className="w-4 h-4" /> {isSaving ? '保存中...' : '保存する'}
           </Button>
         </DialogFooter>
       </DialogContent>

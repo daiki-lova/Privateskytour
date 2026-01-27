@@ -70,7 +70,7 @@ export const DashboardView = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">ダッシュボード</h1>
-            <p className="text-xs text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
+            <p className="text-sm text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
           </div>
         </div>
         <CardGridSkeleton cards={4} columns={4} />
@@ -84,7 +84,7 @@ export const DashboardView = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">ダッシュボード</h1>
-            <p className="text-xs text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
+            <p className="text-sm text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
           </div>
         </div>
         <ErrorAlert
@@ -100,14 +100,14 @@ export const DashboardView = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-slate-900">ダッシュボード</h1>
-          <p className="text-xs text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
+          <p className="text-sm text-slate-500 mt-1">本日の運航状況と主要な運用通知</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-2 py-0.5 text-[10px] font-medium">
-            <CheckCircle2 className="w-3 h-3 mr-1" />
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-2 py-0.5 text-xs font-medium">
+            <CheckCircle2 className="w-4 h-4 mr-1" />
             システム正常稼働中
           </Badge>
-          <span className="text-[10px] text-slate-400">最終更新: {format(new Date(), 'HH:mm')}</span>
+          <span className="text-xs text-slate-400">最終更新: {format(new Date(), 'HH:mm')}</span>
         </div>
       </div>
 
@@ -115,47 +115,47 @@ export const DashboardView = () => {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">今月の売上</CardTitle>
-            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">今月の売上</CardTitle>
+            <DollarSign className="h-4 w-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-slate-900">
               {thisMonthRevenue.toLocaleString()}<span className="text-xs font-normal text-slate-400 ml-1">円</span>
             </div>
-            <p className="text-[10px] text-slate-500 mt-1">確定済み予約の合計</p>
+            <p className="text-xs text-slate-500 mt-1">確定済み予約の合計</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">本日のフライト</CardTitle>
-            <Plane className="h-3.5 w-3.5 text-slate-400" />
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">本日のフライト</CardTitle>
+            <Plane className="h-4 w-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-slate-900">{todayFlights}<span className="text-xs font-normal text-slate-400 ml-1">枠</span></div>
-            <p className="text-[10px] text-slate-500 mt-1">{format(new Date(), 'M/d')} のスロット数</p>
+            <p className="text-xs text-slate-500 mt-1">{format(new Date(), 'M/d')} のスロット数</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">本日の予約</CardTitle>
-            <Users className="h-3.5 w-3.5 text-slate-400" />
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">本日の予約</CardTitle>
+            <Users className="h-4 w-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-slate-900">{todayReservations}<span className="text-xs font-normal text-slate-400 ml-1">件</span></div>
-            <p className="text-[10px] text-slate-500 mt-1">{format(new Date(), 'M/d')} の予約数</p>
+            <p className="text-xs text-slate-500 mt-1">{format(new Date(), 'M/d')} の予約数</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">今月の予約</CardTitle>
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">今月の予約</CardTitle>
+            <Calendar className="h-4 w-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-slate-900">{thisMonthReservations}<span className="text-xs font-normal text-slate-400 ml-1">件</span></div>
-            <p className="text-[10px] text-slate-500 mt-1">{format(new Date(), 'M')}月の累計予約</p>
+            <p className="text-xs text-slate-500 mt-1">{format(new Date(), 'M')}月の累計予約</p>
           </CardContent>
         </Card>
       </div>
@@ -166,7 +166,7 @@ export const DashboardView = () => {
           <CardHeader className="pb-3 border-b border-slate-100 bg-slate-50/30">
             <div className="flex justify-between items-center">
               <CardTitle className="text-sm font-bold">本日のフライト状況 ({format(new Date(), 'M/d')})</CardTitle>
-              <Badge variant="secondary" className="font-mono text-[10px]">{format(new Date(), 'HH:mm')} 現在</Badge>
+              <Badge variant="secondary" className="font-mono text-xs">{format(new Date(), 'HH:mm')} 現在</Badge>
             </div>
             <CardDescription className="text-xs">リアルタイムの予約・運航ステータス</CardDescription>
           </CardHeader>
@@ -191,18 +191,18 @@ export const DashboardView = () => {
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-2">
                              <span className={cn(
-                               "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                               "text-xs font-bold px-2 py-0.5 rounded-full",
                                isFull ? 'bg-indigo-100 text-indigo-700' :
                                isEmpty ? 'bg-slate-100 text-slate-500' :
                                'bg-emerald-100 text-emerald-700'
                              )}>
                                {isFull ? '満席' : isEmpty ? '空席あり' : `残り${availablePax}席`}
                              </span>
-                             <span className="text-[11px] text-slate-500 truncate font-medium">
+                             <span className="text-xs text-slate-500 truncate font-medium">
                                {slot.course?.title || 'コース未設定'}
                              </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 font-mono">{currentPax}/{maxPax}</span>
+                          <span className="text-xs text-slate-400 font-mono">{currentPax}/{maxPax}</span>
                         </div>
 
                         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -237,22 +237,22 @@ export const DashboardView = () => {
            <Card className="border-red-100 bg-red-50/10 shadow-none">
             <CardHeader className="pb-2 pt-4 px-4">
               <CardTitle className="text-xs font-bold flex items-center gap-2 text-red-700 uppercase tracking-widest">
-                <AlertTriangle className="w-3.5 h-3.5" />
+                <AlertTriangle className="w-4 h-4" />
                 Important Alerts
               </CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="space-y-3">
                 <div className="bg-white p-3 rounded-xl border border-red-100 shadow-sm">
-                   <p className="text-[11px] font-bold text-slate-800">未返金の予約 (2件)</p>
-                   <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">運休処理された予約の返金処理が未完了です。</p>
-                   <Button size="sm" variant="outline" className="w-full mt-2 text-[10px] h-7 border-red-200 text-red-600 hover:bg-red-50">詳細を確認</Button>
+                   <p className="text-xs font-bold text-slate-800">未返金の予約 (2件)</p>
+                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">運休処理された予約の返金処理が未完了です。</p>
+                   <Button size="sm" variant="outline" className="w-full mt-2 text-xs h-7 border-red-200 text-red-600 hover:bg-red-50">詳細を確認</Button>
                 </div>
 
                 <div className="bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
-                   <p className="text-[11px] font-bold text-slate-800">CRM同期エラー</p>
-                   <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">顧客データの同期に失敗しました。</p>
-                   <Button size="sm" variant="outline" className="w-full mt-2 text-[10px] h-7 border-amber-200 text-amber-600 hover:bg-amber-50">再試行</Button>
+                   <p className="text-xs font-bold text-slate-800">CRM同期エラー</p>
+                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">顧客データの同期に失敗しました。</p>
+                   <Button size="sm" variant="outline" className="w-full mt-2 text-xs h-7 border-amber-200 text-amber-600 hover:bg-amber-50">再試行</Button>
                 </div>
               </div>
             </CardContent>
@@ -260,7 +260,7 @@ export const DashboardView = () => {
 
           <Card className="shadow-sm border-slate-200 bg-white">
             <CardHeader className="py-3 px-4 border-b border-slate-100 bg-slate-50/30">
-               <CardTitle className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">System Health</CardTitle>
+               <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">System Health</CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3">
                {[
@@ -268,7 +268,7 @@ export const DashboardView = () => {
                  { label: 'Stripe API', status: 'Healthy' },
                  { label: 'Mail Server', status: 'Healthy' },
                ].map((item, idx) => (
-                 <div key={idx} className="flex justify-between items-center text-[11px]">
+                 <div key={idx} className="flex justify-between items-center text-xs">
                    <span className="text-slate-600 font-medium">{item.label}</span>
                    <span className="text-emerald-600 flex items-center gap-1.5 font-bold">
                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>

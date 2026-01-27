@@ -215,8 +215,8 @@ export const ManifestView = () => {
         <div className="flex gap-2 w-full sm:w-auto flex-wrap">
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-9 text-xs">
-                <CalendarIcon className="w-3.5 h-3.5 mr-1.5" />
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-10 text-sm">
+                <CalendarIcon className="w-4 h-4 mr-1.5" />
                 {format(selectedDate, 'yyyy/MM/dd')}
               </Button>
             </PopoverTrigger>
@@ -234,11 +234,11 @@ export const ManifestView = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" size="sm" onClick={handlePrint} className="flex-1 sm:flex-none h-9 text-xs">
-            <Printer className="w-3.5 h-3.5 mr-1.5" /> 印刷用表示
+          <Button variant="outline" size="sm" onClick={handlePrint} className="flex-1 sm:flex-none h-10 text-sm">
+            <Printer className="w-4 h-4 mr-1.5" /> 印刷用表示
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportCSV} className="flex-1 sm:flex-none h-9 text-xs">
-            <FileDown className="w-3.5 h-3.5 mr-1.5" /> CSVエクスポート
+          <Button variant="outline" size="sm" onClick={handleExportCSV} className="flex-1 sm:flex-none h-10 text-sm">
+            <FileDown className="w-4 h-4 mr-1.5" /> CSVエクスポート
           </Button>
         </div>
       </div>
@@ -279,13 +279,13 @@ export const ManifestView = () => {
                   </div>
                   <div className="h-px bg-slate-200 flex-1" />
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-600">
-                      <UserIcon className="w-3 h-3" />
+                    <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded text-xs font-bold text-slate-600">
+                      <UserIcon className="w-4 h-4" />
                       <span>{totalPax}名</span>
                     </div>
                     {totalWeight > 0 && (
-                      <div className="flex items-center gap-1.5 bg-emerald-100 px-2 py-1 rounded text-[10px] font-bold text-emerald-700">
-                        <Scale className="w-3 h-3" />
+                      <div className="flex items-center gap-1.5 bg-emerald-100 px-2 py-1 rounded text-xs font-bold text-emerald-700">
+                        <Scale className="w-4 h-4" />
                         <span>{totalWeight}kg</span>
                         <span className="text-emerald-500">({checkedCount}/{allPassengersCount})</span>
                       </div>
@@ -311,8 +311,8 @@ export const ManifestView = () => {
                               </div>
                               <div className="text-sm font-bold text-slate-900">
                                 {passenger.name}
-                                {passenger.isChild && <Badge variant="secondary" className="ml-1.5 text-[9px]">子供</Badge>}
-                                {passenger.isInfant && <Badge variant="secondary" className="ml-1.5 text-[9px]">幼児</Badge>}
+                                {passenger.isChild && <Badge variant="secondary" className="ml-1.5 text-xs">子供</Badge>}
+                                {passenger.isInfant && <Badge variant="secondary" className="ml-1.5 text-xs">幼児</Badge>}
                               </div>
                               {passenger.nameRomaji && (
                                 <div className="text-xs font-mono text-slate-500 uppercase">
@@ -322,34 +322,34 @@ export const ManifestView = () => {
                             </div>
                             <div className="flex flex-col items-end gap-1.5">
                               {passenger.weightKg && (
-                                <div className="text-[10px] font-mono font-bold text-emerald-600 flex items-center gap-1">
+                                <div className="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
                                   <CheckCircle2 className="w-2.5 h-2.5" /> CHECKED
                                 </div>
                               )}
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50/50 rounded-lg border border-slate-100/50 text-[11px]">
+                          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50/50 rounded-lg border border-slate-100/50 text-xs">
                             <div className="space-y-1">
-                              <Label className="text-[9px] text-slate-400 uppercase m-0">Weight</Label>
+                              <Label className="text-xs text-slate-400 uppercase m-0">Weight</Label>
                               <div className="flex items-center gap-1.5 font-mono">
-                                <Scale className="w-3 h-3 text-slate-400" />
+                                <Scale className="w-4 h-4 text-slate-400" />
                                 <span className={passenger.weightKg ? "text-slate-900 font-bold" : "text-slate-300"}>
                                   {passenger.weightKg ? `${passenger.weightKg}kg` : 'Pending'}
                                 </span>
                               </div>
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-[9px] text-slate-400 uppercase m-0">Contact</Label>
+                              <Label className="text-xs text-slate-400 uppercase m-0">Contact</Label>
                               <div className="flex items-center gap-1.5 font-mono">
-                                <Phone className="w-3 h-3 text-slate-400" />
+                                <Phone className="w-4 h-4 text-slate-400" />
                                 <span className="text-slate-700">{res.customer?.phone || '-'}</span>
                               </div>
                             </div>
                           </div>
 
                           {passenger.specialRequirements && (
-                            <div className="mt-3 bg-amber-50/50 text-amber-800 p-2.5 rounded-lg text-[11px] flex items-start gap-2 border border-amber-100/30">
+                            <div className="mt-3 bg-amber-50/50 text-amber-800 p-2.5 rounded-lg text-xs flex items-start gap-2 border border-amber-100/30">
                               <FileText className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-500" />
                               <span className="leading-relaxed">{passenger.specialRequirements}</span>
                             </div>
@@ -364,12 +364,12 @@ export const ManifestView = () => {
                     <Table>
                       <TableHeader className="bg-slate-50/50">
                         <TableRow className="border-slate-100 hover:bg-transparent">
-                          <TableHead className="w-[100px] text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9 pl-6">予約番号</TableHead>
-                          <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9">搭乗者名</TableHead>
-                          <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9">ローマ字</TableHead>
-                          <TableHead className="w-[100px] text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9">体重(kg)</TableHead>
-                          <TableHead className="w-[140px] text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9">電話番号</TableHead>
-                          <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-9 pr-6">備考</TableHead>
+                          <TableHead className="w-[100px] text-xs font-semibold text-slate-500 uppercase tracking-wider h-9 pl-6">予約番号</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-9">搭乗者名</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-9">ローマ字</TableHead>
+                          <TableHead className="w-[100px] text-xs font-semibold text-slate-500 uppercase tracking-wider h-9">体重(kg)</TableHead>
+                          <TableHead className="w-[140px] text-xs font-semibold text-slate-500 uppercase tracking-wider h-9">電話番号</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-9 pr-6">備考</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -386,10 +386,10 @@ export const ManifestView = () => {
                               <TableCell className="text-xs font-medium text-slate-800 py-3">
                                 <div className="flex items-center gap-2">
                                   {passenger.name}
-                                  {passenger.isChild && <Badge variant="secondary" className="text-[9px]">子供</Badge>}
-                                  {passenger.isInfant && <Badge variant="secondary" className="text-[9px]">幼児</Badge>}
+                                  {passenger.isChild && <Badge variant="secondary" className="text-xs">子供</Badge>}
+                                  {passenger.isInfant && <Badge variant="secondary" className="text-xs">幼児</Badge>}
                                   {passenger.weightKg && (
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                   )}
                                 </div>
                               </TableCell>
@@ -409,14 +409,14 @@ export const ManifestView = () => {
                               </TableCell>
                               <TableCell className="text-xs text-slate-600 font-mono py-3">
                                 <div className="flex items-center gap-1">
-                                  <Phone className="w-3 h-3 text-slate-300" />
+                                  <Phone className="w-4 h-4 text-slate-300" />
                                   {res.customer?.phone || '-'}
                                 </div>
                               </TableCell>
-                              <TableCell className="text-[10px] text-slate-500 max-w-xs py-3 pr-6">
+                              <TableCell className="text-xs text-slate-500 max-w-xs py-3 pr-6">
                                 {passenger.specialRequirements ? (
                                   <div className="flex items-start gap-1">
-                                    <FileText className="w-3 h-3 text-slate-300 shrink-0 mt-0.5" />
+                                    <FileText className="w-4 h-4 text-slate-300 shrink-0 mt-0.5" />
                                     <span className="line-clamp-1">{passenger.specialRequirements}</span>
                                   </div>
                                 ) : (
@@ -497,7 +497,7 @@ export const ManifestView = () => {
                     平均値
                   </Button>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-xs text-slate-400">
                   安全運航のため、正確な数値を入力してください。
                 </p>
               </div>
@@ -515,11 +515,11 @@ export const ManifestView = () => {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={handleCloseDialog} className="h-8 text-xs">キャンセル</Button>
-            <Button onClick={handleSaveManifest} className="h-8 text-xs" disabled={isProcessing}>
+            <Button variant="outline" onClick={handleCloseDialog} className="h-9 text-sm">キャンセル</Button>
+            <Button onClick={handleSaveManifest} className="h-9 text-sm" disabled={isProcessing}>
               {isProcessing ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
                   保存中...
                 </>
               ) : (

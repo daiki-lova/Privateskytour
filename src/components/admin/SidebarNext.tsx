@@ -42,36 +42,36 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white text-slate-500">
-      <div className="p-6 border-b border-slate-100">
-        <img src={logo.src} alt="PrivateSky Tour" className="h-6 mb-1 object-contain -ml-1" />
-        <p className="text-xs text-slate-400 font-medium">管理画面</p>
+    <div className="flex flex-col h-full bg-white text-slate-600">
+      <div className="p-5 border-b border-slate-100">
+        <img src={logo.src} alt="PrivateSky Tour" className="h-7 mb-1.5 object-contain" />
+        <p className="text-xs text-slate-400 font-medium tracking-wide">管理画面</p>
       </div>
 
-      <div className="flex-1 py-6 px-3 space-y-0.5 overflow-y-auto">
-        <div className="mb-2 px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+        <div className="mb-3 px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
           MAIN MENU
         </div>
         {menuItems.map((item) => {
           if (!item.roles.includes(currentUser.role)) return null;
           const Icon = item.icon;
           const isActive = pathname === item.path;
-          
+
           return (
             <Link
               key={item.id}
               href={item.path}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all duration-200",
-                isActive 
-                  ? "bg-slate-100 text-slate-900 shadow-sm" 
-                  : "hover:bg-slate-50 hover:text-slate-700 text-slate-500"
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                isActive
+                  ? "bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100"
+                  : "hover:bg-slate-50 hover:text-slate-800 text-slate-600"
               )}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-[18px] h-[18px]" />
               {item.label}
               {item.id === 'refunds' && pendingRefundsCount > 0 && (
-                <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0 h-4">{pendingRefundsCount}</Badge>
+                <Badge variant="destructive" className="ml-auto text-xs px-2 py-0.5 h-5">{pendingRefundsCount}</Badge>
               )}
             </Link>
           );
@@ -79,13 +79,13 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
       </div>
 
       <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="w-full justify-start text-xs h-8 text-slate-500 border-slate-200 hover:bg-white hover:text-slate-700 shadow-sm"
+        <Button
+          variant="outline"
+          size="default"
+          className="w-full justify-start text-sm h-10 text-slate-600 border-slate-200 hover:bg-white hover:text-slate-800 shadow-sm"
           onClick={onLogout}
         >
-          <LogOut className="w-3 h-3 mr-2" />
+          <LogOut className="w-4 h-4 mr-2" />
           ログアウト
         </Button>
       </div>

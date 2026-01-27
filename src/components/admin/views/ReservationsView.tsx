@@ -178,7 +178,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">予約管理</h1>
-            <p className="text-xs text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
+            <p className="text-sm text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
           </div>
         </div>
         <Card className="shadow-sm border-slate-200 bg-white overflow-hidden">
@@ -195,7 +195,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">予約管理</h1>
-            <p className="text-xs text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
+            <p className="text-sm text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
           </div>
         </div>
         <ErrorAlert
@@ -224,13 +224,13 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-lg font-bold tracking-tight text-slate-900">予約管理</h1>
-          <p className="text-xs text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
+          <p className="text-sm text-slate-500 mt-1">すべての予約ステータスの確認・編集・返金処理</p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Dialog open={isNewReservationModalOpen} onOpenChange={setIsNewReservationModalOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="flex-1 sm:flex-none h-9 text-xs bg-indigo-600 hover:bg-indigo-700">
-                <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規予約
+              <Button size="sm" className="flex-1 sm:flex-none h-10 text-sm bg-indigo-600 hover:bg-indigo-700">
+                <Plus className="w-4 h-4 mr-1.5" /> 新規予約
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
@@ -251,7 +251,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         value={newReservation.customerName}
                         onChange={(e) => setNewReservation({...newReservation, customerName: e.target.value})}
                         placeholder="山田 太郎" 
-                        className="h-9 text-xs" 
+                        className="h-10 text-sm" 
                       />
                     </div>
                     <div className="space-y-1">
@@ -261,7 +261,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         onChange={(e) => setNewReservation({...newReservation, customerEmail: e.target.value})}
                         placeholder="taro@example.com" 
                         type="email" 
-                        className="h-9 text-xs" 
+                        className="h-10 text-sm" 
                       />
                     </div>
                     <div className="space-y-1">
@@ -270,7 +270,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         value={newReservation.customerPhone}
                         onChange={(e) => setNewReservation({...newReservation, customerPhone: e.target.value})}
                         placeholder="090-0000-0000" 
-                        className="h-9 text-xs" 
+                        className="h-10 text-sm" 
                       />
                     </div>
                   </div>
@@ -285,7 +285,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         value={newReservation.planId} 
                         onValueChange={(val) => setNewReservation({...newReservation, planId: val})}
                       >
-                        <SelectTrigger className="h-9 text-xs">
+                        <SelectTrigger className="h-10 text-sm">
                           <SelectValue placeholder="プランを選択" />
                         </SelectTrigger>
                         <SelectContent>
@@ -306,7 +306,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full justify-start text-left font-normal h-9 text-xs",
+                                "w-full justify-start text-left font-normal h-10 text-sm",
                                 !newReservation.date && "text-muted-foreground"
                               )}
                             >
@@ -331,7 +331,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                           value={newReservation.time} 
                           onValueChange={(val) => setNewReservation({...newReservation, time: val})}
                         >
-                          <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
                           <SelectContent className="max-h-[200px]">
                             {['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'].map(t => (
                               <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
@@ -347,7 +347,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         value={newReservation.pax} 
                         onValueChange={(val) => setNewReservation({...newReservation, pax: val})}
                       >
-                        <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="1" className="text-xs">1名</SelectItem>
                           <SelectItem value="2" className="text-xs">2名</SelectItem>
@@ -370,14 +370,14 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
               </div>
 
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsNewReservationModalOpen(false)} className="h-8 text-xs">キャンセル</Button>
-                <Button onClick={handleCreateReservation} className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700">作成する</Button>
+                <Button variant="outline" onClick={() => setIsNewReservationModalOpen(false)} className="h-9 text-sm">キャンセル</Button>
+                <Button onClick={handleCreateReservation} className="h-9 text-sm bg-indigo-600 hover:bg-indigo-700">作成する</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
           
-          <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-9 text-xs">
-            <Download className="w-3.5 h-3.5 mr-1.5" /> CSV出力
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-10 text-sm">
+            <Download className="w-4 h-4 mr-1.5" /> CSV出力
           </Button>
         </div>
       </div>
@@ -392,14 +392,14 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                 <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
                 <Input 
                   placeholder="予約番号、顧客名、メールで検索..." 
-                  className="pl-9 h-9 text-xs bg-white border-slate-200 focus-visible:ring-indigo-500 w-full" 
+                  className="pl-9 h-10 text-sm bg-white border-slate-200 focus-visible:ring-indigo-500 w-full" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-full sm:w-[150px] h-9 text-xs bg-white border-slate-200">
-                  <Filter className="w-3.5 h-3.5 mr-2 text-slate-400" />
+                <SelectTrigger className="w-full sm:w-[150px] h-10 text-sm bg-white border-slate-200">
+                  <Filter className="w-4 h-4 mr-2 text-slate-400" />
                   <SelectValue placeholder="全ステータス" />
                 </SelectTrigger>
                 <SelectContent>
@@ -414,7 +414,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
             </div>
             
             <div className="lg:col-span-4 flex justify-end">
-              <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-2 text-xs text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                 <span className="font-medium">表示:</span>
                 <span className="font-mono font-bold text-indigo-600 text-sm">{filteredReservations.length}</span>
                 <span className="font-medium">/ {totalCount}件</span>
@@ -427,29 +427,29 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
             <div className="flex flex-wrap items-center gap-y-3 gap-x-6">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5 text-slate-400">
-                  <CalendarDays className="w-3.5 h-3.5" />
-                  <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">表示期間:</span>
+                  <CalendarDays className="w-4 h-4" />
+                  <span className="text-xs font-bold text-slate-500 whitespace-nowrap">表示期間:</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-[90px] h-8 text-[11px] bg-white border-slate-200">
+                    <SelectTrigger className="w-[90px] h-8 text-xs bg-white border-slate-200">
                       <SelectValue placeholder="年" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all" className="text-[11px]">すべて</SelectItem>
+                      <SelectItem value="all" className="text-xs">すべて</SelectItem>
                       {availableYears.map(year => (
-                        <SelectItem key={year} value={year} className="text-[11px]">{year}年</SelectItem>
+                        <SelectItem key={year} value={year} className="text-xs">{year}年</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[85px] h-8 text-[11px] bg-white border-slate-200">
+                    <SelectTrigger className="w-[85px] h-8 text-xs bg-white border-slate-200">
                       <SelectValue placeholder="月" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all" className="text-[11px]">すべて</SelectItem>
+                      <SelectItem value="all" className="text-xs">すべて</SelectItem>
                       {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                        <SelectItem key={month} value={month.toString()} className="text-[11px]">{month}月</SelectItem>
+                        <SelectItem key={month} value={month.toString()} className="text-xs">{month}月</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -460,16 +460,16 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5 text-slate-400">
-                  <ArrowUpDown className="w-3.5 h-3.5" />
-                  <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">並び替え:</span>
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span className="text-xs font-bold text-slate-500 whitespace-nowrap">並び替え:</span>
                 </div>
                 <Select value={sortOrder} onValueChange={(v: 'desc' | 'asc') => setSortOrder(v)}>
-                  <SelectTrigger className="w-[110px] h-8 text-[11px] bg-white border-slate-200">
+                  <SelectTrigger className="w-[110px] h-8 text-xs bg-white border-slate-200">
                     <SelectValue placeholder="新しい順" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc" className="text-[11px]">新しい順</SelectItem>
-                    <SelectItem value="asc" className="text-[11px]">古い順</SelectItem>
+                    <SelectItem value="desc" className="text-xs">新しい順</SelectItem>
+                    <SelectItem value="asc" className="text-xs">古い順</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -480,7 +480,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 text-[11px] text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 px-3 transition-all rounded-full border border-transparent hover:border-indigo-100"
+                  className="h-8 text-xs text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 px-3 transition-all rounded-full border border-transparent hover:border-indigo-100"
                   onClick={() => {
                     setFilterStatus('all');
                     setSearchQuery('');
@@ -489,7 +489,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                     setSortOrder('desc');
                   }}
                 >
-                  <XCircle className="w-3.5 h-3.5 mr-1.5" />
+                  <XCircle className="w-4 h-4 mr-1.5" />
                   条件リセット
                 </Button>
               )}
@@ -516,7 +516,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                         <span className="font-mono text-xs font-bold text-indigo-600 tracking-tight">{res.bookingNumber}</span>
                         <StatusBadge status={res.status} />
                       </div>
-                      <div className="text-[11px] font-medium text-slate-900">
+                      <div className="text-xs font-medium text-slate-900">
                         {res.customerName}
                       </div>
                     </div>
@@ -526,10 +526,10 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-3 text-[10px]">
+                  <div className="flex items-center justify-between mt-3 text-xs">
                     <div className="flex items-center gap-3 text-slate-500">
                       <div className="flex items-center gap-1">
-                        <CalendarDays className="w-3 h-3" />
+                        <CalendarDays className="w-4 h-4" />
                         <span>{res.date} {res.time}</span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -538,7 +538,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                       </div>
                     </div>
                     <div className="text-slate-400">
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-4 h-4" />
                     </div>
                   </div>
                 </div>
@@ -550,12 +550,12 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
           <Table>
             <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-slate-100">
-              <TableHead className="w-[120px] text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10 pl-6">予約番号</TableHead>
-              <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10">日時</TableHead>
-              <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10">コース / 人数</TableHead>
-              <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10">顧客名</TableHead>
-              <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10">ステータス</TableHead>
-              <TableHead className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider h-10">支払い</TableHead>
+              <TableHead className="w-[120px] text-xs font-semibold text-slate-500 uppercase tracking-wider h-10 pl-6">予約番号</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-10">日時</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-10">コース / 人数</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-10">顧客名</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-10">ステータス</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider h-10">支払い</TableHead>
               <TableHead className="text-right w-[60px] h-10 pr-6"></TableHead>
             </TableRow>
           </TableHeader>
@@ -572,17 +572,17 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                   <TableCell className="font-mono text-xs font-medium text-slate-700 py-4 pl-6">{res.bookingNumber}</TableCell>
                   <TableCell className="py-4">
                     <div className="text-xs font-medium text-slate-700">{res.date}</div>
-                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{res.time}</div>
+                    <div className="text-xs text-slate-400 font-mono mt-0.5">{res.time}</div>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="text-xs text-slate-700 truncate max-w-[180px]" title={res.planName}>{res.planName}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                    <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
                       <span className="bg-slate-100 px-1 rounded">{res.pax}名</span>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="text-xs text-slate-700 font-medium">{res.customerName}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 truncate max-w-[150px]">{res.customerEmail}</div>
+                    <div className="text-xs text-slate-400 mt-0.5 truncate max-w-[150px]">{res.customerEmail}</div>
                   </TableCell>
                   <TableCell className="py-4">
                     <StatusBadge status={res.status} />
@@ -590,7 +590,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                   <TableCell className="py-4">
                      <div className="flex flex-col gap-1">
                         <PaymentBadge status={res.paymentStatus} />
-                        <span className="text-[10px] font-mono text-slate-500">¥{res.price.toLocaleString()}</span>
+                        <span className="text-xs font-mono text-slate-500">¥{res.price.toLocaleString()}</span>
                      </div>
                   </TableCell>
                   <TableCell className="text-right py-4 pr-6">
@@ -658,21 +658,21 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
             </CardHeader>
             <CardContent className="p-6 grid grid-cols-2 gap-y-6 gap-x-8">
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">コース</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">コース</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1">{reservation.planName}</div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">日時</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">日時</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1 font-mono">
                   {reservation.date} <span className="text-slate-400">|</span> {reservation.time}
                 </div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">人数</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">人数</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1">{reservation.pax} 名</div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">合計重量 (推定)</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">合計重量 (推定)</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1">{reservation.weight ? `${reservation.weight}kg` : '-'}</div>
               </div>
             </CardContent>
@@ -684,23 +684,23 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
             </CardHeader>
             <CardContent className="p-6 grid grid-cols-2 gap-y-6 gap-x-8">
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">氏名</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">氏名</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1">{reservation.customerName}</div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">言語</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">言語</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1 uppercase">{reservation.customerLang}</div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">メールアドレス</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">メールアドレス</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1 font-mono">{reservation.customerEmail}</div>
               </div>
               <div>
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">電話番号</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">電話番号</Label>
                 <div className="text-sm font-medium text-slate-900 mt-1 font-mono">{reservation.customerPhone}</div>
               </div>
               <div className="col-span-2">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wider">メモ</Label>
+                <Label className="text-xs text-slate-400 uppercase tracking-wider">メモ</Label>
                 <div className="bg-slate-50 p-4 rounded-md text-xs text-slate-600 min-h-[60px] mt-2 border border-slate-100 leading-relaxed">
                   {reservation.notes || 'なし'}
                 </div>
@@ -720,7 +720,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                   </span>
                   <div className="flex flex-col pt-0.5">
                     <span className="text-xs font-medium text-slate-900">予約確定</span>
-                    <span className="text-[10px] text-slate-400 font-mono">{reservation.bookedAt}</span>
+                    <span className="text-xs text-slate-400 font-mono">{reservation.bookedAt}</span>
                   </div>
                 </div>
                 {reservation.suspendedAt && (
@@ -730,7 +730,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                     </span>
                     <div className="flex flex-col pt-0.5">
                       <span className="text-xs font-medium text-slate-900">運休処理実行</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{reservation.suspendedAt}</span>
+                      <span className="text-xs text-slate-400 font-mono">{reservation.suspendedAt}</span>
                     </div>
                   </div>
                 )}
@@ -741,7 +741,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                     </span>
                     <div className="flex flex-col pt-0.5">
                       <span className="text-xs font-medium text-slate-900">返金完了 (¥{reservation.refundedAmount?.toLocaleString()})</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{reservation.refundedAt} by {reservation.refundedBy}</span>
+                      <span className="text-xs text-slate-400 font-mono">{reservation.refundedAt} by {reservation.refundedBy}</span>
                     </div>
                   </div>
                 )}
@@ -766,7 +766,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                  <PaymentBadge status={reservation.paymentStatus} />
               </div>
               <div className="pt-3 border-t border-indigo-100/50 mt-2">
-                <div className="flex items-center justify-between text-[10px] text-slate-500">
+                <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-mono">Stripe ID</span>
                   <a href="#" className="flex items-center hover:text-indigo-600 hover:underline">
                     {reservation.stripePaymentId} <ExternalLink className="w-2.5 h-2.5 ml-1" />
@@ -783,7 +783,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
             </CardHeader>
             <CardContent className="p-6 space-y-3">
                <Button variant="outline" className="w-full justify-start h-10 text-xs border-slate-200 bg-white hover:bg-slate-50">
-                  <Mail className="w-3.5 h-3.5 mr-2 text-slate-400" /> 予約確認メール再送
+                  <Mail className="w-4 h-4 mr-2 text-slate-400" /> 予約確認メール再送
                </Button>
                <Button
                  variant="outline"
@@ -791,7 +791,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                  onClick={() => onCancel(reservation.id)}
                  disabled={reservation.status === 'cancelled'}
                >
-                  <Ban className="w-3.5 h-3.5 mr-2" /> {reservation.status === 'cancelled' ? 'キャンセル済み' : '予約キャンセル'}
+                  <Ban className="w-4 h-4 mr-2" /> {reservation.status === 'cancelled' ? 'キャンセル済み' : '予約キャンセル'}
                </Button>
                
                {currentUser.role === 'admin' && (
@@ -805,7 +805,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                        )}
                        disabled={!canRefund}
                      >
-                        <RefreshCcw className="w-3.5 h-3.5 mr-2 text-slate-400" /> 
+                        <RefreshCcw className="w-4 h-4 mr-2 text-slate-400" /> 
                         {reservation.paymentStatus === 'refunded' ? '返金済み' : '返金処理'}
                      </Button>
                    </DialogTrigger>
@@ -824,7 +824,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                         <div className="space-y-2">
                            <Label className="text-xs">返金理由</Label>
                            <Select>
-                             <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="選択してください" /></SelectTrigger>
+                             <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="選択してください" /></SelectTrigger>
                              <SelectContent>
                                <SelectItem value="weather" className="text-xs">悪天候・強風のため</SelectItem>
                                <SelectItem value="maintenance" className="text-xs">機材メンテナンスのため</SelectItem>
@@ -834,8 +834,8 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                         </div>
                      </div>
                      <DialogFooter>
-                       <Button variant="outline" onClick={() => setIsRefundModalOpen(false)} className="h-8 text-xs">キャンセル</Button>
-                       <Button variant="destructive" onClick={handleRefund} disabled={isProcessing} className="h-8 text-xs">
+                       <Button variant="outline" onClick={() => setIsRefundModalOpen(false)} className="h-9 text-sm">キャンセル</Button>
+                       <Button variant="destructive" onClick={handleRefund} disabled={isProcessing} className="h-9 text-sm">
                          {isProcessing ? '処理中...' : '返金を実行'}
                        </Button>
                      </DialogFooter>
@@ -868,7 +868,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   };
 
   return (
-    <Badge variant="secondary" className={cn("border font-normal text-[10px] px-2 py-0.5", styles[status] || styles.pending)}>
+    <Badge variant="secondary" className={cn("border font-normal text-xs px-2 py-0.5", styles[status] || styles.pending)}>
       {labels[status] || status}
     </Badge>
   );
@@ -882,14 +882,14 @@ const PaymentBadge = ({ status }: { status: string }) => {
     failed: 'text-red-600 bg-red-50 border-red-100',
   };
   const icons: Record<string, React.ReactNode> = {
-    paid: <CheckCircle2 className="w-3 h-3 mr-1" />,
-    unpaid: <AlertCircle className="w-3 h-3 mr-1" />,
-    refunded: <RefreshCcw className="w-3 h-3 mr-1" />,
-    failed: <XCircle className="w-3 h-3 mr-1" />,
+    paid: <CheckCircle2 className="w-4 h-4 mr-1" />,
+    unpaid: <AlertCircle className="w-4 h-4 mr-1" />,
+    refunded: <RefreshCcw className="w-4 h-4 mr-1" />,
+    failed: <XCircle className="w-4 h-4 mr-1" />,
   };
 
   return (
-    <Badge variant="outline" className={cn("border pl-1.5 pr-2 py-0.5 text-[10px] font-medium", styles[status])}>
+    <Badge variant="outline" className={cn("border pl-1.5 pr-2 py-0.5 text-xs font-medium", styles[status])}>
       {icons[status]}
       <span className="capitalize">{status}</span>
     </Badge>

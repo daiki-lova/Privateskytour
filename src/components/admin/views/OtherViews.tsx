@@ -127,7 +127,7 @@ export const CustomersView = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">顧客管理</h1>
-            <p className="text-xs text-slate-500">顧客情報の検索・編集・予約履歴の確認</p>
+            <p className="text-sm text-slate-500">顧客情報の検索・編集・予約履歴の確認</p>
           </div>
         </div>
         <ErrorAlert
@@ -153,7 +153,7 @@ export const CustomersView = () => {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="検索..."
-                className="pl-9 h-9 text-xs border-slate-200"
+                className="pl-9 h-9 text-sm border-slate-200"
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -184,20 +184,20 @@ export const CustomersView = () => {
                  <div className="flex-1 min-w-0">
                    <div className="flex justify-between items-start">
                      <div className="text-sm font-bold text-slate-900 truncate">{c.name}</div>
-                     <Badge variant="outline" className="text-[10px] ml-2 shrink-0 bg-slate-50 font-mono">{c.bookingCount} flights</Badge>
+                     <Badge variant="outline" className="text-xs ml-2 shrink-0 bg-slate-50 font-mono">{c.bookingCount} flights</Badge>
                    </div>
-                   <div className="text-[11px] text-slate-500 mt-0.5 truncate">{c.email}</div>
+                   <div className="text-xs text-slate-500 mt-0.5 truncate">{c.email}</div>
                  </div>
                </div>
                
                <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
                   <div className="flex gap-1.5">
                     {(c.tags ?? []).slice(0, 2).map(t => (
-                       <Badge key={t} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 border-transparent px-1.5 py-0">{t}</Badge>
+                       <Badge key={t} variant="secondary" className="text-xs bg-slate-100 text-slate-600 border-transparent px-1.5 py-0">{t}</Badge>
                     ))}
                   </div>
-                  <div className="text-[11px] font-bold text-slate-900">
-                    <span className="text-slate-400 font-normal mr-1 text-[9px] uppercase tracking-wider">Total</span>
+                  <div className="text-xs font-bold text-slate-900">
+                    <span className="text-slate-400 font-normal mr-1 text-[10px] uppercase tracking-wider">Total</span>
                     <span className="font-mono">¥{c.totalSpent.toLocaleString()}</span>
                   </div>
                </div>
@@ -245,7 +245,7 @@ export const CustomersView = () => {
                 <TableCell className="pr-6">
                   <div className="flex gap-1 flex-wrap">
                     {(c.tags ?? []).map(t => (
-                      <Badge key={t} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200">{t}</Badge>
+                      <Badge key={t} variant="secondary" className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200">{t}</Badge>
                     ))}
                   </div>
                 </TableCell>
@@ -286,7 +286,7 @@ export const CustomersView = () => {
                       
                       <SheetDescription className="flex items-center gap-2">
                         <span className="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">{selectedCustomer.id}</span>
-                        <Badge variant="outline" className="text-[10px] font-normal border-indigo-200 text-indigo-700 bg-indigo-50">
+                        <Badge variant="outline" className="text-xs font-normal border-indigo-200 text-indigo-700 bg-indigo-50">
                           {selectedCustomer.bookingCount > 5 ? 'VIP Customer' : 'Standard'}
                         </Badge>
                       </SheetDescription>
@@ -295,8 +295,8 @@ export const CustomersView = () => {
                   
                   {isEditing ? (
                     <div className="flex gap-2 shrink-0">
-                      <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={isSaving} className="h-8 text-xs">キャンセル</Button>
-                      <Button size="sm" onClick={handleSaveEdit} disabled={isSaving} className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
+                      <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={isSaving} className="h-9 text-sm">キャンセル</Button>
+                      <Button size="sm" onClick={handleSaveEdit} disabled={isSaving} className="h-9 text-sm bg-indigo-600 hover:bg-indigo-700 text-white">
                         {isSaving ? (
                           <><RefreshCcw className="w-3.5 h-3.5 mr-1 animate-spin" />保存中</>
                         ) : (
@@ -305,21 +305,21 @@ export const CustomersView = () => {
                       </Button>
                     </div>
                   ) : (
-                    <Button variant="outline" size="sm" onClick={handleStartEdit} className="h-8 text-xs shrink-0">編集</Button>
+                    <Button variant="outline" size="sm" onClick={handleStartEdit} className="h-9 text-sm shrink-0">編集</Button>
                   )}
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-1">Total Spent</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Total Spent</div>
                     <div className="text-lg font-bold text-slate-900">¥{selectedCustomer.totalSpent.toLocaleString()}</div>
                   </div>
                   <div className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-1">Bookings</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Bookings</div>
                     <div className="text-lg font-bold text-slate-900">{selectedCustomer.bookingCount}</div>
                   </div>
                   <div className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-1">Avg. Price</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Avg. Price</div>
                     <div className="text-lg font-bold text-slate-900">¥{Math.round(selectedCustomer.totalSpent / Math.max(selectedCustomer.bookingCount, 1)).toLocaleString()}</div>
                   </div>
                 </div>
@@ -337,7 +337,7 @@ export const CustomersView = () => {
                     {isEditing && editForm ? (
                       <div className="grid grid-cols-1 gap-4 text-sm">
                         <div className="space-y-1">
-                          <Label className="text-xs text-slate-500">メールアドレス</Label>
+                          <Label className="text-sm text-slate-500">メールアドレス</Label>
                           <Input 
                             value={editForm.email} 
                             onChange={(e) => setEditForm({...editForm, email: e.target.value})}
@@ -345,7 +345,7 @@ export const CustomersView = () => {
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs text-slate-500">電話番号</Label>
+                          <Label className="text-sm text-slate-500">電話番号</Label>
                           <Input 
                             value={editForm.phone} 
                             onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
@@ -390,7 +390,7 @@ export const CustomersView = () => {
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-xs text-slate-900">{res.reservationDate || res.date}</span>
-                                <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal bg-white">
+                                <Badge variant="outline" className="text-xs h-5 px-1.5 font-normal bg-white">
                                   {res.status}
                                 </Badge>
                               </div>
@@ -398,7 +398,7 @@ export const CustomersView = () => {
                             </div>
                             <div className="text-right">
                               <div className="text-sm font-mono font-medium">¥{(res.totalPrice || res.price || 0).toLocaleString()}</div>
-                              <div className="text-[10px] text-slate-400">{res.pax}名</div>
+                              <div className="text-xs text-slate-400">{res.pax}名</div>
                             </div>
                           </div>
                         ))
@@ -490,7 +490,7 @@ export const RefundsView = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">未返金管理</h1>
-            <p className="text-xs text-slate-500">運休・キャンセル後の返金漏れ防止リスト</p>
+            <p className="text-sm text-slate-500">運休・キャンセル後の返金漏れ防止リスト</p>
           </div>
         </div>
         <ErrorAlert
@@ -508,7 +508,7 @@ export const RefundsView = () => {
           <h1 className="text-xl font-bold tracking-tight text-slate-900">未返金管理</h1>
           <p className="text-xs text-slate-500">運休・キャンセル後の返金漏れ防止リスト</p>
         </div>
-        <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => mutate()}>
+        <Button variant="outline" size="sm" className="h-10 text-sm" onClick={() => mutate()}>
           <RefreshCcw className="w-3.5 h-3.5 mr-2" /> 更新
         </Button>
       </div>
@@ -520,7 +520,7 @@ export const RefundsView = () => {
           </div>
           <div>
             <h3 className="font-bold text-yellow-900 text-sm">未処理の返金が {refundCandidates.length} 件あります</h3>
-            <p className="text-[11px] text-yellow-700/80 mt-1 leading-relaxed max-w-2xl">
+            <p className="text-xs text-yellow-700/80 mt-1 leading-relaxed max-w-2xl">
               これらの予約は運休またはキャンセルされましたが、まだ返金処理が完了していません。
               Stripeダッシュボードまたは本システムから速やかに返金処理を実行してください。
             </p>
@@ -546,7 +546,7 @@ export const RefundsView = () => {
                  <div className="flex justify-between items-start">
                    <div className="space-y-1">
                      <div className="font-mono font-bold text-sm text-slate-900">{res.bookingNumber}</div>
-                     <Badge variant="outline" className="text-[10px] font-normal bg-slate-100 text-slate-500 border-slate-200">
+                     <Badge variant="outline" className="text-xs font-normal bg-slate-100 text-slate-500 border-slate-200">
                        キャンセル
                      </Badge>
                    </div>
@@ -558,13 +558,13 @@ export const RefundsView = () => {
                    </div>
                  </div>
 
-                 <div className="text-xs text-slate-600 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
+                 <div className="text-sm text-slate-600 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
                    <div>
-                     <span className="text-slate-400 block text-[10px] uppercase">Flight Date</span>
+                     <span className="text-slate-400 block text-xs uppercase">Flight Date</span>
                      <span className="font-medium">{res.reservationDate} {res.reservationTime}</span>
                    </div>
                    <div>
-                     <span className="text-slate-400 block text-[10px] uppercase">Customer</span>
+                     <span className="text-slate-400 block text-xs uppercase">Customer</span>
                      <span className="font-medium">{res.customer?.name ?? '-'}</span>
                    </div>
                  </div>
@@ -572,7 +572,7 @@ export const RefundsView = () => {
                  <Button
                    size="sm"
                    variant="outline"
-                   className="w-full text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-9"
+                   className="w-full text-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-10"
                    onClick={() => setSelectedCandidate(res)}
                    disabled={processingId === res.id}
                  >
@@ -623,7 +623,7 @@ export const RefundsView = () => {
                     {res.payment?.amount ? `¥${res.payment.amount.toLocaleString()}` : '-'}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-normal bg-slate-100 text-slate-500 border-slate-200">
+                    <Badge variant="outline" className="text-xs font-normal bg-slate-100 text-slate-500 border-slate-200">
                       キャンセル
                     </Badge>
                   </TableCell>
@@ -631,7 +631,7 @@ export const RefundsView = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-8 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      className="h-9 text-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                       onClick={() => setSelectedCandidate(res)}
                       disabled={processingId === res.id}
                     >
@@ -673,19 +673,19 @@ export const RefundsView = () => {
                 <div className="bg-slate-50 rounded-lg p-4 border border-slate-100 space-y-3">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">顧客名</span>
+                      <span className="text-slate-400 block text-xs uppercase">顧客名</span>
                       <span className="font-medium text-slate-900">{selectedCandidate.customer?.name ?? '-'}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">メール</span>
+                      <span className="text-slate-400 block text-xs uppercase">メール</span>
                       <span className="font-medium text-slate-900">{selectedCandidate.customer?.email ?? '-'}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">運航予定日</span>
+                      <span className="text-slate-400 block text-xs uppercase">運航予定日</span>
                       <span className="font-medium text-slate-900">{selectedCandidate.reservationDate} {selectedCandidate.reservationTime}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">コース</span>
+                      <span className="text-slate-400 block text-xs uppercase">コース</span>
                       <span className="font-medium text-slate-900">{selectedCandidate.course?.title ?? '-'}</span>
                     </div>
                   </div>
@@ -709,7 +709,7 @@ export const RefundsView = () => {
                           variant={refundReason === key ? 'default' : 'outline'}
                           size="sm"
                           className={cn(
-                            "h-9 text-xs",
+                            "h-10 text-sm",
                             refundReason === key && "bg-indigo-600 hover:bg-indigo-700"
                           )}
                           onClick={() => setRefundReason(key as typeof refundReason)}
@@ -869,7 +869,7 @@ export const LogsView = () => {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">連携・ログ</h1>
           <p className="text-sm text-slate-500">システム連携ログと操作履歴</p>
         </div>
-        <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => mutate()}>
+        <Button variant="outline" size="sm" className="h-10 text-sm" onClick={() => mutate()}>
           <RefreshCcw className="w-3.5 h-3.5 mr-2" /> ログ更新
         </Button>
       </div>
@@ -900,7 +900,7 @@ export const LogsView = () => {
                       {getStatusIcon(log.status)}
                       <span className="font-bold text-xs text-slate-900">{log.action}</span>
                     </div>
-                    <span className="font-mono text-[10px] text-slate-400">{log.createdAt}</span>
+                    <span className="font-mono text-xs text-slate-400">{log.createdAt}</span>
                   </div>
 
                   <div className="text-xs text-slate-600 line-clamp-2 mb-2">
@@ -908,7 +908,7 @@ export const LogsView = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-normal", getLogTypeBadgeClass(log.logType))}>
+                    <Badge variant="outline" className={cn("text-xs h-5 px-1.5 font-normal", getLogTypeBadgeClass(log.logType))}>
                       {log.logType.toUpperCase()}
                     </Badge>
                   </div>
@@ -937,7 +937,7 @@ export const LogsView = () => {
                   >
                     <TableCell className="font-mono text-xs text-slate-500 pl-6">{log.createdAt}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={cn("text-[10px] font-normal", getLogTypeBadgeClass(log.logType))}>
+                      <Badge variant="outline" className={cn("text-xs font-normal", getLogTypeBadgeClass(log.logType))}>
                         {log.logType.toUpperCase()}
                       </Badge>
                     </TableCell>
@@ -1047,11 +1047,11 @@ export const LogsView = () => {
               </div>
 
               <div className="p-4 border-t bg-slate-50 flex justify-end gap-2">
-                <Button variant="outline" size="sm" className="h-8 text-xs bg-white">
+                <Button variant="outline" size="sm" className="h-9 text-sm bg-white">
                   <Copy className="w-3.5 h-3.5 mr-2" /> JSONをコピー
                 </Button>
                 {selectedLog.status === 'failure' && (
-                  <Button size="sm" className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button size="sm" className="h-9 text-sm bg-indigo-600 hover:bg-indigo-700 text-white">
                     <RotateCcw className="w-3.5 h-3.5 mr-2" /> 再試行
                   </Button>
                 )}
@@ -1239,12 +1239,12 @@ export const SettingsView = () => {
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">設定</h1>
-            <p className="text-xs text-slate-500">システム設定・マスタ管理・運用時間設定</p>
+            <p className="text-sm text-slate-500">システム設定・マスタ管理・運用時間設定</p>
           </div>
           <Button
             onClick={handleSaveSettings}
             disabled={isSaving || isLoading}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-9 text-xs"
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-10 text-sm"
           >
             {isSaving ? (
               <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 保存中...</>
@@ -1260,7 +1260,7 @@ export const SettingsView = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm font-bold">予約可能時間枠 (Slots Config)</CardTitle>
-                  <CardDescription className="text-[10px]">日没時間や機材運用の都合に合わせて、予約を受け付ける時間帯をオンオフできます。</CardDescription>
+                  <CardDescription className="text-xs">日没時間や機材運用の都合に合わせて、予約を受け付ける時間帯をオンオフできます。</CardDescription>
                 </div>
               </div>
             </CardHeader>
