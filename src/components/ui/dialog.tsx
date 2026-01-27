@@ -57,13 +57,22 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-[93%] max-w-[93%] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-4 lg:p-6 shadow-lg duration-200 lg:max-w-lg lg:w-full",
+          // Base styles
+          "bg-background fixed z-50 flex flex-col shadow-lg duration-200 overflow-y-auto",
+          // Animation
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          // Mobile: Full screen
+          "inset-0 w-full h-full max-w-none rounded-none border-0 p-4 gap-4",
+          // Desktop (lg+): Centered modal
+          "lg:inset-auto lg:top-[50%] lg:left-[50%] lg:translate-x-[-50%] lg:translate-y-[-50%] lg:w-full lg:max-w-lg lg:h-auto lg:max-h-[90vh] lg:rounded-lg lg:border lg:p-6",
+          // Desktop animation
+          "lg:data-[state=closed]:zoom-out-95 lg:data-[state=open]:zoom-in-95",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 z-10">
           <XIcon />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -87,7 +96,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 mt-auto pt-4 lg:mt-0 lg:pt-0 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
