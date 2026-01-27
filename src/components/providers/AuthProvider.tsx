@@ -41,8 +41,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user ?? null);
+        const responseData = await response.json();
+        // API returns { success: true, data: AdminUser } format
+        setUser(responseData.data ?? null);
       } else {
         setUser(null);
       }
@@ -90,16 +91,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
           body: JSON.stringify({ email, password }),
         });
 
-        const data = await response.json();
+        const responseData = await response.json();
 
-        if (response.ok && data.success) {
-          setUser(data.user ?? null);
+        if (response.ok && responseData.success) {
+          // API returns { success: true, data: AdminUser } format
+          setUser(responseData.data ?? null);
           return { success: true };
         }
 
         return {
           success: false,
-          error: data.error ?? 'Login failed',
+          error: responseData.error ?? 'Login failed',
         };
       } catch {
         return {

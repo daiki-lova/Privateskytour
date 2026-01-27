@@ -5,6 +5,20 @@ import type { AdminUser, UserRole } from '@/lib/data/types';
 
 export async function GET() {
   try {
+    // DEV_SKIP_AUTH mode: return mock admin user for development
+    if (process.env.DEV_SKIP_AUTH === 'true') {
+      const mockAdminUser: AdminUser = {
+        id: 'dev-admin',
+        email: 'dev@admin.local',
+        name: 'Dev Admin',
+        role: 'admin' as UserRole,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return successResponse(mockAdminUser);
+    }
+
     const supabase = await createClient();
     const user = await getCurrentUser(supabase);
 
