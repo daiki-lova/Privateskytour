@@ -90,9 +90,9 @@ function CourseGrid({
 
             {/* Book Now Button */}
             <div className="mt-4">
-              <Button asChild size="sm" className="w-full group/btn bg-blue-600 hover:bg-blue-700 text-white">
-                <Link href={`/booking?planId=${course.id}`}>
-                  予約する
+              <Button asChild className="w-full group/btn bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-bold">
+                <Link href={`/tours/${course.id}`}>
+                  詳細を見る
                   <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
               </Button>
