@@ -3,38 +3,44 @@
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { ContactForm } from "@/components/public/ContactForm";
 import { useTranslation } from "@/lib/i18n/TranslationContext";
+import { usePublicSettings } from "@/lib/api/hooks/usePublicSettings";
 
 export default function ContactPage() {
   const { language } = useTranslation();
+  const { data: settings } = usePublicSettings(['contact_info', 'company_info', 'business_hours_display']);
 
-  const contactInfo = [
+  const contactInfo = settings?.contact_info;
+  const companyInfo = settings?.company_info;
+  const businessHours = settings?.business_hours_display;
+
+  const contactItems = [
     {
       icon: Mail,
       labelJa: "メール",
       labelEn: "Email",
-      value: "info@privatesky.co.jp",
-      href: "mailto:info@privatesky.co.jp",
+      value: contactInfo?.email ?? "info@privatesky.co.jp",
+      href: `mailto:${contactInfo?.email ?? "info@privatesky.co.jp"}`,
     },
     {
       icon: Phone,
       labelJa: "電話",
       labelEn: "Phone",
-      value: "03-4446-6125",
-      href: "tel:03-4446-6125",
+      value: contactInfo?.phone_display ?? "03-4446-6125",
+      href: `tel:${contactInfo?.phone ?? "03-4446-6125"}`,
     },
     {
       icon: MapPin,
       labelJa: "所在地",
       labelEn: "Address",
-      valueJa: "〒104-0061\n東京都中央区銀座1丁目15-4\n銀座一丁目ビル 7階",
-      valueEn: "Ginza 1-Chome Building 7F\n1-15-4 Ginza, Chuo-ku\nTokyo 104-0061, Japan",
+      valueJa: `〒${companyInfo?.postal_code ?? "104-0061"}\n${companyInfo?.address_ja ?? "東京都中央区銀座1丁目15-4\n銀座一丁目ビル 7階"}`,
+      valueEn: companyInfo?.address_en ?? "Ginza 1-Chome Building 7F\n1-15-4 Ginza, Chuo-ku\nTokyo 104-0061, Japan",
     },
     {
       icon: Clock,
       labelJa: "営業時間",
       labelEn: "Business Hours",
-      valueJa: "10:00 - 18:00（土日祝休み）",
-      valueEn: "10:00 - 18:00 (Closed on weekends & holidays)",
+      valueJa: businessHours?.display_ja ?? "10:00 - 18:00（土日祝休み）",
+      valueEn: businessHours?.display_en ?? "10:00 - 18:00 (Closed on weekends & holidays)",
     },
   ];
 
@@ -64,7 +70,7 @@ export default function ContactPage() {
                 {language === "ja" ? "連絡先情報" : "Contact Information"}
               </h2>
               <div className="space-y-6">
-                {contactInfo.map((item, index) => (
+                {contactItems.map((item, index) => (
                   <div key={index} className="flex gap-4">
                     <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <item.icon className="w-5 h-5 text-slate-600" />

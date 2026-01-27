@@ -5,8 +5,11 @@ import { Facebook, Twitter, Instagram, Youtube, ArrowUp } from "lucide-react";
 import { Button } from "../ui/button";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import logoImageData from "../../assets/logo-footer.png";
+import { useBrandInfo } from "@/lib/api/hooks/usePublicSettings";
 
 export function Footer() {
+  const { data: brandInfo } = useBrandInfo();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -40,6 +43,12 @@ export function Footer() {
     }
   };
 
+  // 著作権表示の年を計算
+  const currentYear = new Date().getFullYear();
+  const startYear = brandInfo?.copyright_year_start ?? 2024;
+  const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : `${currentYear}`;
+  const copyrightHolder = brandInfo?.copyright_holder ?? "株式会社PrivateSky";
+
   return (
     <footer className="bg-slate-900 text-white relative overflow-hidden pt-16 pb-8">
       <div className="w-[90%] mx-auto relative z-10">
@@ -52,12 +61,12 @@ export function Footer() {
             >
               <ImageWithFallback
                 src={logoImageData.src}
-                alt="PRIVATESKY TOUR"
+                alt={brandInfo?.service_name ?? "PRIVATESKY TOUR"}
                 className="h-8 w-auto object-contain"
               />
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              上質な空の旅を、あなたに。<br />
+              {brandInfo?.tagline_ja ?? "上質な空の旅を、あなたに。"}<br />
               特別な日の思い出作りをお手伝いします。
             </p>
             <div className="flex space-x-4">
@@ -115,7 +124,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs">
-          <p>© 2026 SkyView Inc. All rights reserved.</p>
+          <p>&copy; {yearDisplay} {copyrightHolder}. All rights reserved.</p>
           <div className="mt-4 md:mt-0">
             <Button
               onClick={scrollToTop}

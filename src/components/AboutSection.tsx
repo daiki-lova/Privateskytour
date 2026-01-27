@@ -3,8 +3,13 @@
 import { Award, Globe, Users, ShieldCheck } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { motion } from "motion/react";
+import { useBrandInfo } from "@/lib/api/hooks/usePublicSettings";
 
 export function AboutSection() {
+  const { data: brandInfo } = useBrandInfo();
+
+  const serviceName = brandInfo?.service_name_short ?? "PRIVATESKY";
+
   const stats = [
     {
       icon: <ShieldCheck className="h-6 w-6" />,
@@ -43,12 +48,12 @@ export function AboutSection() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-sm shadow-2xl">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1729205747621-b12ed268e7e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWxpY29wdGVyJTIwZmx5aW5nJTIwYmx1ZSUyMHNreSUyMGNpdHklMjBhZXJpYWwlMjBsdXh1cnl8ZW58MXx8fHwxNzY2MDI0MTA3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="SkyView Helicopter"
+                alt={`${serviceName} Helicopter`}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-vivid-blue/10 mix-blend-multiply" />
             </div>
-            
+
             <div className="absolute -bottom-12 -right-12 bg-vivid-blue text-white p-12 hidden md:block">
                 <p className="text-4xl font-light tracking-widest mb-2">No.1</p>
                 <p className="text-xs uppercase tracking-[0.3em] opacity-80 font-bold">Market Share</p>
@@ -63,14 +68,12 @@ export function AboutSection() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-xs font-bold text-vivid-blue uppercase tracking-[0.5em] mb-8">About SkyView</h2>
+              <h2 className="text-xs font-bold text-vivid-blue uppercase tracking-[0.5em] mb-8">About {serviceName}</h2>
               <h3 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight">
-                上質な空の旅を、<br/>もっと身近に。
+                {brandInfo?.tagline_ja ?? "上質な空の旅を、あなたに。"}
               </h3>
               <p className="text-slate-500 leading-loose text-lg font-medium">
-                SkyViewは、洗練された移動体験を提供する日本最大級のヘリコプタープラットフォームです。
-                厳格な安全基準をクリアした運航会社との提携により、都心の遊覧から地方への送迎まで、
-                圧倒的な信頼と実績でお応えします。
+                {brandInfo?.about_ja ?? `${serviceName}は、洗練された移動体験を提供する日本最大級のヘリコプタープラットフォームです。厳格な安全基準をクリアした運航会社との提携により、都心の遊覧から地方への送迎まで、圧倒的な信頼と実績でお応えします。`}
               </p>
             </motion.div>
 

@@ -7,3 +7,4 @@ export * from './useCustomers';
 export * from './useHeliports';
 export * from './useLogs';
 export * from './useRefunds';
+export * from './usePublicSettings';
