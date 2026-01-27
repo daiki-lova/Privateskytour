@@ -20,7 +20,7 @@ interface SidebarProps {
   className?: string;
 }
 
-const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
+const SidebarContent = ({ currentUser, onLogout, isMobile = false }: SidebarProps & { isMobile?: boolean }) => {
   const pathname = usePathname();
   const { refundCandidates } = useRefundCandidates();
   const pendingRefundsCount = refundCandidates.length;
@@ -35,7 +35,7 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
     // CMSセクション
     { id: 'courses', label: 'コース管理', icon: Navigation, path: '/admin/courses', roles: ['admin', 'staff'] },
     { id: 'heliports', label: 'ヘリポート管理', icon: MapPin, path: '/admin/heliports', roles: ['admin', 'staff'] },
-    
+
     { id: 'refunds', label: '未返金管理', icon: CreditCard, path: '/admin/refunds', roles: ['admin'] },
     { id: 'logs', label: '連携・ログ', icon: Activity, path: '/admin/logs', roles: ['admin'] },
     { id: 'settings', label: '設定', icon: Settings, path: '/admin/settings', roles: ['admin'] },
@@ -43,8 +43,8 @@ const SidebarContent = ({ currentUser, onLogout }: SidebarProps) => {
 
   return (
     <div className="flex flex-col h-full bg-white text-slate-600">
-      <div className="p-5 border-b border-slate-100">
-        <img src={logo.src} alt="PrivateSky Tour" className="h-7 mb-1.5 object-contain" />
+      <div className={cn("p-4 border-b border-slate-100", isMobile && "pt-12")}>
+        <img src={logo.src} alt="PrivateSky Tour" className={cn("mb-1 object-contain", isMobile ? "h-5" : "h-7")} />
         <p className="text-xs text-slate-400 font-medium tracking-wide">管理画面</p>
       </div>
 
@@ -120,10 +120,10 @@ export const MobileNavNext = (props: SidebarProps) => {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-64">
+      <SheetContent side="left" className="p-0">
         <SheetTitle className="sr-only">Admin Menu</SheetTitle>
         <SheetDescription className="sr-only">Navigation menu for the admin console</SheetDescription>
-        <SidebarContent {...props} />
+        <SidebarContent {...props} isMobile />
       </SheetContent>
     </Sheet>
   );

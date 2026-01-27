@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { SWRConfig } from 'swr';
 import { SidebarNext, MobileNavNext } from "@/components/admin/SidebarNext";
 import { useAuth, AuthProvider } from "@/components/providers/AuthProvider";
+import logo from '@/assets/logo-header.png';
 
 function AdminLayoutContent({
   children,
@@ -54,13 +55,13 @@ function AdminLayoutContent({
 
       <main className="flex-1 flex flex-col min-h-0 overflow-hidden lg:pl-64">
         {/* Mobile Header */}
-        <div className="lg:hidden p-4 bg-white border-b border-slate-200 flex items-center justify-between shadow-sm sticky top-0 z-10">
-          <h1 className="font-bold text-lg text-slate-900">Helicopter Ops</h1>
+        <div className="lg:hidden px-4 py-3 bg-white border-b border-slate-200 flex items-center gap-3 shadow-sm sticky top-0 z-10">
           <MobileNavNext currentUser={currentUser} onLogout={handleLogout} />
+          <img src={logo.src} alt="PrivateSky Tour" className="h-5 object-contain" />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="mx-auto max-w-7xl">
+        <div className="flex-1 overflow-y-auto p-0 lg:p-8">
+          <div className="mx-auto w-[93%] lg:w-full max-w-7xl py-4 lg:py-0">
             {children}
           </div>
         </div>
