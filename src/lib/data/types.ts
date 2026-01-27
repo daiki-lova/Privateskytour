@@ -12,6 +12,7 @@ export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partia
 export type SupportedLang = 'ja' | 'en' | 'zh';
 export type SlotStatus = 'open' | 'closed' | 'suspended';
 export type CourseType = 'standard' | 'premium' | 'charter';
+export type CourseCategory = 'sightseeing' | 'transfer';
 export type LogType = 'stripe' | 'crm' | 'system' | 'operation' | 'auth';
 export type LogStatus = 'success' | 'failure' | 'warning' | 'info';
 export type NotificationType = 'booking_confirmation' | 'payment_received' | 'reminder' | 'cancellation' | 'refund' | 'custom';
@@ -75,6 +76,14 @@ export interface Course {
   displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;
+
+  // LP display fields
+  category?: CourseCategory;
+  area?: string;
+  rating?: number;
+  popular?: boolean;
+  routeMapUrl?: string;
+  returnPrice?: number;
 
   // Legacy alias (backward compatibility)
   duration?: number; // Alias for durationMinutes
@@ -237,6 +246,7 @@ export interface Passenger {
   reservationId: string;
   name: string;
   nameKana?: string;
+  nameRomaji?: string;
   weightKg?: number;
   isChild: boolean;
   isInfant: boolean;

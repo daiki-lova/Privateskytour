@@ -122,6 +122,7 @@ export async function GET(request: NextRequest) {
     const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10)));
     const status = searchParams.get('status') as ReservationStatus | null;
     const date = searchParams.get('date');
+    const customerId = searchParams.get('customerId');
 
     // Build the query
     let query = supabase
@@ -136,6 +137,9 @@ export async function GET(request: NextRequest) {
     }
     if (date) {
       query = query.eq('reservation_date', date);
+    }
+    if (customerId) {
+      query = query.eq('customer_id', customerId);
     }
 
     // Apply pagination

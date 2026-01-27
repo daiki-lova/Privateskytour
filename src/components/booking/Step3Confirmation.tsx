@@ -33,8 +33,9 @@ interface Step3Props {
 // Cancellation policy data
 const CANCELLATION_POLICIES = [
   { daysBefore: 7, refundPercentage: 100, label: "7日前まで" },
-  { daysBefore: 3, refundPercentage: 50, label: "3日前まで" },
-  { daysBefore: 0, refundPercentage: 0, label: "2日前以降" },
+  { daysBefore: 4, refundPercentage: 70, label: "4日前まで" },
+  { daysBefore: 2, refundPercentage: 50, label: "2日前まで" },
+  { daysBefore: 0, refundPercentage: 0, label: "前日〜当日" },
 ];
 
 export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
@@ -91,9 +92,9 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           courseId: selectedCourse.id,
-          slotId: data.planId, // This should ideally be a slot ID, using planId as fallback
+          slotId: data.slotId,
           reservationDate: format(data.date, "yyyy-MM-dd"),
-          reservationTime: data.time,
+          reservationTime: data.time.slice(0, 5), // Convert "09:00:00" to "09:00"
           customer: {
             name: data.contactName,
             email: data.contactEmail,
@@ -315,15 +316,15 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                       className={`text-sm font-bold ${
                         policy.refundPercentage === 100
                           ? "text-green-600"
-                          : policy.refundPercentage === 50
+                          : policy.refundPercentage >= 50
                             ? "text-amber-600"
                             : "text-red-600"
                       }`}
                     >
                       {policy.refundPercentage === 100
                         ? "全額返金"
-                        : policy.refundPercentage === 50
-                          ? "50%返金"
+                        : policy.refundPercentage > 0
+                          ? `${policy.refundPercentage}%返金`
                           : "返金不可"}
                     </span>
                   </div>

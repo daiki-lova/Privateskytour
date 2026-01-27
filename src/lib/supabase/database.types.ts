@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       admin_users: {
@@ -71,6 +46,48 @@ export type Database = {
           last_login_at?: string | null
           name?: string
           role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          id: string
+          type: Database["public"]["Enums"]["announcement_type"]
+          title: string
+          content: string
+          target: string | null
+          status: Database["public"]["Enums"]["announcement_status"]
+          scheduled_at: string | null
+          sent_at: string | null
+          author: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          type: Database["public"]["Enums"]["announcement_type"]
+          title: string
+          content: string
+          target?: string | null
+          status?: Database["public"]["Enums"]["announcement_status"]
+          scheduled_at?: string | null
+          sent_at?: string | null
+          author?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          type?: Database["public"]["Enums"]["announcement_type"]
+          title?: string
+          content?: string
+          target?: string | null
+          status?: Database["public"]["Enums"]["announcement_status"]
+          scheduled_at?: string | null
+          sent_at?: string | null
+          author?: string | null
+          created_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -301,6 +318,8 @@ export type Database = {
       }
       courses: {
         Row: {
+          area: string | null
+          category: string | null
           course_type: Database["public"]["Enums"]["course_type"] | null
           created_at: string | null
           description: string | null
@@ -316,7 +335,11 @@ export type Database = {
           is_active: boolean | null
           max_pax: number | null
           min_pax: number | null
+          popular: boolean | null
           price: number
+          rating: number | null
+          return_price: number | null
+          route_map_url: string | null
           subtitle: string | null
           subtitle_en: string | null
           subtitle_zh: string | null
@@ -327,6 +350,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          area?: string | null
+          category?: string | null
           course_type?: Database["public"]["Enums"]["course_type"] | null
           created_at?: string | null
           description?: string | null
@@ -342,7 +367,11 @@ export type Database = {
           is_active?: boolean | null
           max_pax?: number | null
           min_pax?: number | null
+          popular?: boolean | null
           price: number
+          rating?: number | null
+          return_price?: number | null
+          route_map_url?: string | null
           subtitle?: string | null
           subtitle_en?: string | null
           subtitle_zh?: string | null
@@ -353,6 +382,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          area?: string | null
+          category?: string | null
           course_type?: Database["public"]["Enums"]["course_type"] | null
           created_at?: string | null
           description?: string | null
@@ -368,7 +399,11 @@ export type Database = {
           is_active?: boolean | null
           max_pax?: number | null
           min_pax?: number | null
+          popular?: boolean | null
           price?: number
+          rating?: number | null
+          return_price?: number | null
+          route_map_url?: string | null
           subtitle?: string | null
           subtitle_en?: string | null
           subtitle_zh?: string | null
@@ -624,6 +659,7 @@ export type Database = {
           is_infant: boolean | null
           name: string
           name_kana: string | null
+          name_romaji: string | null
           reservation_id: string
           seat_number: number | null
           special_requirements: string | null
@@ -637,6 +673,7 @@ export type Database = {
           is_infant?: boolean | null
           name: string
           name_kana?: string | null
+          name_romaji?: string | null
           reservation_id: string
           seat_number?: number | null
           special_requirements?: string | null
@@ -650,6 +687,7 @@ export type Database = {
           is_infant?: boolean | null
           name?: string
           name_kana?: string | null
+          name_romaji?: string | null
           reservation_id?: string
           seat_number?: number | null
           special_requirements?: string | null
@@ -1050,6 +1088,8 @@ export type Database = {
       }
     }
     Enums: {
+      announcement_type: "reservation" | "public"
+      announcement_status: "draft" | "scheduled" | "sent" | "published"
       course_type: "standard" | "premium" | "charter"
       inquiry_status: "new" | "in_progress" | "resolved" | "closed"
       log_status: "success" | "failure" | "warning" | "info"
@@ -1209,11 +1249,10 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
+      announcement_type: ["reservation", "public"],
+      announcement_status: ["draft", "scheduled", "sent", "published"],
       course_type: ["standard", "premium", "charter"],
       inquiry_status: ["new", "in_progress", "resolved", "closed"],
       log_status: ["success", "failure", "warning", "info"],

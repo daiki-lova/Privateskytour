@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import type Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
 import {
@@ -10,8 +11,11 @@ import {
   validateMypageToken,
   type MypageTokenValidationResult,
 } from '@/lib/auth/mypage-token';
+import { stripe } from '@/lib/stripe/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+type PaymentStatus = Database['public']['Enums']['payment_status'];
 
 /**
  * Type for reservation with customer join
@@ -285,8 +289,129 @@ export async function POST(
       }
     }
 
-    // TODO: Initiate refund if payment was made
-    // This would integrate with Stripe refund API
+    // Initiate refund if payment was made
+    let refundInfo: {
+      stripeRefundId?: string;
+      refundRecordId?: string;
+      refundStatus?: string;
+      refundedAmount?: number;
+    } = {};
+
+    if (
+      typedReservation.payment_status === 'paid' &&
+      cancellationResult.refundAmount > 0
+    ) {
+      // Fetch payment information for this reservation
+      const { data: payment, error: paymentFetchError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('reservation_id', reservationId)
+        .eq('status', 'paid')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (paymentFetchError) {
+        console.error('Error fetching payment for refund:', paymentFetchError);
+        // Continue without refund - will need manual processing
+      } else if (payment?.stripe_payment_intent_id) {
+        // Check if refund already exists for this payment
+        const { data: existingRefund } = await supabase
+          .from('refunds')
+          .select('id, amount, status')
+          .eq('payment_id', payment.id)
+          .eq('status', 'completed')
+          .maybeSingle();
+
+        const alreadyRefundedAmount = existingRefund?.amount ?? 0;
+        const maxRefundableAmount = payment.amount - alreadyRefundedAmount;
+        const refundAmount = Math.min(
+          cancellationResult.refundAmount,
+          maxRefundableAmount
+        );
+
+        if (refundAmount > 0) {
+          // Process refund via Stripe
+          let stripeRefund: Stripe.Refund;
+          try {
+            stripeRefund = await stripe.refunds.create({
+              payment_intent: payment.stripe_payment_intent_id,
+              amount: refundAmount,
+              reason: 'requested_by_customer',
+              metadata: {
+                reservation_id: reservationId,
+                booking_number: typedReservation.booking_number,
+                processed_by: 'customer_self_service',
+                cancellation_fee: cancellationResult.cancellationFee.toString(),
+              },
+            });
+
+            // Record refund in database
+            const { data: refundRecord, error: insertError } = await supabase
+              .from('refunds')
+              .insert({
+                reservation_id: reservationId,
+                payment_id: payment.id,
+                amount: refundAmount,
+                reason: 'customer_request',
+                reason_detail: 'Customer self-service cancellation',
+                stripe_refund_id: stripeRefund.id,
+                status: 'completed',
+                processed_at: new Date().toISOString(),
+                processed_by: null, // Customer self-service, no admin user
+              })
+              .select()
+              .single();
+
+            if (insertError) {
+              console.error('Error recording refund:', insertError);
+              // Note: Stripe refund was successful, but database record failed
+            }
+
+            // Update payment status
+            const totalRefunded = alreadyRefundedAmount + refundAmount;
+            const isFullyRefunded = totalRefunded >= payment.amount;
+            const newPaymentStatus: PaymentStatus = isFullyRefunded
+              ? 'refunded'
+              : 'partial_refund';
+
+            const { error: paymentUpdateError } = await supabase
+              .from('payments')
+              .update({
+                status: newPaymentStatus,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', payment.id);
+
+            if (paymentUpdateError) {
+              console.error('Error updating payment status:', paymentUpdateError);
+            }
+
+            // Update reservation payment_status
+            await supabase
+              .from('reservations')
+              .update({
+                payment_status: newPaymentStatus,
+              })
+              .eq('id', reservationId);
+
+            refundInfo = {
+              stripeRefundId: stripeRefund.id,
+              refundRecordId: refundRecord?.id,
+              refundStatus: stripeRefund.status ?? undefined,
+              refundedAmount: refundAmount,
+            };
+
+            console.log(
+              `Self-service refund processed: ${typedReservation.booking_number} - ${refundAmount} yen`
+            );
+          } catch (stripeError) {
+            console.error('Stripe refund error:', stripeError);
+            // Continue without refund - will need manual processing
+          }
+        }
+      }
+    }
 
     // TODO: Send cancellation confirmation email
 
@@ -300,6 +425,13 @@ export async function POST(
         feePercentage: cancellationResult.feePercentage,
         daysUntil: cancellationResult.daysUntil,
       },
+      refund: refundInfo.stripeRefundId
+        ? {
+            stripeRefundId: refundInfo.stripeRefundId,
+            refundedAmount: refundInfo.refundedAmount,
+            status: refundInfo.refundStatus,
+          }
+        : null,
     });
   } catch (error) {
     console.error('Cancel reservation error:', error);

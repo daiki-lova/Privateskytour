@@ -47,15 +47,37 @@ export const HeliportsView = () => {
   };
 
   const handleSave = async () => {
-    // TODO: Implement API mutation when heliports API supports create/update
-    // For now, just show success and refetch
-    if (editingHeliport) {
-      toast.success("ヘリポート情報を正常に更新いたしました。");
-    } else {
-      toast.success("新しいヘリポートを正常に登録いたしました。");
+    try {
+      if (editingHeliport) {
+        // PUT /api/admin/heliports/[id]
+        const response = await fetch(`/api/admin/heliports/${editingHeliport.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Update failed');
+        }
+        toast.success("ヘリポート情報を正常に更新いたしました。");
+      } else {
+        // POST /api/admin/heliports
+        const response = await fetch('/api/admin/heliports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Create failed');
+        }
+        toast.success("新しいヘリポートを正常に登録いたしました。");
+      }
+      setIsDialogOpen(false);
+      mutate();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "保存に失敗しました。");
     }
-    setIsDialogOpen(false);
-    mutate();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,11 +92,21 @@ export const HeliportsView = () => {
     setFormData({ ...formData, imageUrl: '' });
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('ヘリポート情報を削除してもよろしいですか？この操作は取り消せません。')) {
-      // TODO: Implement API mutation when heliports API supports delete
-      toast.success("対象のヘリポート情報を完全に削除いたしました。");
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('ヘリポート情報を削除してもよろしいですか？この操作は取り消せません。')) return;
+
+    try {
+      const response = await fetch(`/api/admin/heliports/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Delete failed');
+      }
+      toast.success("対象のヘリポート情報を削除いたしました。");
       mutate();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "削除に失敗しました。");
     }
   };
 

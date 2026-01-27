@@ -21,16 +21,64 @@ interface Step1Props {
   onNext: () => void;
 }
 
+type SlotInfo = {
+  id: string;
+  slotTime: string;
+  time?: string;
+  maxPax: number;
+  currentPax: number;
+  availablePax: number;
+  status: string;
+};
+
+type OperatingSettings = {
+  activeHours: string[];
+  holidayMode: boolean;
+};
+
 export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1Props) {
   const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(data.planId);
   const [date, setDate] = useState<Date | undefined>(data.date);
   const [time, setTime] = useState<string>(data.time || "");
-  const [availableSlots, setAvailableSlots] = useState<{ id: string; slotTime: string; time?: string; availablePax?: number }[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | undefined>(data.slotId);
+  const [passengers, setPassengers] = useState<number>(data.passengers || 2);
+  const [availableSlots, setAvailableSlots] = useState<SlotInfo[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [operatingSettings, setOperatingSettings] = useState<OperatingSettings | null>(null);
+
+  // Fetch operating settings once on mount
+  useEffect(() => {
+    async function fetchOperatingSettings() {
+      try {
+        const hoursRes = await fetch(`/api/public/settings/operating-hours`);
+        const hoursJson = await hoursRes.json();
+
+        if (hoursJson.success && hoursJson.data) {
+          setOperatingSettings({
+            activeHours: hoursJson.data.activeHours || [],
+            holidayMode: hoursJson.data.holidayMode || false,
+          });
+        } else {
+          // Default settings
+          setOperatingSettings({
+            activeHours: ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'],
+            holidayMode: false,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch operating settings:", error);
+        setOperatingSettings({
+          activeHours: ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'],
+          holidayMode: false,
+        });
+      }
+    }
+    fetchOperatingSettings();
+  }, []);
 
   // Fetch available slots when date changes
   useEffect(() => {
-    async function fetchAvailableSlots() {
+    async function fetchSlots() {
       if (!date) {
         setAvailableSlots([]);
         return;
@@ -38,32 +86,47 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
       setIsLoadingSlots(true);
       try {
         const dateStr = format(date, "yyyy-MM-dd");
-        const res = await fetch(`/api/public/slots/available?date=${dateStr}`);
-        const json = await res.json();
-        if (json.success) {
+        const slotsRes = await fetch(`/api/public/slots/available?date=${dateStr}`);
+        const slotsJson = await slotsRes.json();
+
+        if (slotsJson.success) {
           // Deduplicate by time (multiple course_id can have same time)
-          const slots = json.data || [];
-          const uniqueByTime = slots.reduce((acc: typeof slots, slot: typeof slots[0]) => {
+          // Keep the slot with the most availability
+          const slots = (slotsJson.data || []) as SlotInfo[];
+          const uniqueByTime = slots.reduce((acc: SlotInfo[], slot: SlotInfo) => {
             const slotTime = slot.slotTime || slot.time || '';
-            if (!acc.find((s: typeof slot) => (s.slotTime || s.time) === slotTime)) {
+            const existing = acc.find((s) => (s.slotTime || s.time) === slotTime);
+            if (!existing) {
               acc.push(slot);
+            } else if ((slot.availablePax || 0) > (existing.availablePax || 0)) {
+              // Replace with slot that has more availability
+              const index = acc.indexOf(existing);
+              acc[index] = slot;
             }
             return acc;
           }, []);
           setAvailableSlots(uniqueByTime);
         } else {
-          console.error("Failed to fetch slots:", json.error);
+          console.error("Failed to fetch slots:", slotsJson.error);
           setAvailableSlots([]);
         }
       } catch (error) {
-        console.error("Failed to fetch slots", error);
+        console.error("Failed to fetch slots:", error);
         setAvailableSlots([]);
       } finally {
         setIsLoadingSlots(false);
       }
     }
-    fetchAvailableSlots();
+    fetchSlots();
   }, [date]);
+
+  // Helper function to check if a time is within active operating hours
+  const isWithinOperatingHours = (slotTime: string): boolean => {
+    if (!operatingSettings) return true;
+    if (operatingSettings.holidayMode) return false; // All slots unavailable in holiday mode
+    const time = slotTime.slice(0, 5); // "09:00:00" -> "09:00"
+    return operatingSettings.activeHours.includes(time);
+  };
 
   // Derived state - find course from courses prop
   const selectedCourse = useMemo(
@@ -82,12 +145,13 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
   );
 
   const handleNext = () => {
-    if (date && time && selectedPlanId) {
-      updateData({ 
+    if (date && time && selectedPlanId && selectedSlotId) {
+      updateData({
         planId: selectedPlanId,
-        date, 
+        slotId: selectedSlotId,
+        date,
         time,
-        passengers: data.passengers && data.passengers <= 3 ? data.passengers : 2
+        passengers,
       });
       onNext();
     }
@@ -292,11 +356,53 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                   </div>
                 </div>
 
+                {/* Passenger Count */}
+                <div>
+                  <Label className="mb-3 block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    搭乗人数
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3].map((num) => (
+                      <Button
+                        key={num}
+                        variant={passengers === num ? "default" : "outline"}
+                        className={cn(
+                          "flex-1 h-12 text-base rounded-lg transition-all",
+                          passengers === num
+                            ? "bg-vivid-blue hover:bg-vivid-blue/90 text-white border-vivid-blue"
+                            : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900"
+                        )}
+                        onClick={() => {
+                          setPassengers(num);
+                          // Clear time selection if current slot doesn't have enough capacity
+                          if (time && selectedSlotId) {
+                            const currentSlot = availableSlots.find(s => s.id === selectedSlotId);
+                            if (currentSlot && (currentSlot.availablePax || 0) < num) {
+                              setTime("");
+                              setSelectedSlotId(undefined);
+                            }
+                          }
+                        }}
+                      >
+                        {num}名
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-2 text-center">
+                    ※ 最大3名まで搭乗可能です
+                  </p>
+                </div>
+
                 {/* Time Slots */}
                 <div>
                   <Label className="mb-3 block text-xs font-bold text-slate-400 uppercase tracking-wider">
                     出発時間
                     {isLoadingSlots && <span className="ml-2 text-[10px] text-vivid-blue lowercase">loading...</span>}
+                    {operatingSettings?.holidayMode && (
+                      <span className="ml-2 text-[10px] text-red-500 normal-case font-medium">
+                        （臨時休業中）
+                      </span>
+                    )}
                   </Label>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {availableSlots.length === 0 && !isLoadingSlots && date ? (
@@ -308,27 +414,59 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                         const slotTime = slot.slotTime || slot.time || '';
                         const displayTime = slotTime.slice(0, 5); // "09:00:00" -> "09:00"
                         const isSelected = time === slotTime;
-                        const isFull = (slot.availablePax ?? 0) <= 0;
+                        const availablePax = slot.availablePax ?? 0;
+                        const isFull = availablePax <= 0;
+                        const hasEnoughCapacity = availablePax >= passengers;
+                        const withinOperatingHours = isWithinOperatingHours(slotTime);
+                        const isOutsideHours = !withinOperatingHours;
+                        const isUnavailable = isFull || !hasEnoughCapacity || isOutsideHours;
+
                         return (
                           <Button
                             key={slot.id}
                             variant={isSelected ? "default" : "outline"}
-                            disabled={!date || isLoadingSlots || isFull}
+                            disabled={!date || isLoadingSlots || isUnavailable}
                             className={cn(
-                              "w-full h-10 text-sm rounded-lg transition-all",
-                              isSelected ? "bg-vivid-blue hover:bg-vivid-blue/90 text-white border-vivid-blue" : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900",
-                              isFull ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed" : ""
+                              "w-full h-12 text-sm rounded-lg transition-all flex flex-col items-center justify-center gap-0.5",
+                              isSelected
+                                ? "bg-vivid-blue hover:bg-vivid-blue/90 text-white border-vivid-blue"
+                                : "border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900",
+                              isOutsideHours && "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed hover:border-slate-100 hover:text-slate-300",
+                              !isOutsideHours && isUnavailable && "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed hover:border-slate-200 hover:text-slate-400"
                             )}
-                            onClick={() => setTime(slotTime)}
+                            onClick={() => {
+                              if (!isUnavailable) {
+                                setTime(slotTime);
+                                setSelectedSlotId(slot.id);
+                              }
+                            }}
                           >
-                            <span className={isFull ? "line-through opacity-50" : ""}>{displayTime}</span>
+                            <span className={isFull || isOutsideHours ? "line-through" : ""}>{displayTime}</span>
+                            <span className={cn(
+                              "text-[9px]",
+                              isSelected ? "text-white/80" : "text-slate-400",
+                              isOutsideHours && "text-slate-300",
+                              !isOutsideHours && isUnavailable && "text-slate-400"
+                            )}>
+                              {operatingSettings?.holidayMode
+                                ? "休業中"
+                                : isOutsideHours
+                                  ? "受付不可"
+                                  : isFull
+                                    ? "満席"
+                                    : `残${availablePax}席`}
+                            </span>
                           </Button>
                         );
                       })
                     )}
                   </div>
                   <p className="text-[10px] text-slate-400 mt-3 text-center">
-                    {!date ? "※ まずはフライト日を選択してください" : "※ 1機のみの運航のため、各時間帯1組様限定です。"}
+                    {!date
+                      ? "※ まずはフライト日を選択してください"
+                      : operatingSettings?.holidayMode
+                        ? "※ 現在臨時休業中のため予約を受け付けておりません"
+                        : "※ 薄いグレーは受付不可時間帯、濃いグレーは空席不足です"}
                   </p>
                 </div>
 

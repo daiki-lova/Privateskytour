@@ -37,12 +37,17 @@ describe('Cancellation Policy', () => {
   });
 
   describe('findApplicableTier', () => {
-    it('should return 0% fee for 8+ days before', () => {
+    it('should return 0% fee for 7+ days before', () => {
       const tier = findApplicableTier(10);
       expect(tier?.feePercentage).toBe(0);
     });
 
-    it('should return 30% fee for 4-7 days before', () => {
+    it('should return 0% fee for exactly 7 days before', () => {
+      const tier = findApplicableTier(7);
+      expect(tier?.feePercentage).toBe(0);
+    });
+
+    it('should return 30% fee for 4-6 days before', () => {
       const tier = findApplicableTier(5);
       expect(tier?.feePercentage).toBe(30);
     });
@@ -52,9 +57,9 @@ describe('Cancellation Policy', () => {
       expect(tier?.feePercentage).toBe(50);
     });
 
-    it('should return 80% fee for 1 day before', () => {
+    it('should return 100% fee for 1 day before', () => {
       const tier = findApplicableTier(1);
-      expect(tier?.feePercentage).toBe(80);
+      expect(tier?.feePercentage).toBe(100);
     });
 
     it('should return 100% fee for same day', () => {
@@ -78,7 +83,7 @@ describe('Cancellation Policy', () => {
       vi.useRealTimers();
     });
 
-    it('should calculate no fee for 8+ days before', () => {
+    it('should calculate no fee for 7+ days before', () => {
       const result = calculateCancellationFee(100000, '2024-01-25', 'confirmed');
       expect(result.feePercentage).toBe(0);
       expect(result.cancellationFee).toBe(0);
@@ -86,11 +91,27 @@ describe('Cancellation Policy', () => {
       expect(result.canCancel).toBe(true);
     });
 
-    it('should calculate 30% fee for 4-7 days before', () => {
+    it('should calculate 30% fee for 4-6 days before', () => {
       const result = calculateCancellationFee(100000, '2024-01-20', 'confirmed');
       expect(result.feePercentage).toBe(30);
       expect(result.cancellationFee).toBe(30000);
       expect(result.refundAmount).toBe(70000);
+      expect(result.canCancel).toBe(true);
+    });
+
+    it('should calculate 50% fee for 2-3 days before', () => {
+      const result = calculateCancellationFee(100000, '2024-01-17', 'confirmed');
+      expect(result.feePercentage).toBe(50);
+      expect(result.cancellationFee).toBe(50000);
+      expect(result.refundAmount).toBe(50000);
+      expect(result.canCancel).toBe(true);
+    });
+
+    it('should calculate 100% fee for 1 day before', () => {
+      const result = calculateCancellationFee(100000, '2024-01-16', 'confirmed');
+      expect(result.feePercentage).toBe(100);
+      expect(result.cancellationFee).toBe(100000);
+      expect(result.refundAmount).toBe(0);
       expect(result.canCancel).toBe(true);
     });
 
@@ -125,15 +146,15 @@ describe('Cancellation Policy', () => {
       expect(result.feePercentage).toBe(30);
     });
 
-    it('should handle edge case at tier boundary (day 7)', () => {
-      const result = calculateCancellationFee(100000, '2024-01-22', 'confirmed');
-      expect(result.daysUntil).toBe(7);
+    it('should handle edge case at tier boundary (day 6)', () => {
+      const result = calculateCancellationFee(100000, '2024-01-21', 'confirmed');
+      expect(result.daysUntil).toBe(6);
       expect(result.feePercentage).toBe(30);
     });
 
-    it('should handle edge case at tier boundary (day 8)', () => {
-      const result = calculateCancellationFee(100000, '2024-01-23', 'confirmed');
-      expect(result.daysUntil).toBe(8);
+    it('should handle edge case at tier boundary (day 7)', () => {
+      const result = calculateCancellationFee(100000, '2024-01-22', 'confirmed');
+      expect(result.daysUntil).toBe(7);
       expect(result.feePercentage).toBe(0);
     });
   });

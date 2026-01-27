@@ -3,14 +3,15 @@
 import { Card, CardContent } from "./ui/card";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { motion } from "motion/react";
-import { useState } from "react";
-import { PLANS } from "./booking/constants";
+import { useState, useMemo } from "react";
+import type { Course } from "@/lib/data/types";
 
 interface DestinationsSectionProps {
+  courses: Course[];
   onPlanSelect?: (planId: string) => void;
 }
 
-export function DestinationsSection({ onPlanSelect }: DestinationsSectionProps) {
+export function DestinationsSection({ courses, onPlanSelect }: DestinationsSectionProps) {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const categories = [
@@ -20,14 +21,20 @@ export function DestinationsSection({ onPlanSelect }: DestinationsSectionProps) 
     { id: "fuji", name: "富士山・その他" }
   ];
 
-  const filteredDestinations = selectedCategory === "all" 
-    ? PLANS 
-    : PLANS.filter(dest => {
-        if (selectedCategory === "fuji") {
-            return dest.title.includes("富士") || dest.description.includes("富士") || dest.area.includes("富士") || dest.area.includes("箱根") || dest.area.includes("伊豆");
-        }
-        return dest.area.toLowerCase().includes(selectedCategory) || (selectedCategory === "tokyo" && dest.area === "東京");
+  const filteredDestinations = useMemo(() => {
+    if (selectedCategory === "all") {
+      return courses;
+    }
+    return courses.filter(course => {
+      const area = course.area || "";
+      const title = course.title || "";
+      const description = course.description || "";
+      if (selectedCategory === "fuji") {
+        return title.includes("富士") || description.includes("富士") || area.includes("富士") || area.includes("箱根") || area.includes("伊豆");
+      }
+      return area.toLowerCase().includes(selectedCategory) || (selectedCategory === "tokyo" && area === "東京");
     });
+  }, [courses, selectedCategory]);
 
   return (
     <section id="destinations" className="py-24 bg-white relative overflow-hidden">
@@ -89,7 +96,7 @@ export function DestinationsSection({ onPlanSelect }: DestinationsSectionProps) 
               <Card className="h-full overflow-hidden border-0 bg-white group-hover:-translate-y-1 transition-all duration-500 shadow-none hover:shadow-none">
                 <div className="relative aspect-[16/10] overflow-hidden rounded-2xl mb-6">
                   <ImageWithFallback
-                    src={destination.image}
+                    src={destination.images?.[0] || "/images/placeholder.jpg"}
                     alt={destination.title}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                   />

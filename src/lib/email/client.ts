@@ -1,7 +1,10 @@
 import { Resend } from 'resend';
 
+import { reservationCancelledTemplate } from './templates/reservation-cancelled';
 import { reservationConfirmedTemplate } from './templates/reservation-confirmed';
 import { reservationReminderTemplate } from './templates/reservation-reminder';
+import { reservationReminder3DaysTemplate } from './templates/reservation-reminder-3days';
+import { refundCompletedTemplate } from './templates/refund-completed';
 
 // Resendクライアントの初期化
 // 環境変数が未設定の場合は開発モードとして動作
@@ -46,6 +49,30 @@ export type ReservationReminderParams = {
   heliportName: string;
   heliportAddress: string;
   googleMapUrl?: string;
+};
+
+// キャンセル確認メールのパラメータ
+export type CancellationConfirmationParams = {
+  to: string;
+  customerName: string;
+  courseName: string;
+  flightDate: string;
+  flightTime: string;
+  bookingNumber: string;
+  cancellationFee: number;
+  refundAmount: number;
+  originalAmount: number;
+};
+
+// 返金完了メールのパラメータ
+export type RefundNotificationParams = {
+  to: string;
+  customerName: string;
+  courseName: string;
+  bookingNumber: string;
+  refundAmount: number;
+  cardLast4?: string;
+  refundDate: string;
 };
 
 /**
@@ -123,6 +150,43 @@ export async function sendReservationReminder(
 }
 
 /**
+ * 予約リマインダーメールを送信（フライト3日前）
+ */
+export async function sendReservationReminder3Days(
+  params: ReservationReminderParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent 3-day reminder email to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = reservationReminder3DaysTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【3日後のフライトのご案内】${params.courseName}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send 3-day reminder email:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] 3-day reminder email sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending 3-day reminder email:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
  * 予約確認メールを Resend のスケジュール機能で送信
  */
 export async function scheduleReservationReminder(
@@ -157,6 +221,80 @@ export async function scheduleReservationReminder(
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error('[Email] Exception while scheduling reminder email:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * キャンセル確認メールを送信
+ */
+export async function sendCancellationConfirmation(
+  params: CancellationConfirmationParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent cancellation email to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = reservationCancelledTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【予約キャンセル完了】${params.courseName} - ${params.bookingNumber}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send cancellation email:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Cancellation email sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending cancellation email:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * 返金完了通知メールを送信
+ */
+export async function sendRefundNotification(
+  params: RefundNotificationParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent refund notification to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = refundCompletedTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【返金完了のお知らせ】${params.courseName} - ${params.bookingNumber}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send refund notification:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Refund notification sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending refund notification:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

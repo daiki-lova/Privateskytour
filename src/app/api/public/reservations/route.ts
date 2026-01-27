@@ -161,6 +161,7 @@ function validateReservationInput(body: Record<string, unknown>): string | null 
  */
 export async function POST(request: NextRequest) {
   try {
+    // Use regular client - RLS policies allow public inserts
     const supabase = await createClient();
 
     const body = await request.json();
@@ -182,6 +183,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (slotError || !slotData) {
+      console.error('Slot not found:', slotError);
       return errorResponse('Slot not found', HttpStatus.NOT_FOUND);
     }
 
@@ -294,6 +296,7 @@ export async function POST(request: NextRequest) {
       reservation_id: reservationData.id,
       name: p.name,
       name_kana: p.nameKana || null,
+      name_romaji: p.nameRomaji || null,
       weight_kg: p.weightKg || null,
       is_child: p.isChild || false,
       is_infant: p.isInfant || false,

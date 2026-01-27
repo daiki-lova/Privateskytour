@@ -55,9 +55,31 @@ export function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call - replace with actual API integration later
-      console.log("Contact form submitted:", data);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/public/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          subject: data.subject,
+          message: data.message,
+          lang: language,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Handle validation or server errors
+        const errorMessage =
+          result.error ||
+          (language === "ja"
+            ? "送信に失敗しました。もう一度お試しください。"
+            : "Failed to send. Please try again.");
+        throw new Error(errorMessage);
+      }
 
       setIsSubmitted(true);
       toast.success(
@@ -66,12 +88,14 @@ export function ContactForm() {
           : "Your message has been sent"
       );
       reset();
-    } catch {
-      toast.error(
-        language === "ja"
-          ? "送信に失敗しました。もう一度お試しください。"
-          : "Failed to send. Please try again."
-      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : language === "ja"
+            ? "送信に失敗しました。もう一度お試しください。"
+            : "Failed to send. Please try again.";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

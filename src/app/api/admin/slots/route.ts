@@ -24,19 +24,29 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     const status = searchParams.get('status') as SlotStatus | null;
     const courseId = searchParams.get('courseId');
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const pageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+    const pageSize = parseInt(searchParams.get('pageSize') || '100', 10);
 
-    // Build query
+    // Build query - include reservations with customer info
     let query = supabase
       .from('slots')
-      .select('*, course:courses(*)', { count: 'exact' });
+      .select('*, course:courses(*), reservations(*, customer:customers(*))', { count: 'exact' });
 
     // Apply filters
     if (date) {
       query = query.eq('slot_date', date);
+    }
+
+    // Date range filter (startDate to endDate)
+    if (startDate) {
+      query = query.gte('slot_date', startDate);
+    }
+    if (endDate) {
+      query = query.lte('slot_date', endDate);
     }
 
     if (status) {

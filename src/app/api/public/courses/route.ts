@@ -32,6 +32,13 @@ function toCourse(row: Record<string, unknown>): Course {
     displayOrder: row.display_order as number,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    // LP表示用フィールド
+    category: row.category as 'sightseeing' | 'transfer' | undefined,
+    area: row.area as string | undefined,
+    rating: row.rating as number | undefined,
+    popular: row.popular as boolean | undefined,
+    routeMapUrl: row.route_map_url as string | undefined,
+    returnPrice: row.return_price as number | undefined,
   };
 }
 
@@ -95,8 +102,8 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching courses:', error);
-      return errorResponse('Failed to fetch courses', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('Error fetching courses:', error.message, error.code, error.details);
+      return errorResponse(`Failed to fetch courses: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     const courses = (data || []).map((row) => {

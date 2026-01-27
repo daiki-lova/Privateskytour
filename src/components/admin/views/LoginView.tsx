@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -133,6 +134,16 @@ export function LoginView() {
                 "ログイン"
               )}
             </Button>
+
+            {/* Forgot Password Link */}
+            <div className="text-center">
+              <Link
+                href="/admin/forgot-password"
+                className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+              >
+                パスワードをお忘れですか？
+              </Link>
+            </div>
           </form>
 
           <p className="text-xs text-center text-slate-400 mt-4">

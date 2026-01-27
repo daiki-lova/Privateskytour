@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users, Search, RefreshCcw, Activity, Settings,
   CheckCircle2, AlertCircle, XCircle, RotateCcw, Save,
   CreditCard, History, FileText, Phone, Mail, MapPin, Tag,
-  ExternalLink, ChevronRight, Copy, Terminal, Sun, Moon
+  ExternalLink, ChevronRight, Copy, Terminal, Sun, Moon,
+  Cloud, Plus, X
 } from 'lucide-react';
 import { User, AuditLog, Customer, Reservation } from '@/lib/data/types';
-import { MOCK_RESERVATIONS } from '@/lib/data/mockData';
-import { useCustomers, useLogs } from '@/lib/api/hooks';
+import { useCustomers, useLogs, useRefundCandidates, processRefund, RefundCandidate, useReservations } from '@/lib/api/hooks';
 import { TableSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/components/ui/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -49,10 +56,13 @@ export const CustomersView = () => {
 
   const customers = data?.data ?? [];
 
-  // 顧客の予約履歴を取得
-  const getCustomerHistory = (email: string) => {
-    return MOCK_RESERVATIONS.filter(r => r.customerEmail === email);
-  };
+  // 選択された顧客の予約履歴を取得
+  const { data: reservationsData, isLoading: isLoadingReservations } = useReservations({
+    customerId: selectedCustomer?.id,
+    pageSize: 50,
+  });
+
+  const customerHistory = reservationsData?.data ?? [];
 
   const handleStartEdit = () => {
     if (selectedCustomer) {
@@ -66,11 +76,40 @@ export const CustomersView = () => {
     setEditForm(null);
   };
 
-  const handleSaveEdit = () => {
-    if (editForm) {
-      setSelectedCustomer(editForm);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveEdit = async () => {
+    if (!editForm || !selectedCustomer) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/admin/customers/${selectedCustomer.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name,
+          email: editForm.email,
+          phone: editForm.phone,
+          notes: editForm.notes,
+          tags: editForm.tags
+        })
+      });
+
+      if (!response.ok) {
+        const responseData = await response.json();
+        throw new Error(responseData.error || 'Update failed');
+      }
+
+      const result = await response.json();
+      setSelectedCustomer(result.data);
       setIsEditing(false);
+      setEditForm(null);
       toast.success("顧客情報を正常に更新いたしました。");
+      mutate();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "更新に失敗しました。");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -256,14 +295,20 @@ export const CustomersView = () => {
                   
                   {isEditing ? (
                     <div className="flex gap-2 shrink-0">
-                      <Button variant="ghost" size="sm" onClick={handleCancelEdit} className="h-8 text-xs">キャンセル</Button>
-                      <Button size="sm" onClick={handleSaveEdit} className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">保存</Button>
+                      <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={isSaving} className="h-8 text-xs">キャンセル</Button>
+                      <Button size="sm" onClick={handleSaveEdit} disabled={isSaving} className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
+                        {isSaving ? (
+                          <><RefreshCcw className="w-3.5 h-3.5 mr-1 animate-spin" />保存中</>
+                        ) : (
+                          '保存'
+                        )}
+                      </Button>
                     </div>
                   ) : (
                     <Button variant="outline" size="sm" onClick={handleStartEdit} className="h-8 text-xs shrink-0">編集</Button>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-1">Total Spent</div>
@@ -334,24 +379,30 @@ export const CustomersView = () => {
                       予約履歴
                     </h3>
                     <div className="space-y-3">
-                      {getCustomerHistory(selectedCustomer.email).map(res => (
-                        <div key={res.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors group">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-xs text-slate-900">{res.date}</span>
-                              <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal bg-white">
-                                {res.status}
-                              </Badge>
-                            </div>
-                            <div className="text-xs text-slate-500">{res.planName}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-mono font-medium">¥{res.price.toLocaleString()}</div>
-                            <div className="text-[10px] text-slate-400">{res.pax}名</div>
-                          </div>
+                      {isLoadingReservations ? (
+                        <div className="text-center py-6 text-xs text-slate-400">
+                          <RefreshCcw className="w-4 h-4 animate-spin mx-auto mb-2" />
+                          読み込み中...
                         </div>
-                      ))}
-                      {getCustomerHistory(selectedCustomer.email).length === 0 && (
+                      ) : customerHistory.length > 0 ? (
+                        customerHistory.map(res => (
+                          <div key={res.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors group">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-xs text-slate-900">{res.reservationDate || res.date}</span>
+                                <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal bg-white">
+                                  {res.status}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-slate-500">{res.planName || res.course?.title || '-'}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-mono font-medium">¥{(res.totalPrice || res.price || 0).toLocaleString()}</div>
+                              <div className="text-[10px] text-slate-400">{res.pax}名</div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
                         <div className="text-center py-6 text-xs text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-200">
                           予約履歴はありません
                         </div>
@@ -392,11 +443,63 @@ export const CustomersView = () => {
 
 // --- Refunds View ---
 export const RefundsView = () => {
-  // 未返金の予約 (運休またはキャンセル済み だが 未払いではない)
-  const refundCandidates = MOCK_RESERVATIONS.filter(r => 
-    (r.status === 'cancelled' || r.status === 'suspended') && 
-    r.paymentStatus === 'paid'
-  );
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<RefundCandidate | null>(null);
+  const [refundReason, setRefundReason] = useState<'customer_request' | 'weather' | 'mechanical' | 'operator_cancel' | 'other'>('customer_request');
+  const [refundReasonDetail, setRefundReasonDetail] = useState('');
+
+  const { refundCandidates, error, isLoading, mutate } = useRefundCandidates();
+
+  const handleRefund = async (candidate: RefundCandidate) => {
+    if (!candidate.payment) {
+      toast.error('支払い情報が見つかりません');
+      return;
+    }
+
+    setProcessingId(candidate.id);
+
+    try {
+      await processRefund(candidate.id, {
+        reason: refundReason,
+        reasonDetail: refundReasonDetail || undefined,
+      });
+      toast.success(`${candidate.bookingNumber} の返金処理が完了しました`);
+      mutate();
+      setSelectedCandidate(null);
+      setRefundReason('customer_request');
+      setRefundReasonDetail('');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '返金処理に失敗しました';
+      toast.error(errorMessage);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const reasonLabels: Record<string, string> = {
+    customer_request: 'お客様都合',
+    weather: '悪天候',
+    mechanical: '機材整備',
+    operator_cancel: '運航者都合',
+    other: 'その他',
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">未返金管理</h1>
+            <p className="text-xs text-slate-500">運休・キャンセル後の返金漏れ防止リスト</p>
+          </div>
+        </div>
+        <ErrorAlert
+          message="返金データの取得に失敗しました"
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -405,6 +508,9 @@ export const RefundsView = () => {
           <h1 className="text-xl font-bold tracking-tight text-slate-900">未返金管理</h1>
           <p className="text-xs text-slate-500">運休・キャンセル後の返金漏れ防止リスト</p>
         </div>
+        <Button variant="outline" size="sm" className="h-9 text-xs" onClick={() => mutate()}>
+          <RefreshCcw className="w-3.5 h-3.5 mr-2" /> 更新
+        </Button>
       </div>
 
       {refundCandidates.length > 0 && (
@@ -423,6 +529,10 @@ export const RefundsView = () => {
       )}
 
       <Card className="shadow-sm border-slate-200 overflow-hidden">
+        {isLoading ? (
+          <TableSkeleton rows={5} columns={6} />
+        ) : (
+          <>
          {/* モバイル用カードリスト */}
          <div className="md:hidden divide-y divide-slate-100">
            {refundCandidates.length === 0 ? (
@@ -436,32 +546,41 @@ export const RefundsView = () => {
                  <div className="flex justify-between items-start">
                    <div className="space-y-1">
                      <div className="font-mono font-bold text-sm text-slate-900">{res.bookingNumber}</div>
-                     <Badge variant="outline" className={cn(
-                        "text-[10px] font-normal",
-                        res.status === 'suspended' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-500 border-slate-200'
-                      )}>
-                        {res.status === 'suspended' ? '運休' : 'キャンセル'}
-                      </Badge>
+                     <Badge variant="outline" className="text-[10px] font-normal bg-slate-100 text-slate-500 border-slate-200">
+                       キャンセル
+                     </Badge>
                    </div>
                    <div className="text-right">
-                     <div className="font-bold font-mono text-slate-900">¥{res.price.toLocaleString()}</div>
+                     <div className="font-bold font-mono text-slate-900">
+                       {res.payment?.amount ? `¥${res.payment.amount.toLocaleString()}` : '-'}
+                     </div>
                      <div className="text-xs text-red-600 font-medium">未返金</div>
                    </div>
                  </div>
-                 
+
                  <div className="text-xs text-slate-600 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
                    <div>
                      <span className="text-slate-400 block text-[10px] uppercase">Flight Date</span>
-                     <span className="font-medium">{res.date} {res.time}</span>
+                     <span className="font-medium">{res.reservationDate} {res.reservationTime}</span>
                    </div>
                    <div>
                      <span className="text-slate-400 block text-[10px] uppercase">Customer</span>
-                     <span className="font-medium">{res.customerName}</span>
+                     <span className="font-medium">{res.customer?.name ?? '-'}</span>
                    </div>
                  </div>
 
-                 <Button size="sm" variant="outline" className="w-full text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-9">
-                    詳細・返金へ
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   className="w-full text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-9"
+                   onClick={() => setSelectedCandidate(res)}
+                   disabled={processingId === res.id}
+                 >
+                   {processingId === res.id ? (
+                     <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 処理中...</>
+                   ) : (
+                     <>返金処理</>
+                   )}
                  </Button>
                </div>
              ))
@@ -496,22 +615,31 @@ export const RefundsView = () => {
                 <TableRow key={res.id}>
                   <TableCell className="font-mono font-medium pl-6">{res.bookingNumber}</TableCell>
                   <TableCell>
-                    <div className="text-sm font-medium text-slate-900">{res.date}</div>
-                    <div className="text-xs text-slate-500 font-mono">{res.time}</div>
+                    <div className="text-sm font-medium text-slate-900">{res.reservationDate}</div>
+                    <div className="text-xs text-slate-500 font-mono">{res.reservationTime}</div>
                   </TableCell>
-                  <TableCell className="text-sm text-slate-700">{res.customerName}</TableCell>
-                  <TableCell className="font-bold font-mono text-slate-900">¥{res.price.toLocaleString()}</TableCell>
+                  <TableCell className="text-sm text-slate-700">{res.customer?.name ?? '-'}</TableCell>
+                  <TableCell className="font-bold font-mono text-slate-900">
+                    {res.payment?.amount ? `¥${res.payment.amount.toLocaleString()}` : '-'}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={cn(
-                      "text-[10px] font-normal",
-                      res.status === 'suspended' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-500 border-slate-200'
-                    )}>
-                      {res.status === 'suspended' ? '運休' : 'キャンセル'}
+                    <Badge variant="outline" className="text-[10px] font-normal bg-slate-100 text-slate-500 border-slate-200">
+                      キャンセル
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right pr-6">
-                    <Button size="sm" variant="outline" className="h-8 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
-                      詳細・返金へ
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => setSelectedCandidate(res)}
+                      disabled={processingId === res.id}
+                    >
+                      {processingId === res.id ? (
+                        <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 処理中...</>
+                      ) : (
+                        <>返金処理</>
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -520,7 +648,114 @@ export const RefundsView = () => {
           </TableBody>
         </Table>
         </div>
+          </>
+        )}
       </Card>
+
+      {/* Refund Confirmation Sheet */}
+      <Sheet open={!!selectedCandidate} onOpenChange={(open) => !open && setSelectedCandidate(null)}>
+        <SheetContent className="w-full sm:w-[480px] p-0 flex flex-col gap-0">
+          {selectedCandidate && (
+            <>
+              <SheetHeader className="px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-100 rounded-full">
+                    <CreditCard className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <SheetTitle className="text-base font-bold text-slate-900">返金処理</SheetTitle>
+                    <SheetDescription className="font-mono text-xs mt-0.5">{selectedCandidate.bookingNumber}</SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-100 space-y-3">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase">顧客名</span>
+                      <span className="font-medium text-slate-900">{selectedCandidate.customer?.name ?? '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase">メール</span>
+                      <span className="font-medium text-slate-900">{selectedCandidate.customer?.email ?? '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase">運航予定日</span>
+                      <span className="font-medium text-slate-900">{selectedCandidate.reservationDate} {selectedCandidate.reservationTime}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px] uppercase">コース</span>
+                      <span className="font-medium text-slate-900">{selectedCandidate.course?.title ?? '-'}</span>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-700">返金金額</span>
+                    <span className="text-xl font-bold text-red-600">
+                      {selectedCandidate.payment?.amount ? `¥${selectedCandidate.payment.amount.toLocaleString()}` : '-'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">返金理由</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(reasonLabels).map(([key, label]) => (
+                        <Button
+                          key={key}
+                          type="button"
+                          variant={refundReason === key ? 'default' : 'outline'}
+                          size="sm"
+                          className={cn(
+                            "h-9 text-xs",
+                            refundReason === key && "bg-indigo-600 hover:bg-indigo-700"
+                          )}
+                          onClick={() => setRefundReason(key as typeof refundReason)}
+                        >
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">詳細メモ (任意)</Label>
+                    <Textarea
+                      value={refundReasonDetail}
+                      onChange={(e) => setRefundReasonDetail(e.target.value)}
+                      placeholder="返金に関する補足情報があれば入力..."
+                      className="min-h-[80px] text-sm resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 border-t bg-slate-50 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-10 text-sm"
+                  onClick={() => setSelectedCandidate(null)}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  className="flex-1 h-10 text-sm bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => handleRefund(selectedCandidate)}
+                  disabled={processingId === selectedCandidate.id}
+                >
+                  {processingId === selectedCandidate.id ? (
+                    <><RefreshCcw className="w-4 h-4 mr-2 animate-spin" /> 処理中...</>
+                  ) : (
+                    <><CreditCard className="w-4 h-4 mr-2" /> 返金を実行</>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
@@ -807,14 +1042,27 @@ export const LogsView = () => {
 // --- Settings View ---
 export const SettingsView = () => {
   // デフォルトで有効な時間帯
-  const [activeHours, setActiveHours] = useState<string[]>([
-    "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"
-  ]);
+  const [activeHours, setActiveHours] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   // その他設定のState
   const [holidayMode, setHolidayMode] = useState(false);
-  const [policyJa, setPolicyJa] = useState("前日50%、当日100%のキャンセル料が発生します。悪天候による運休の場合は全額返金いたします。");
-  const [policyEn, setPolicyEn] = useState("Cancellation fee: 50% for previous day, 100% for same day. Full refund for cancellations due to bad weather.");
+  const [policyJa, setPolicyJa] = useState("");
+  const [policyEn, setPolicyEn] = useState("");
+
+  // 当日連絡先設定
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactHours, setContactHours] = useState("");
+
+  // 天候判断設定
+  const [weatherDecisionTime, setWeatherDecisionTime] = useState("08:00");
+  const [weatherNotificationEnabled, setWeatherNotificationEnabled] = useState(true);
+
+  // 管理者通知設定
+  const [notificationEmails, setNotificationEmails] = useState<string[]>([]);
+  const [notificationEnabled, setNotificationEnabled] = useState(true);
+  const [newEmail, setNewEmail] = useState("");
 
   // 9:00 から 19:00 までの時間枠生成 (30分刻み)
   const timeSlots = [
@@ -824,6 +1072,78 @@ export const SettingsView = () => {
     '18:00', '18:30', '19:00'
   ];
 
+  // 設定をDBから読み込む
+  const loadSettings = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/admin/settings?keys=active_hours,holiday_mode,cancellation_policy_ja,cancellation_policy_en,contact_phone,contact_hours,weather_decision_time,weather_notification_enabled,notification_emails,notification_enabled');
+      if (response.ok) {
+        const result = await response.json();
+        const data = result.data || {};
+
+        // active_hours（配列）
+        if (data.active_hours && Array.isArray(data.active_hours)) {
+          setActiveHours(data.active_hours);
+        } else {
+          // デフォルト値
+          setActiveHours(['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']);
+        }
+
+        // holiday_mode（boolean）
+        if (typeof data.holiday_mode === 'boolean') {
+          setHolidayMode(data.holiday_mode);
+        }
+
+        // cancellation policies
+        if (data.cancellation_policy_ja) {
+          setPolicyJa(data.cancellation_policy_ja);
+        } else {
+          setPolicyJa("前日50%、当日100%のキャンセル料が発生します。悪天候による運休の場合は全額返金いたします。");
+        }
+
+        if (data.cancellation_policy_en) {
+          setPolicyEn(data.cancellation_policy_en);
+        } else {
+          setPolicyEn("Cancellation fee: 50% for previous day, 100% for same day. Full refund for cancellations due to bad weather.");
+        }
+
+        // 当日連絡先設定
+        if (data.contact_phone) {
+          setContactPhone(data.contact_phone);
+        }
+        if (data.contact_hours) {
+          setContactHours(data.contact_hours);
+        }
+
+        // 天候判断設定
+        if (data.weather_decision_time) {
+          setWeatherDecisionTime(data.weather_decision_time);
+        }
+        if (typeof data.weather_notification_enabled === 'boolean') {
+          setWeatherNotificationEnabled(data.weather_notification_enabled);
+        }
+
+        // 管理者通知設定
+        if (Array.isArray(data.notification_emails)) {
+          setNotificationEmails(data.notification_emails);
+        }
+        if (typeof data.notification_enabled === 'boolean') {
+          setNotificationEnabled(data.notification_enabled);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+      toast.error('設定の読み込みに失敗しました');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // 初回読み込み
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
   const toggleHour = (time: string) => {
     if (activeHours.includes(time)) {
       setActiveHours(activeHours.filter(h => h !== time));
@@ -832,9 +1152,61 @@ export const SettingsView = () => {
     }
   };
 
-  const handleSaveSettings = () => {
-    // 実運用ではここでAPIを叩く
-    toast.success("システム設定を正常に保存いたしました。変更は即座に反映されます。");
+  // メールアドレス追加
+  const handleAddEmail = () => {
+    const email = newEmail.trim();
+    if (!email) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('有効なメールアドレスを入力してください');
+      return;
+    }
+    if (notificationEmails.includes(email)) {
+      toast.error('このメールアドレスは既に追加されています');
+      return;
+    }
+    setNotificationEmails([...notificationEmails, email]);
+    setNewEmail("");
+  };
+
+  // メールアドレス削除
+  const handleRemoveEmail = (email: string) => {
+    setNotificationEmails(notificationEmails.filter(e => e !== email));
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setIsSaving(true);
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          settings: {
+            active_hours: activeHours,
+            holiday_mode: holidayMode,
+            cancellation_policy_ja: policyJa,
+            cancellation_policy_en: policyEn,
+            contact_phone: contactPhone,
+            contact_hours: contactHours,
+            weather_decision_time: weatherDecisionTime,
+            weather_notification_enabled: weatherNotificationEnabled,
+            notification_emails: notificationEmails,
+            notification_enabled: notificationEnabled,
+          }
+        })
+      });
+
+      if (response.ok) {
+        toast.success("システム設定を正常に保存いたしました。変更は即座に反映されます。");
+      } else {
+        const result = await response.json();
+        toast.error(result.error || '設定の保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      toast.error('設定の保存に失敗しました');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -844,8 +1216,16 @@ export const SettingsView = () => {
             <h1 className="text-xl font-bold tracking-tight text-slate-900">設定</h1>
             <p className="text-xs text-slate-500">システム設定・マスタ管理・運用時間設定</p>
           </div>
-          <Button onClick={handleSaveSettings} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-9 text-xs">
-            <Save className="w-3.5 h-3.5 mr-2" /> 設定を保存
+          <Button
+            onClick={handleSaveSettings}
+            disabled={isSaving || isLoading}
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-9 text-xs"
+          >
+            {isSaving ? (
+              <><RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" /> 保存中...</>
+            ) : (
+              <><Save className="w-3.5 h-3.5 mr-2" /> 設定を保存</>
+            )}
           </Button>
         </div>
 
@@ -953,9 +1333,142 @@ export const SettingsView = () => {
                   onChange={(e) => setPolicyEn(e.target.value)}
                 />
               </div>
-              <Button className="w-full" onClick={handleSaveSettings}>
-                <Save className="w-4 h-4 mr-2" /> 保存
+              <Button className="w-full" onClick={handleSaveSettings} disabled={isSaving || isLoading}>
+                {isSaving ? (
+                  <><RefreshCcw className="w-4 h-4 mr-2 animate-spin" /> 保存中...</>
+                ) : (
+                  <><Save className="w-4 h-4 mr-2" /> 保存</>
+                )}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* 当日連絡先設定カード */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                当日連絡先
+              </CardTitle>
+              <CardDescription>お客様への案内に表示される連絡先情報</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>電話番号</Label>
+                <Input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="03-1234-5678"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>受付時間</Label>
+                <Input
+                  value={contactHours}
+                  onChange={(e) => setContactHours(e.target.value)}
+                  placeholder="9:00-18:00 (土日祝除く)"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 天候判断設定カード */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cloud className="w-4 h-4" />
+                天候判断設定
+              </CardTitle>
+              <CardDescription>フライト当日の天候判断に関する設定</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>天候判断時刻</Label>
+                  <p className="text-xs text-slate-500">この時刻までに運航可否を判断します</p>
+                </div>
+                <Select value={weatherDecisionTime} onValueChange={setWeatherDecisionTime}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="06:00">06:00</SelectItem>
+                    <SelectItem value="07:00">07:00</SelectItem>
+                    <SelectItem value="08:00">08:00</SelectItem>
+                    <SelectItem value="09:00">09:00</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>天候通知</Label>
+                  <p className="text-xs text-slate-500">悪天候時に予約者へ自動通知</p>
+                </div>
+                <Switch
+                  checked={weatherNotificationEnabled}
+                  onCheckedChange={setWeatherNotificationEnabled}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 管理者通知設定カード */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                管理者通知設定
+              </CardTitle>
+              <CardDescription>予約・キャンセル等の通知先メールアドレス</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>管理者通知</Label>
+                  <p className="text-xs text-slate-500">新規予約時にメール通知を送信</p>
+                </div>
+                <Switch
+                  checked={notificationEnabled}
+                  onCheckedChange={setNotificationEnabled}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>通知先メールアドレス</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEmail())}
+                  />
+                  <Button onClick={handleAddEmail} variant="outline" size="icon">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {notificationEmails.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {notificationEmails.map(email => (
+                      <Badge key={email} variant="secondary" className="flex items-center gap-1 pr-1">
+                        {email}
+                        <button
+                          onClick={() => handleRemoveEmail(email)}
+                          className="ml-1 hover:text-red-500 p-0.5 rounded-full hover:bg-slate-200"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {notificationEmails.length === 0 && (
+                  <p className="text-xs text-slate-400 mt-2">通知先メールアドレスが登録されていません</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

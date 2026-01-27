@@ -11,6 +11,7 @@ interface UseReservationsParams {
   status?: string;
   startDate?: string;
   endDate?: string;
+  customerId?: string;
 }
 
 export function useReservations(params: UseReservationsParams = {}) {
@@ -20,6 +21,7 @@ export function useReservations(params: UseReservationsParams = {}) {
   if (params.status && params.status !== 'all') searchParams.set('status', params.status);
   if (params.startDate) searchParams.set('startDate', params.startDate);
   if (params.endDate) searchParams.set('endDate', params.endDate);
+  if (params.customerId) searchParams.set('customerId', params.customerId);
 
   const queryString = searchParams.toString();
   const url = `/api/admin/reservations${queryString ? `?${queryString}` : ''}`;

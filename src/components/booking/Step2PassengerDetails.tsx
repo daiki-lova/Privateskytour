@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,11 +13,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
 import { Car, Info, UserPlus } from "lucide-react";
-import { PLANS } from "./constants";
+import type { Course } from "@/lib/data/types";
+
+// ローマ字バリデーション（半角英字とスペースのみ）
+const romajiRegex = /^[A-Za-z\s]+$/;
 
 // Zodスキーマ定義
 const guestSchema = z.object({
   name: z.string().min(1, "ゲスト名を入力してください"),
+  nameRomaji: z.string()
+    .min(1, "ローマ字名を入力してください")
+    .regex(romajiRegex, "半角英字とスペースのみで入力してください")
+    .transform((val) => val.toUpperCase()),
 });
 
 const passengerSchema = z.object({
@@ -51,14 +58,20 @@ const passengerSchema = z.object({
 type PassengerFormData = z.infer<typeof passengerSchema>;
 
 interface Step2Props {
+  courses: Course[];
   data: BookingData;
   updateData: (data: Partial<BookingData>) => void;
   onNext: () => void;
 }
 
-export function Step2PassengerDetails({ data, updateData, onNext }: Step2Props) {
-  const selectedPlan = PLANS.find(p => p.id === data.planId);
-  const isEligibleForTransfer = selectedPlan ? parseInt(selectedPlan.duration) >= 30 : false;
+export function Step2PassengerDetails({ courses, data, updateData, onNext }: Step2Props) {
+  // Find the selected course from courses prop
+  const selectedCourse = useMemo(
+    () => courses.find((c) => c.id === data.planId),
+    [courses, data.planId]
+  );
+  // 30分以上のフライトは無料送迎対象
+  const isEligibleForTransfer = selectedCourse?.durationMinutes ? selectedCourse.durationMinutes >= 30 : false;
 
   const {
     register,
@@ -100,7 +113,7 @@ export function Step2PassengerDetails({ data, updateData, onNext }: Step2Props) 
     if (requiredGuests > currentGuests) {
       // ゲストを追加
       for (let i = currentGuests; i < requiredGuests; i++) {
-        append({ name: "" });
+        append({ name: "", nameRomaji: "" });
       }
     } else if (requiredGuests < currentGuests) {
       // ゲストを削除
@@ -228,27 +241,58 @@ export function Step2PassengerDetails({ data, updateData, onNext }: Step2Props) 
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-5">
               {fields.map((field, index) => (
-                <div key={field.id} className="space-y-2">
-                  <Label
-                    htmlFor={`guests.${index}.name`}
-                    className="text-xs font-bold text-slate-500 flex items-center justify-between"
-                  >
-                    同乗者 {index + 1}
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
-                  </Label>
-                  <div className="flex items-center gap-2">
+                <div key={field.id} className="space-y-3 p-4 bg-white rounded-xl border border-slate-100">
+                  <div className="text-xs font-bold text-slate-600 mb-2">同乗者 {index + 1}</div>
+
+                  {/* 名前（カタカナ） */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor={`guests.${index}.name`}
+                      className="text-xs font-bold text-slate-500 flex items-center justify-between"
+                    >
+                      お名前（カタカナ）
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                    </Label>
                     <Input
                       id={`guests.${index}.name`}
                       placeholder="オオゾラ ハナコ"
                       {...register(`guests.${index}.name`)}
                       className={`bg-white border-slate-200 focus:border-vivid-blue rounded-lg h-12 ${errors.guests?.[index]?.name ? "border-red-400 focus:border-red-400" : ""}`}
                     />
+                    {errors.guests?.[index]?.name && (
+                      <p className="text-xs text-red-500">{errors.guests[index]?.name?.message}</p>
+                    )}
                   </div>
-                  {errors.guests?.[index]?.name && (
-                    <p className="text-xs text-red-500">{errors.guests[index]?.name?.message}</p>
-                  )}
+
+                  {/* 名前（ローマ字） */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor={`guests.${index}.nameRomaji`}
+                      className="text-xs font-bold text-slate-500 flex items-center justify-between"
+                    >
+                      お名前（ローマ字）
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0">必須</Badge>
+                    </Label>
+                    <Input
+                      id={`guests.${index}.nameRomaji`}
+                      placeholder="OZORA HANAKO"
+                      {...register(`guests.${index}.nameRomaji`)}
+                      onChange={(e) => {
+                        // 大文字に変換
+                        e.target.value = e.target.value.toUpperCase();
+                        register(`guests.${index}.nameRomaji`).onChange(e);
+                      }}
+                      className={`bg-white border-slate-200 focus:border-vivid-blue rounded-lg h-12 font-mono uppercase ${errors.guests?.[index]?.nameRomaji ? "border-red-400 focus:border-red-400" : ""}`}
+                    />
+                    {errors.guests?.[index]?.nameRomaji && (
+                      <p className="text-xs text-red-500">{errors.guests[index]?.nameRomaji?.message}</p>
+                    )}
+                    <p className="text-[10px] text-slate-400">
+                      ※パスポートと同じ表記で入力してください（半角英字）
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

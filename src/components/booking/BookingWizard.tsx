@@ -11,10 +11,12 @@ import type { Course } from "@/lib/data/types";
 
 export type Guest = {
   name: string;
+  nameRomaji: string;
 };
 
 export type BookingData = {
   planId?: string;
+  slotId?: string;
   date?: Date;
   time?: string;
   passengers?: number;
@@ -106,10 +108,11 @@ export function BookingWizard({ courses, initialPlanId }: BookingWizardProps) {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Step2PassengerDetails 
-                  data={bookingData} 
-                  updateData={updateData} 
-                  onNext={nextStep} 
+                <Step2PassengerDetails
+                  courses={courses}
+                  data={bookingData}
+                  updateData={updateData}
+                  onNext={nextStep}
                 />
               </motion.div>
             )}

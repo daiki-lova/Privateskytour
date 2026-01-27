@@ -30,6 +30,11 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(() => Promise.resolve(mockSupabaseClient)),
 }));
 
+// Mock email client
+vi.mock('@/lib/email/client', () => ({
+  sendReservationConfirmation: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 // Mock environment variables
 const originalEnv = process.env;
 
@@ -314,8 +319,45 @@ describe('POST /api/stripe/webhook', () => {
         eq: vi.fn().mockResolvedValue({ error: null }),
       });
 
-      mockSupabaseClient.from.mockReturnValue({
-        update: updateMock,
+      const selectMock = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: {
+              id: mockSession.metadata.reservationId,
+              booking_number: 'HF-20250127-0001',
+              reservation_date: '2025-02-01',
+              reservation_time: '10:00',
+              pax: 2,
+              total_price: 110000,
+              customer: {
+                id: 'customer-123',
+                email: 'test@example.com',
+                name: 'Test Customer',
+                mypage_token: 'token-123',
+              },
+              course: {
+                id: 'course-123',
+                title: 'Tokyo Bay Tour',
+                heliport: {
+                  id: 'heliport-123',
+                  name: 'Tokyo Heliport',
+                  address: 'Tokyo, Japan',
+                },
+              },
+            },
+            error: null,
+          }),
+        }),
+      });
+
+      mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === 'reservations') {
+          return {
+            update: updateMock,
+            select: selectMock,
+          };
+        }
+        return {};
       });
 
       const request = createWebhookRequest(JSON.stringify(mockSession), 'valid_signature');
@@ -379,8 +421,13 @@ describe('POST /api/stripe/webhook', () => {
         eq: vi.fn().mockResolvedValue({ error: { message: 'Database error' } }),
       });
 
-      mockSupabaseClient.from.mockReturnValue({
-        update: updateMock,
+      mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === 'reservations') {
+          return {
+            update: updateMock,
+          };
+        }
+        return {};
       });
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

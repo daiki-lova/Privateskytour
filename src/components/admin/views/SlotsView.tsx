@@ -7,8 +7,7 @@ import {
 } from 'lucide-react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { Slot, User } from '@/lib/data/types';
-import { MOCK_RESERVATIONS, MOCK_TEMPLATES } from '@/lib/data/mockData';
+import { Slot, User, Reservation } from '@/lib/data/types';
 import { useSlots } from '@/lib/api/hooks';
 import { suspendSlot } from '@/lib/api/mutations/slots';
 import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
@@ -26,6 +25,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/components/ui/utils";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+
+// Fixed cancellation notification template (no template management feature in requirements)
+const CANCELLATION_TEMPLATE = {
+  subject: '【重要】フライト運休のお知らせ',
+  body: `お客様各位
+
+ご予約いただいておりましたフライトについて、
+天候等の理由により運休となりましたことをお知らせいたします。
+
+ご不便をおかけし誠に申し訳ございません。
+返金手続きについては別途ご連絡いたします。
+
+PrivateSky Tour`,
+};
 
 export const SlotsView = ({ currentUser }: { currentUser: User }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -562,15 +575,41 @@ const SlotDetail = ({
   const [suspendReason, setSuspendReason] = useState('weather');
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isSuspending, setIsSuspending] = useState(false);
+  const [emailSubject, setEmailSubject] = useState(CANCELLATION_TEMPLATE.subject);
+  const [emailBody, setEmailBody] = useState(CANCELLATION_TEMPLATE.body);
 
-  const reservations = MOCK_RESERVATIONS.filter(r => {
-    const slotReservations = slot.reservations ?? [];
-    return slotReservations.some(res =>
-      typeof res === 'string' ? res === r.id : res.id === r.id
-    );
+  // Get reservations from slot data (joined from API)
+  const reservations: Reservation[] = (slot.reservations ?? []).map(res => {
+    if (typeof res === 'string') {
+      // If it's just an ID, return a minimal reservation object
+      return { id: res } as Reservation;
+    }
+    // Map API response fields to Reservation type
+    const reservation = res as Reservation & {
+      booking_number?: string;
+      customer_id?: string;
+      total_price?: number;
+      payment_status?: string;
+      customer?: {
+        id: string;
+        name: string;
+        email: string;
+        phone?: string;
+      };
+    };
+    return {
+      ...reservation,
+      bookingNumber: reservation.bookingNumber ?? reservation.booking_number ?? '',
+      customerId: reservation.customerId ?? reservation.customer_id ?? '',
+      price: reservation.price ?? reservation.total_price ?? 0,
+      paymentStatus: reservation.paymentStatus ?? reservation.payment_status ?? 'pending',
+      customerName: reservation.customerName ?? reservation.customer?.name ?? '',
+      customerEmail: reservation.customerEmail ?? reservation.customer?.email ?? '',
+      customerPhone: reservation.customerPhone ?? reservation.customer?.phone ?? '',
+    } as Reservation;
   });
   const isSuspended = slot.status === 'suspended';
-  const hasReservation = (slot.reservations ?? []).length > 0;
+  const hasReservation = reservations.length > 0;
 
   const handleSuspend = async () => {
     setIsSuspending(true);
@@ -777,21 +816,24 @@ const SlotDetail = ({
                   </DialogHeader>
                   <div className="py-4 space-y-3">
                      <div className="space-y-1.5">
-                       <Label className="text-xs">テンプレート選択</Label>
-                       <Select defaultValue="t1">
-                         <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
-                         <SelectContent>
-                           {MOCK_TEMPLATES.map(t => (
-                             <SelectItem key={t.id} value={t.id} className="text-xs">{t.name}</SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
+                       <Label className="text-xs">件名</Label>
+                       <Input
+                         className="h-9 text-xs"
+                         value={emailSubject}
+                         onChange={(e) => setEmailSubject(e.target.value)}
+                       />
                      </div>
-                     <Textarea 
-                       className="min-h-[150px] text-xs font-mono leading-relaxed bg-slate-50"
-                       value={MOCK_TEMPLATES[0].body}
-                       readOnly
-                     />
+                     <div className="space-y-1.5">
+                       <Label className="text-xs">本文</Label>
+                       <Textarea
+                         className="min-h-[200px] text-xs font-mono leading-relaxed"
+                         value={emailBody}
+                         onChange={(e) => setEmailBody(e.target.value)}
+                       />
+                     </div>
+                     <p className="text-[10px] text-slate-400">
+                       運休通知用のテンプレートです。必要に応じて内容を編集してください。
+                     </p>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsEmailModalOpen(false)} className="h-8 text-xs">キャンセル</Button>

@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
@@ -115,6 +116,29 @@ export async function createClient() {
           // Server Component - ignore
         }
       },
+    },
+  });
+}
+
+/**
+ * Creates a Supabase admin client with service_role key.
+ * This bypasses RLS and should only be used for admin operations.
+ * WARNING: Never expose this client to the browser.
+ */
+export function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+    );
+  }
+
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
   });
 }

@@ -1,6 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser, getAdminUser } from '@/lib/auth';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
+import type { AdminUser, UserRole } from '@/lib/data/types';
 
 export async function GET() {
   try {
@@ -11,11 +12,29 @@ export async function GET() {
       return errorResponse('Not authenticated', HttpStatus.UNAUTHORIZED);
     }
 
-    const adminUser = await getAdminUser(supabase);
+    // Use admin client to bypass RLS for admin_users table
+    const adminClient = createAdminClient();
+    const { data, error } = await adminClient
+      .from('admin_users')
+      .select('id, email, name, role, avatar_url, is_active, last_login_at, created_at, updated_at')
+      .eq('id', user.id)
+      .single();
 
-    if (!adminUser) {
+    if (error || !data) {
       return errorResponse('Not an admin user', HttpStatus.UNAUTHORIZED);
     }
+
+    const adminUser: AdminUser = {
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      role: data.role as UserRole,
+      avatarUrl: data.avatar_url ?? undefined,
+      isActive: data.is_active,
+      lastLoginAt: data.last_login_at ?? undefined,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
 
     return successResponse(adminUser);
   } catch (error) {

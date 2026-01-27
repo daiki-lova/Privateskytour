@@ -4,11 +4,11 @@ import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Button } from "./ui/button";
 import { Clock, Users, MapPin, ArrowLeft, CheckCircle2, Map, ExternalLink } from "lucide-react";
-import { Plan } from "./booking/constants";
 import { FAQSection } from "./public/FAQSection";
+import type { Course } from "@/lib/data/types";
 
 interface CourseDetailProps {
-  plan: Plan;
+  course: Course;
   onBack: () => void;
   onBook: (planId: string) => void;
   accessPoint: {
@@ -18,12 +18,25 @@ interface CourseDetailProps {
   };
 }
 
-export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetailProps) {
+export function CourseDetail({ course, onBack, onBook, accessPoint }: CourseDetailProps) {
+  // Helper to format duration
+  const formatDuration = (minutes?: number) => {
+    if (!minutes) return "";
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours}時間${mins}分` : `${hours}時間`;
+    }
+    return `${minutes}分`;
+  };
+
+  const durationStr = formatDuration(course.durationMinutes);
+
   return (
     <div className="bg-white min-h-screen pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb / Back Button */}
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center text-slate-500 hover:text-slate-900 mb-8 transition-colors group"
         >
@@ -34,17 +47,17 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Left Content */}
           <div className="lg:col-span-8 space-y-12">
-            
+
             {/* Main Image (16:9 ratio) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
               className="relative aspect-video rounded-3xl overflow-hidden bg-slate-100 border border-slate-100"
             >
               <ImageWithFallback
-                src={plan.image}
-                alt={plan.title}
+                src={course.images?.[0] || "/images/placeholder.jpg"}
+                alt={course.title}
                 className="w-full h-full object-cover"
               />
             </motion.div>
@@ -52,10 +65,10 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
             {/* Title & Description */}
             <section className="space-y-6">
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
-                {plan.title}
+                {course.title}
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed">
-                {plan.description}
+                {course.description}
               </p>
             </section>
 
@@ -64,22 +77,22 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
               <div className="bg-slate-50 p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border border-slate-100">
                 <Clock className="w-6 h-6 text-slate-400" />
                 <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">所要時間</span>
-                <span className="text-lg font-bold text-slate-900">{plan.duration}</span>
+                <span className="text-lg font-bold text-slate-900">{durationStr}</span>
               </div>
               <div className="bg-slate-50 p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border border-slate-100">
                 <Users className="w-6 h-6 text-slate-400" />
                 <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">定員</span>
-                <span className="text-lg font-bold text-slate-900">最大 {plan.capacity || 3} 名</span>
+                <span className="text-lg font-bold text-slate-900">最大 {course.maxPax || 3} 名</span>
               </div>
               <div className="bg-slate-50 p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-2 border border-slate-100 hidden md:flex">
                 <MapPin className="w-6 h-6 text-slate-400" />
                 <span className="text-xs text-slate-400 font-bold tracking-widest uppercase">出発地</span>
-                <span className="text-lg font-bold text-slate-900">東京ヘリポート</span>
+                <span className="text-lg font-bold text-slate-900">{course.heliport?.name || "東京ヘリポート"}</span>
               </div>
             </div>
 
             {/* Route Map Section */}
-            {plan.routeMapUrl && (
+            {course.routeMapUrl && (
               <section className="bg-white p-8 rounded-3xl border border-slate-200">
                 <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center">
                   <span className="w-10 h-10 bg-vivid-blue text-white rounded-xl flex items-center justify-center mr-4">
@@ -89,52 +102,58 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
                 </h2>
                 <div className="relative w-full rounded-2xl overflow-hidden border border-slate-100 mb-8">
                   <ImageWithFallback
-                    src={plan.routeMapUrl}
-                    alt={`${plan.title} Route Map`}
+                    src={course.routeMapUrl}
+                    alt={`${course.title} Route Map`}
                     className="w-full h-auto object-contain bg-white"
                   />
                 </div>
-                
-                <div className="relative pl-8 border-l-2 border-slate-100 ml-4 space-y-8">
-                  {plan.itinerary.map((item, idx) => (
-                    <div key={idx} className="relative">
-                      <div className="absolute -left-[41px] top-1 w-4 h-4 rounded-full bg-white border-4 border-vivid-blue" />
-                      <div className="space-y-1">
-                        <span className="text-sm font-bold text-slate-400">{item.time}</span>
-                        <p className="text-slate-900 font-bold text-lg">{item.activity}</p>
+
+                {course.flightSchedule && course.flightSchedule.length > 0 && (
+                  <div className="relative pl-8 border-l-2 border-slate-100 ml-4 space-y-8">
+                    {course.flightSchedule.map((item: { time: string; title: string }, idx: number) => (
+                      <div key={idx} className="relative">
+                        <div className="absolute -left-[41px] top-1 w-4 h-4 rounded-full bg-white border-4 border-vivid-blue" />
+                        <div className="space-y-1">
+                          <span className="text-sm font-bold text-slate-400">{item.time}</span>
+                          <p className="text-slate-900 font-bold text-lg">{item.title}</p>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Highlights */}
+            {course.highlights && course.highlights.length > 0 && (
+              <section className="space-y-8">
+                <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                   <span className="w-1.5 h-8 bg-vivid-blue rounded-full mr-4" />
+                   プランの魅力
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {course.highlights.map((highlight: string, idx: number) => (
+                    <div key={idx} className="flex items-start gap-4 p-5 rounded-2xl border border-slate-100 bg-slate-50/50">
+                      <CheckCircle2 className="h-6 w-6 text-vivid-blue flex-shrink-0" />
+                      <p className="text-slate-700 font-medium leading-relaxed">{highlight}</p>
                     </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* Highlights */}
-            <section className="space-y-8">
-              <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                 <span className="w-1.5 h-8 bg-vivid-blue rounded-full mr-4" />
-                 プランの魅力
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {plan.highlights.map((highlight, idx) => (
-                  <div key={idx} className="flex items-start gap-4 p-5 rounded-2xl border border-slate-100 bg-slate-50/50">
-                    <CheckCircle2 className="h-6 w-6 text-vivid-blue flex-shrink-0" />
-                    <p className="text-slate-700 font-medium leading-relaxed">{highlight}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Detailed Description */}
-            <section className="space-y-6">
-               <h2 className="text-2xl font-bold text-slate-900 flex items-center">
-                 <span className="w-1.5 h-8 bg-vivid-blue rounded-full mr-4" />
-                 コース詳細
-              </h2>
-              <p className="text-slate-600 leading-loose text-lg whitespace-pre-wrap">
-                {plan.longDescription}
-              </p>
-            </section>
+            {/* Detailed Description (use description for now, can be extended with longDescription field in Course type) */}
+            {course.description && (
+              <section className="space-y-6">
+                 <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                   <span className="w-1.5 h-8 bg-vivid-blue rounded-full mr-4" />
+                   コース詳細
+                </h2>
+                <p className="text-slate-600 leading-loose text-lg whitespace-pre-wrap">
+                  {course.description}
+                </p>
+              </section>
+            )}
             
             {/* Access */}
             <section className="bg-slate-50 p-8 rounded-3xl border border-slate-100">
@@ -179,23 +198,23 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
                 <div className="mb-8">
                   <p className="text-white/70 text-sm font-bold tracking-widest uppercase mb-2">一機あたり（税込）</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold">¥{plan.price.toLocaleString()}</span>
+                    <span className="text-4xl font-bold">¥{course.price.toLocaleString()}</span>
                   </div>
-                  {plan.returnPrice && (
+                  {course.returnPrice && (
                     <p className="text-white/70 text-sm mt-4 leading-relaxed">
-                      ※日帰り往復の場合は +¥{plan.returnPrice.toLocaleString()}
+                      ※日帰り往復の場合は +¥{course.returnPrice.toLocaleString()}
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-4 mb-8 text-sm text-white/80">
                   <div className="flex justify-between py-2 border-b border-white/10">
                     <span>最大定員</span>
-                    <span className="text-white font-bold">{plan.capacity || 3}名</span>
+                    <span className="text-white font-bold">{course.maxPax || 3}名</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/10">
                     <span>所要時間</span>
-                    <span className="text-white font-bold">{plan.duration}</span>
+                    <span className="text-white font-bold">{durationStr}</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span>キャンセル料</span>
@@ -203,7 +222,7 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
                   </div>
                 </div>
 
-                {parseInt(plan.duration) >= 30 && (
+                {(course.durationMinutes || 0) >= 30 && (
                   <div className="bg-white/10 rounded-xl p-4 mb-8 border border-white/20">
                     <p className="text-amber-300 text-xs font-bold tracking-wider mb-1 flex items-center">
                       <span className="w-2 h-2 bg-amber-300 rounded-full mr-2 animate-pulse"></span>
@@ -216,18 +235,18 @@ export function CourseDetail({ plan, onBack, onBook, accessPoint }: CourseDetail
                   </div>
                 )}
 
-                <Button 
-                  onClick={() => onBook(plan.id)}
+                <Button
+                  onClick={() => onBook(course.id)}
                   className="w-full bg-white text-vivid-blue hover:bg-slate-100 py-8 rounded-2xl text-lg font-bold shadow-lg transition-all active:scale-[0.98]"
                 >
                   このプランを予約する
                 </Button>
-                
+
                 <p className="text-center text-xs text-white/50 mt-6">
                   ※天候によりフライトが中止となる場合がございます
                 </p>
               </div>
-              
+
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <h4 className="font-bold text-slate-900 mb-4 flex items-center">
                   <Users className="w-4 h-4 mr-2" />

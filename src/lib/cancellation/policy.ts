@@ -27,39 +27,32 @@ export interface CancellationTier {
  */
 export const DEFAULT_CANCELLATION_TIERS: CancellationTier[] = [
   {
-    daysBeforeMin: 8,
+    daysBeforeMin: 7,
     daysBeforeMax: null,
     feePercentage: 0,
-    description: '8日以上前: キャンセル料なし',
-    descriptionEn: '8+ days before: No cancellation fee',
+    description: '7日前まで: キャンセル料なし',
+    descriptionEn: '7+ days before: No cancellation fee',
   },
   {
     daysBeforeMin: 4,
-    daysBeforeMax: 7,
+    daysBeforeMax: 6,
     feePercentage: 30,
-    description: '4-7日前: 30%',
-    descriptionEn: '4-7 days before: 30%',
+    description: '4日前まで: 30%',
+    descriptionEn: '4-6 days before: 30%',
   },
   {
     daysBeforeMin: 2,
     daysBeforeMax: 3,
     feePercentage: 50,
-    description: '2-3日前: 50%',
+    description: '2日前まで: 50%',
     descriptionEn: '2-3 days before: 50%',
   },
   {
-    daysBeforeMin: 1,
-    daysBeforeMax: 1,
-    feePercentage: 80,
-    description: '前日: 80%',
-    descriptionEn: '1 day before: 80%',
-  },
-  {
     daysBeforeMin: 0,
-    daysBeforeMax: 0,
+    daysBeforeMax: 1,
     feePercentage: 100,
-    description: '当日: 100%',
-    descriptionEn: 'Same day: 100%',
+    description: '前日〜当日: 100%',
+    descriptionEn: 'Day before or same day: 100%',
   },
 ];
 
@@ -182,7 +175,7 @@ export function calculateCancellationFee(
       cancellationFee: totalPrice,
       refundAmount: 0,
       daysUntil,
-      tier: DEFAULT_CANCELLATION_TIERS[4],
+      tier: DEFAULT_CANCELLATION_TIERS[3],
       canCancel: true,
     };
   }
