@@ -9,7 +9,7 @@ import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date
 import { ja } from 'date-fns/locale';
 import { Slot, User, Reservation } from '@/lib/data/types';
 import { useSlots } from '@/lib/api/hooks';
-import { suspendSlot } from '@/lib/api/mutations/slots';
+import { suspendSlot, closeSlot, reopenSlot } from '@/lib/api/mutations/slots';
 import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,8 +66,21 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
   const slots = data?.data ?? [];
 
+  // Helper to get slot date (handles both snake_case and camelCase from API)
+  const getSlotDate = (s: Slot): string => {
+    const record = s as unknown as Record<string, unknown>;
+    return (record.slot_date as string) ?? s.slotDate ?? s.date ?? '';
+  };
+
+  // Helper to get slot time (handles both snake_case and camelCase from API)
+  const getSlotTime = (s: Slot): string => {
+    const record = s as unknown as Record<string, unknown>;
+    const time = (record.slot_time as string) ?? s.slotTime ?? s.time ?? '';
+    return time.substring(0, 5); // Extract HH:mm from HH:mm:ss
+  };
+
   // 日次ビュー用のスロットフィルタ
-  const todaysSlots = slots.filter(s => (s.slotDate ?? s.date) === format(selectedDate, 'yyyy-MM-dd'));
+  const todaysSlots = slots.filter(s => getSlotDate(s) === format(selectedDate, 'yyyy-MM-dd'));
   
   // 表示する時間帯（9:00 - 19:00 の30分刻み）
   const timeSlots = useMemo(() => {
@@ -89,7 +102,8 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
   const getSlotForDayTime = (date: Date, time: string) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return slots.find(s => (s.slotDate ?? s.date) === dateStr && (s.slotTime ?? s.time) === time);
+    // Handle both snake_case (slot_date/slot_time) and camelCase (slotDate/slotTime)
+    return slots.find(s => getSlotDate(s) === dateStr && getSlotTime(s) === time);
   };
 
   const handleDateChange = (amount: number) => {
@@ -174,7 +188,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
-            <p className="text-sm text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
           </div>
         </div>
         <CardGridSkeleton cards={8} columns={4} />
@@ -189,7 +203,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-4 gap-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
-            <p className="text-sm text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
           </div>
         </div>
         <ErrorAlert
@@ -206,7 +220,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-slate-900">スロット管理</h1>
-            <p className="text-sm text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
+            <p className="text-xs text-slate-500 mt-1">フライト枠の販売状況確認と運休設定</p>
           </div>
           <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
             <DialogTrigger asChild>
@@ -328,30 +342,30 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
             <button
               onClick={() => setViewMode('day')}
               className={cn(
-                "flex-1 px-3 py-1.5 text-xs font-medium rounded-sm transition-all flex items-center justify-center gap-1.5",
+                "flex-1 px-3 py-1.5 text-[10px] font-medium rounded-sm transition-all flex items-center justify-center gap-1.5",
                 viewMode === 'day' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
               )}
             >
-              <List className="w-4 h-4" /> 日次
+              <List className="w-3 h-3" /> 日次
             </button>
             <button
               onClick={() => setViewMode('week')}
               className={cn(
-                "flex-1 px-3 py-1.5 text-xs font-medium rounded-sm transition-all flex items-center justify-center gap-1.5",
+                "flex-1 px-3 py-1.5 text-[10px] font-medium rounded-sm transition-all flex items-center justify-center gap-1.5",
                 viewMode === 'week' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
               )}
             >
-              <LayoutGrid className="w-4 h-4" /> 週次
+              <LayoutGrid className="w-3 h-3" /> 週次
             </button>
           </div>
           
-          <div className="flex items-center bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden h-10">
+          <div className="flex items-center bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden h-9">
             <Button variant="ghost" size="icon" className="h-full w-8 rounded-none border-r border-slate-100 hover:bg-slate-50" onClick={() => handleDateChange(-1)}>
-              <ChevronLeft className="w-4 h-4 text-slate-500" />
+              <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
             </Button>
             <div className="flex items-center gap-2 px-2 sm:px-3 flex-1 justify-center bg-white min-w-[140px] sm:min-w-[180px]">
-              <CalendarIcon className="w-4 h-4 text-indigo-500 hidden xs:block" />
-              <span className="text-xs sm:text-sm font-bold tabular-nums text-slate-700 whitespace-nowrap">
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-500 hidden xs:block" />
+              <span className="text-[11px] sm:text-xs font-bold tabular-nums text-slate-700 whitespace-nowrap">
                 {viewMode === 'day'
                   ? format(selectedDate, 'yyyy年 MM月 dd日 (eee)', { locale: ja })
                   : `${format(weekStart, 'MM/dd')} - ${format(weekEnd, 'MM/dd')}`
@@ -359,7 +373,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
               </span>
             </div>
             <Button variant="ghost" size="icon" className="h-full w-8 rounded-none border-l border-slate-100 hover:bg-slate-50" onClick={() => handleDateChange(1)}>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
             </Button>
           </div>
         </div>
@@ -388,10 +402,10 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
           <Card className="border-red-100 bg-red-50/10 shadow-none mt-6">
             <CardContent className="p-3 flex items-start gap-3">
-              <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <h4 className="text-sm font-bold text-red-700">運航中止判断について</h4>
-                <p className="text-xs text-red-600/80 leading-relaxed">
+                <h4 className="text-xs font-bold text-red-700">運航中止判断について</h4>
+                <p className="text-[10px] text-red-600/80 leading-relaxed">
                   運休処理を行うと、対象枠のすべての予約ステータスが「運休」に変更され、自動送信メールが配信される設定になっています。
                   返金処理は別途、予約詳細画面から個別に行う必要があります。
                 </p>
@@ -412,7 +426,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                        format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? "bg-indigo-50 text-indigo-700" : "bg-slate-50/50 text-slate-700"
                      )}>
                        <div>{format(day, 'MM/dd')}</div>
-                       <div className="text-xs text-slate-400 mt-0.5 uppercase">{format(day, 'eee', { locale: ja })}</div>
+                       <div className="text-[10px] text-slate-400 mt-0.5 uppercase">{format(day, 'eee', { locale: ja })}</div>
                      </th>
                    ))}
                  </tr>
@@ -442,7 +456,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                      )}
                                    >
                                      <div className="flex justify-between items-start">
-                                       <Badge variant="outline" className={cn("text-xs px-1 py-0 h-4 border-0",
+                                       <Badge variant="outline" className={cn("text-[9px] px-1 py-0 h-4 border-0",
                                          slot.status === 'suspended' ? "bg-amber-100 text-amber-700" :
                                          slot.status === 'closed' ? "bg-slate-200 text-slate-600" :
                                          (slot.reservations ?? []).length > 0 ? "bg-white text-indigo-700 border border-indigo-100 shadow-sm" :
@@ -463,7 +477,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                    </div>
                                  </TooltipTrigger>
                                  <TooltipContent side="top" className="text-xs p-2">
-                                   <div className="font-bold mb-1">{format(new Date(slot.date), 'M/d')} {slot.time}</div>
+                                   <div className="font-bold mb-1">{format(new Date(getSlotDate(slot)), 'M/d')} {getSlotTime(slot)}</div>
                                    <div className="space-y-1">
                                      <div className="flex justify-between gap-4">
                                        <span className="text-slate-400">搭乗人数</span>
@@ -474,7 +488,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                </Tooltip>
                              </TooltipProvider>
                            ) : (
-                             <div className="w-full h-full rounded bg-slate-50/30 border border-transparent flex items-center justify-center text-slate-200 text-xs">
+                             <div className="w-full h-full rounded bg-slate-50/30 border border-transparent flex items-center justify-center text-slate-200 text-[10px]">
                                -
                              </div>
                            )}
@@ -496,6 +510,8 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
   const isSuspended = slot.status === 'suspended';
   const isClosed = slot.status === 'closed';
   const hasReservation = (slot.reservations ?? []).length > 0;
+  // Handle both camelCase and snake_case from API
+  const slotTime = ((slot.slotTime ?? slot.time) ?? '').substring(0, 5);
   
   return (
     <div 
@@ -516,10 +532,10 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
           )}>
             <Clock className="w-4 h-4" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-slate-900 font-mono">{slot.time}</span>
+          <span className="text-lg font-bold tracking-tight text-slate-900 font-mono">{slotTime}</span>
         </div>
         <Badge variant="outline" className={cn(
-          "text-xs px-2 py-0.5 border font-medium rounded-full",
+          "text-[10px] px-2 py-0.5 border font-medium rounded-full",
           isSuspended ? "bg-amber-100 text-amber-700 border-amber-200" :
           isClosed ? "bg-slate-200 text-slate-600 border-slate-300" :
           hasReservation ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : // 予約済
@@ -534,7 +550,7 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
           "flex justify-between items-center px-3 py-2.5 rounded-lg border transition-colors",
           hasReservation ? "bg-indigo-50/30 border-indigo-100" : "bg-slate-50/50 border-slate-100"
         )}>
-           <span className="text-xs font-medium text-slate-500">搭乗人数</span>
+           <span className="text-[11px] font-medium text-slate-500">搭乗人数</span>
            {hasReservation ? (
              <div className="flex items-baseline gap-1">
                <span className="font-mono text-xl font-black text-indigo-600">{slot.currentPax}</span>
@@ -546,8 +562,8 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
         </div>
 
         {slot.reason && (
-          <div className="flex items-start gap-2 bg-amber-50 p-2 rounded-lg text-xs text-amber-700 border border-amber-100/50">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 bg-amber-50 p-2 rounded-lg text-[10px] text-amber-700 border border-amber-100/50">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
             <span className="leading-relaxed font-medium">{slot.reason}</span>
           </div>
         )}
@@ -571,10 +587,15 @@ const SlotDetail = ({
   currentUser: User;
   onMutate: () => void;
 }) => {
+  // Handle both camelCase and snake_case from API
+  const slotDate = slot.slotDate ?? slot.date ?? '';
+  const slotTime = ((slot.slotTime ?? slot.time) ?? '').substring(0, 5);
+
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [suspendReason, setSuspendReason] = useState('weather');
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isSuspending, setIsSuspending] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const [emailSubject, setEmailSubject] = useState(CANCELLATION_TEMPLATE.subject);
   const [emailBody, setEmailBody] = useState(CANCELLATION_TEMPLATE.body);
 
@@ -626,6 +647,25 @@ const SlotDetail = ({
     }
   };
 
+  const handleToggleClose = async () => {
+    setIsToggling(true);
+    try {
+      if (slot.status === 'closed') {
+        await reopenSlot(slot.id);
+        toast.success('スロットを販売再開しました。');
+      } else {
+        await closeSlot(slot.id);
+        toast.success('スロットを売止にしました。');
+      }
+      onMutate();
+      onBack();
+    } catch (_err) {
+      toast.error('処理に失敗しました');
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   const handleSendMail = () => {
     setIsEmailModalOpen(false);
     toast.success(`${reservations.length}名の予約者に一斉通知メールを正常に送信いたしました。`);
@@ -639,7 +679,7 @@ const SlotDetail = ({
         </Button>
         <div>
           <h1 className="text-lg font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            {slot.date} {slot.time}
+            {slotDate} {slotTime}
             <Badge variant="outline" className={cn(
               "text-xs font-normal",
               isSuspended ? "bg-amber-50 text-amber-700 border-amber-200" :
@@ -700,11 +740,11 @@ const SlotDetail = ({
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="border-slate-100 hover:bg-transparent">
-                    <TableHead className="h-10 text-xs font-medium text-slate-500 uppercase pl-6">予約番号</TableHead>
-                    <TableHead className="h-10 text-xs font-medium text-slate-500 uppercase">顧客名</TableHead>
-                    <TableHead className="h-10 text-xs font-medium text-slate-500 uppercase">人数</TableHead>
-                    <TableHead className="h-10 text-xs font-medium text-slate-500 uppercase">ステータス</TableHead>
-                    <TableHead className="h-10 text-xs font-medium text-slate-500 uppercase pr-6">返金</TableHead>
+                    <TableHead className="h-10 text-[10px] font-medium text-slate-500 uppercase pl-6">予約番号</TableHead>
+                    <TableHead className="h-10 text-[10px] font-medium text-slate-500 uppercase">顧客名</TableHead>
+                    <TableHead className="h-10 text-[10px] font-medium text-slate-500 uppercase">人数</TableHead>
+                    <TableHead className="h-10 text-[10px] font-medium text-slate-500 uppercase">ステータス</TableHead>
+                    <TableHead className="h-10 text-[10px] font-medium text-slate-500 uppercase pr-6">返金</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -750,17 +790,17 @@ const SlotDetail = ({
           {currentUser.role === 'admin' && (
             <Card className="border-amber-200 bg-amber-50/20 shadow-sm">
               <CardHeader className="py-4 px-6 border-b border-amber-200/50">
-                <CardTitle className="text-sm font-bold text-amber-800 flex items-center gap-2 uppercase tracking-wider">
-                  <AlertTriangle className="w-4 h-4" /> 運休処理
+                <CardTitle className="text-xs font-bold text-amber-800 flex items-center gap-2 uppercase tracking-wider">
+                  <AlertTriangle className="w-3.5 h-3.5" /> 運休処理
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <p className="text-xs text-amber-700/80 leading-relaxed">
+                <p className="text-[10px] text-amber-700/80 leading-relaxed">
                   強風や機材トラブル等でフライトを中止する場合に使用します。予約者への通知は自動で行われますが、返金は個別対応が必要です。
                 </p>
                 <Dialog open={isSuspendModalOpen} onOpenChange={setIsSuspendModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="destructive" className="w-full h-10 text-sm bg-amber-600 hover:bg-amber-700 border-amber-700 shadow-none" disabled={isSuspended}>
+                    <Button variant="destructive" className="w-full h-9 text-xs bg-amber-600 hover:bg-amber-700 border-amber-700 shadow-none" disabled={isSuspended}>
                       {isSuspended ? '運休設定済み' : '運休として処理する'}
                     </Button>
                   </DialogTrigger>
@@ -785,8 +825,8 @@ const SlotDetail = ({
                        </div>
                     </div>
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)} className="h-9 text-sm" disabled={isSuspending}>キャンセル</Button>
-                      <Button variant="destructive" onClick={handleSuspend} className="h-9 text-sm" disabled={isSuspending}>
+                      <Button variant="outline" onClick={() => setIsSuspendModalOpen(false)} className="h-8 text-xs" disabled={isSuspending}>キャンセル</Button>
+                      <Button variant="destructive" onClick={handleSuspend} className="h-8 text-xs" disabled={isSuspending}>
                         {isSuspending ? '処理中...' : '実行する'}
                       </Button>
                     </DialogFooter>
@@ -803,8 +843,8 @@ const SlotDetail = ({
             <CardContent className="p-6 space-y-4">
               <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start h-10 text-sm border-slate-200 text-slate-700 bg-white hover:bg-slate-50">
-                    <Mail className="w-4 h-4 mr-2 text-slate-400" /> 一括メール送信
+                  <Button variant="outline" className="w-full justify-start h-10 text-xs border-slate-200 text-slate-700 bg-white hover:bg-slate-50">
+                    <Mail className="w-3.5 h-3.5 mr-2 text-slate-400" /> 一括メール送信
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
@@ -836,8 +876,8 @@ const SlotDetail = ({
                      </p>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsEmailModalOpen(false)} className="h-9 text-sm">キャンセル</Button>
-                    <Button onClick={handleSendMail} className="h-9 text-sm">送信する</Button>
+                    <Button variant="outline" onClick={() => setIsEmailModalOpen(false)} className="h-8 text-xs">キャンセル</Button>
+                    <Button onClick={handleSendMail} className="h-8 text-xs">送信する</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -847,8 +887,14 @@ const SlotDetail = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                    <Label className="text-xs text-slate-600">売止設定</Label>
-                   <Button variant="outline" size="sm" className="h-9 text-sm px-3" disabled={isSuspended}>
-                     {slot.status === 'closed' ? '販売再開' : '売止にする'}
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     className="h-8 text-xs px-3"
+                     disabled={isSuspended || isToggling}
+                     onClick={handleToggleClose}
+                   >
+                     {isToggling ? '処理中...' : slot.status === 'closed' ? '販売再開' : '売止にする'}
                    </Button>
                 </div>
                 <p className="text-xs text-slate-400">

@@ -7,7 +7,8 @@ import {
   paginatedResponse,
   HttpStatus,
 } from '@/lib/api/response';
-import type { SlotStatus } from '@/lib/data/types';
+import { transformKeysToCamelCase } from '@/lib/api/transform';
+import type { SlotStatus, Slot } from '@/lib/data/types';
 
 /**
  * GET /api/admin/slots
@@ -74,7 +75,9 @@ export async function GET(request: NextRequest) {
       return errorResponse('Failed to fetch slots', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    return paginatedResponse(data || [], count || 0, page, pageSize);
+    // Transform snake_case keys to camelCase for frontend compatibility
+    const transformedData = transformKeysToCamelCase<Slot[]>(data || []);
+    return paginatedResponse(transformedData, count || 0, page, pageSize);
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return errorResponse(error.message, HttpStatus.UNAUTHORIZED);
@@ -152,7 +155,9 @@ export async function POST(request: NextRequest) {
       return errorResponse('Failed to create slot', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    return successResponse(data, HttpStatus.CREATED);
+    // Transform snake_case keys to camelCase for frontend compatibility
+    const transformedData = transformKeysToCamelCase<Slot>(data);
+    return successResponse(transformedData, HttpStatus.CREATED);
   } catch (error) {
     if (error instanceof AuthenticationError) {
       return errorResponse(error.message, HttpStatus.UNAUTHORIZED);

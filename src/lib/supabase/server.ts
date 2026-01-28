@@ -124,14 +124,36 @@ export async function createClient() {
  * Creates a Supabase admin client with service_role key.
  * This bypasses RLS and should only be used for admin operations.
  * WARNING: Never expose this client to the browser.
+ *
+ * In DEV_SKIP_AUTH mode without a valid service role key,
+ * falls back to anon key (RLS policies must allow the operation).
  */
 export function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const devSkipAuth = process.env.DEV_SKIP_AUTH === 'true';
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl) {
     throw new Error(
-      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+      'Missing NEXT_PUBLIC_SUPABASE_URL environment variable.'
+    );
+  }
+
+  // In development mode, fall back to anon key if service role key is missing
+  if (!serviceRoleKey && devSkipAuth && anonKey) {
+    console.warn('⚠️ DEV_SKIP_AUTH mode: Using anon key instead of service role key. RLS policies must allow the operation.');
+    return createSupabaseClient(supabaseUrl, anonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+
+  if (!serviceRoleKey) {
+    throw new Error(
+      'Missing SUPABASE_SERVICE_ROLE_KEY environment variable.'
     );
   }
 

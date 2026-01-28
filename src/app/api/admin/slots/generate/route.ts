@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { requireRole, AuthenticationError, AuthorizationError } from '@/lib/auth';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
 
@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
 
     // Require admin role
     await requireRole(supabase, ['admin']);
+
+    // Use admin client for database operations (bypasses RLS)
+    const adminClient = createAdminClient();
 
     // Parse request body
     const body = await request.json();
@@ -77,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // Verify course exists if courseId provided
     if (courseId) {
-      const { data: course, error: courseError } = await supabase
+      const { data: course, error: courseError } = await adminClient
         .from('courses')
         .select('id')
         .eq('id', courseId)
@@ -117,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing slots to avoid duplicates
-    const { data: existingSlots } = await supabase
+    const { data: existingSlots } = await adminClient
       .from('slots')
       .select('slot_date, slot_time, course_id')
       .gte('slot_date', startDate)
@@ -152,7 +155,7 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < newSlots.length; i += batchSize) {
       const batch = newSlots.slice(i, i + batchSize);
-      const { data, error } = await supabase.from('slots').insert(batch).select();
+      const { data, error } = await adminClient.from('slots').insert(batch).select();
 
       if (error) {
         console.error('Error inserting batch:', error);

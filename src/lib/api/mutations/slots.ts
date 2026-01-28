@@ -1,4 +1,4 @@
-import { apiPost, apiPut } from '../client';
+import { apiPost, apiPatch } from '../client';
 import type { Slot, SlotStatus } from '@/lib/data/types';
 
 export interface CreateSlotInput {
@@ -28,7 +28,7 @@ export async function createSlot(data: CreateSlotInput): Promise<Slot> {
 }
 
 export async function updateSlot(id: string, data: UpdateSlotInput): Promise<Slot> {
-  return apiPut<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, data);
+  return apiPatch<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, data);
 }
 
 export async function generateSlots(data: GenerateSlotsInput): Promise<Slot[]> {
@@ -36,5 +36,13 @@ export async function generateSlots(data: GenerateSlotsInput): Promise<Slot[]> {
 }
 
 export async function suspendSlot(id: string): Promise<Slot> {
-  return apiPut<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, { status: 'suspended' });
+  return apiPatch<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, { status: 'suspended' });
+}
+
+export async function closeSlot(id: string): Promise<Slot> {
+  return apiPatch<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, { status: 'closed' });
+}
+
+export async function reopenSlot(id: string): Promise<Slot> {
+  return apiPatch<UpdateSlotInput, Slot>(`/api/admin/slots/${id}`, { status: 'open' });
 }
