@@ -6,6 +6,7 @@ import { SWRConfig } from 'swr';
 import { SidebarNext, MobileNavNext } from "@/components/admin/SidebarNext";
 import { useAuth, AuthProvider } from "@/components/providers/AuthProvider";
 import logo from '@/assets/logo-header.png';
+import './admin.css';
 
 function AdminLayoutContent({
   children,
@@ -47,7 +48,7 @@ function AdminLayoutContent({
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 text-slate-900 font-sans">
+    <div className="admin-layout flex min-h-screen w-full bg-slate-50 text-slate-900 font-sans">
       <SidebarNext
         currentUser={currentUser}
         onLogout={handleLogout}

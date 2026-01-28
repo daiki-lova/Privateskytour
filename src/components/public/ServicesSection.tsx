@@ -2,23 +2,26 @@
 
 import { ShieldCheck, MessageSquareText, PiggyBank } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 export function ServicesSection() {
+  const { t } = useTranslation();
+
   const services = [
     {
       icon: <ShieldCheck className="h-10 w-10" />,
-      title: "安心と安全",
-      description: "国土交通省の認可を受けた航空運送事業者及び航空機使用事業者が運航を担当します。機体や運航の管理体制も厳重な基準をクリアしたパイロットが安全な空の旅へとご案内いたします。",
+      title: t('services.safety.title'),
+      description: t('services.safety.desc'),
     },
     {
       icon: <MessageSquareText className="h-10 w-10" />,
-      title: "自由なサービス・スタッフ",
-      description: "経験豊富でフレンドリーなスタッフがお客様のご要望にお応えします。また、撮影スタッフ、現地案内係などもオプションで手配、花束・演出なども相談可能です。",
+      title: t('services.flexibility.title'),
+      description: t('services.flexibility.desc'),
     },
     {
       icon: <PiggyBank className="h-10 w-10" />,
-      title: "リーズナブルな料金",
-      description: "業界最安値を目指し、納得価格でご案内。季節ごとのキャンペーンも実施しております。リーズナブルな価格で感動の体験を！記念日デートやサプライズにも4万円台とお手頃です。",
+      title: t('services.reasonable.title'),
+      description: t('services.reasonable.desc'),
     }
   ];
 
@@ -33,7 +36,7 @@ export function ServicesSection() {
           className="text-center mb-20"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 tracking-wide">
-            選ばれる理由
+            {t('services.title')}
           </h2>
           <div className="w-16 h-[1px] bg-slate-300 mx-auto" />
         </motion.div>

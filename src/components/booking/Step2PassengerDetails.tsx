@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 import { BookingData } from "./BookingWizard";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -18,44 +19,17 @@ import type { Course } from "@/lib/data/types";
 // ローマ字バリデーション（半角英字とスペースのみ）
 const romajiRegex = /^[A-Za-z\s]+$/;
 
-// Zodスキーマ定義
-const guestSchema = z.object({
-  name: z.string().min(1, "ゲスト名を入力してください"),
-  nameRomaji: z.string()
-    .min(1, "ローマ字名を入力してください")
-    .regex(romajiRegex, "半角英字とスペースのみで入力してください")
-    .transform((val) => val.toUpperCase()),
-});
-
-const passengerSchema = z.object({
-  contactName: z.string().min(1, "お名前を入力してください"),
-  contactEmail: z.string()
-    .min(1, "メールアドレスを入力してください")
-    .email("有効なメールアドレスを入力してください"),
-  contactPhone: z.string()
-    .min(1, "電話番号を入力してください")
-    .regex(/^\+?[0-9\-\s]+$/, "有効な電話番号を入力してください（例: +81-90-1234-5678）"),
-  passengers: z.string(),
-  guests: z.array(guestSchema),
-  requestTransfer: z.boolean(),
-  pickupAddress: z.string(),
-  dropoffAddress: z.string(),
-  notes: z.string(),
-}).refine(
-  (data) => {
-    // 送迎希望時はピックアップ住所が必須
-    if (data.requestTransfer && !data.pickupAddress) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: "送迎をご希望の場合は、お迎え先住所を入力してください",
-    path: ["pickupAddress"],
-  }
-);
-
-type PassengerFormData = z.infer<typeof passengerSchema>;
+type PassengerFormData = {
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  passengers: string;
+  guests: { name: string; nameRomaji: string }[];
+  requestTransfer: boolean;
+  pickupAddress: string;
+  dropoffAddress: string;
+  notes: string;
+};
 
 interface Step2Props {
   courses: Course[];
@@ -65,6 +39,46 @@ interface Step2Props {
 }
 
 export function Step2PassengerDetails({ courses, data, updateData, onNext }: Step2Props) {
+  const { t } = useTranslation();
+
+  // Zod schema with translation
+  const passengerSchema = useMemo(() => {
+    const guestSchema = z.object({
+      name: z.string().min(1, t('validation.guestNameRequired')),
+      nameRomaji: z.string()
+        .min(1, t('validation.guestNameRomajiRequired'))
+        .regex(romajiRegex, t('validation.romajiOnly'))
+        .transform((val) => val.toUpperCase()),
+    });
+
+    return z.object({
+      contactName: z.string().min(1, t('validation.nameRequired')),
+      contactEmail: z.string()
+        .min(1, t('validation.emailRequired'))
+        .email(t('validation.emailInvalid')),
+      contactPhone: z.string()
+        .min(1, t('validation.phoneRequired'))
+        .regex(/^\+?[0-9\-\s]+$/, t('validation.phoneInvalid')),
+      passengers: z.string(),
+      guests: z.array(guestSchema),
+      requestTransfer: z.boolean(),
+      pickupAddress: z.string(),
+      dropoffAddress: z.string(),
+      notes: z.string(),
+    }).refine(
+      (data) => {
+        if (data.requestTransfer && !data.pickupAddress) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: t('validation.pickupAddressRequired'),
+        path: ["pickupAddress"],
+      }
+    );
+  }, [t]);
+
   // Find the selected course from courses prop
   const selectedCourse = useMemo(
     () => courses.find((c) => c.id === data.planId),
@@ -142,8 +156,8 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-2xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-slate-900">お客様情報の入力</h2>
-        <p className="text-slate-500">ご予約に必要な情報を入力してください</p>
+        <h2 className="text-2xl font-bold text-slate-900">{t('booking.step2.title')}</h2>
+        <p className="text-slate-500">{t('booking.step2.desc')}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 md:space-y-8">
@@ -152,12 +166,12 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
               <Label htmlFor="contactName" className="text-sm font-bold flex items-center justify-between">
-                お名前 (カタカナ)
-                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                {t('booking.step2.nameLabel')}
+                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
               </Label>
               <Input
                 id="contactName"
-                placeholder="オオゾラ タロウ"
+                placeholder={t('booking.step2.namePlaceholder')}
                 {...register("contactName")}
                 className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${errors.contactName ? "border-red-400 focus:border-red-400" : ""}`}
               />
@@ -169,8 +183,8 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="contactEmail" className="text-sm font-bold flex items-center justify-between">
-                  メールアドレス
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                  {t('booking.step2.emailLabel')}
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
                 </Label>
                 <Input
                   id="contactEmail"
@@ -185,8 +199,8 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               </div>
               <div className="space-y-2">
                 <Label htmlFor="contactPhone" className="text-sm font-bold flex items-center justify-between">
-                  電話番号
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                  {t('booking.step2.phoneLabel')}
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
                 </Label>
                 <Input
                   id="contactPhone"
@@ -198,31 +212,31 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                   <p className="text-xs text-red-500 mt-1">{errors.contactPhone.message}</p>
                 )}
                 <p className="text-[11px] sm:text-xs text-slate-400">
-                  ※国際電話番号も入力可能です（例: +81-90-1234-5678）
+                  {t('booking.step2.phoneNote')}
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="passengers" className="text-sm font-bold flex items-center justify-between">
-                搭乗人数
-                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                {t('booking.step2.paxLabel')}
+                <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
               </Label>
               <Select
                 value={watchPassengers}
                 onValueChange={(val) => setValue("passengers", val)}
               >
                 <SelectTrigger className="h-12 border-slate-200 focus:border-vivid-blue rounded-lg">
-                  <SelectValue placeholder="人数を選択" />
+                  <SelectValue placeholder={t('booking.step2.paxPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">1名</SelectItem>
-                  <SelectItem value="2">2名</SelectItem>
-                  <SelectItem value="3">3名</SelectItem>
+                  <SelectItem value="1">1 {t('common.person')}</SelectItem>
+                  <SelectItem value="2">2 {t('common.person')}</SelectItem>
+                  <SelectItem value="3">3 {t('common.person')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-[11px] sm:text-xs text-slate-400 mt-1">
-                ※搭乗者様の合計体重制限は220kgまでとなります。
+                {t('booking.step2.weightLimitNote')}
               </p>
             </div>
           </div>
@@ -236,15 +250,15 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                 <UserPlus className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">同乗者様のお名前</h3>
-                <p className="text-[11px] sm:text-xs text-slate-500">搭乗される方全員のお名前をご入力ください</p>
+                <h3 className="font-bold text-slate-900">{t('booking.step2.guestTitle')}</h3>
+                <p className="text-[11px] sm:text-xs text-slate-500">{t('booking.step2.guestDesc')}</p>
               </div>
             </div>
 
             <div className="space-y-5">
               {fields.map((field, index) => (
                 <div key={field.id} className="space-y-3 p-4 bg-white rounded-xl border border-slate-100">
-                  <div className="text-xs font-bold text-slate-600 mb-2">同乗者 {index + 1}</div>
+                  <div className="text-xs font-bold text-slate-600 mb-2">{t('booking.step2.guestLabel')} {index + 1}</div>
 
                   {/* 名前（カタカナ） */}
                   <div className="space-y-2">
@@ -252,17 +266,17 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                       htmlFor={`guests.${index}.name`}
                       className="text-xs font-bold text-slate-500 flex items-center justify-between"
                     >
-                      お名前（カタカナ）
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                      {t('booking.step2.guestNameLabel')}
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
                     </Label>
                     <Input
                       id={`guests.${index}.name`}
-                      placeholder="オオゾラ ハナコ"
+                      placeholder={t('booking.step2.guestNamePlaceholder')}
                       {...register(`guests.${index}.name`)}
                       className={`bg-white border-slate-200 focus:border-vivid-blue rounded-lg h-12 ${errors.guests?.[index]?.name ? "border-red-400 focus:border-red-400" : ""}`}
                     />
                     {errors.guests?.[index]?.name && (
-                      <p className="text-xs text-red-500">{errors.guests[index]?.name?.message}</p>
+                      <p className="text-xs text-red-500">{errors.guests?.[index]?.name?.message}</p>
                     )}
                   </div>
 
@@ -272,8 +286,8 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                       htmlFor={`guests.${index}.nameRomaji`}
                       className="text-xs font-bold text-slate-500 flex items-center justify-between"
                     >
-                      お名前（ローマ字）
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                      {t('booking.step2.guestRomajiLabel')}
+                      <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
                     </Label>
                     <Input
                       id={`guests.${index}.nameRomaji`}
@@ -287,10 +301,10 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                       className={`bg-white border-slate-200 focus:border-vivid-blue rounded-lg h-12 font-mono uppercase ${errors.guests?.[index]?.nameRomaji ? "border-red-400 focus:border-red-400" : ""}`}
                     />
                     {errors.guests?.[index]?.nameRomaji && (
-                      <p className="text-xs text-red-500">{errors.guests[index]?.nameRomaji?.message}</p>
+                      <p className="text-xs text-red-500">{errors.guests?.[index]?.nameRomaji?.message}</p>
                     )}
                     <p className="text-[11px] sm:text-xs text-slate-400">
-                      ※パスポートと同じ表記で入力してください（半角英字）
+                      {t('booking.step2.guestRomajiNote')}
                     </p>
                   </div>
                 </div>
@@ -307,7 +321,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                 <Car className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">無料ハイヤー送迎のご案内</h3>
+                <h3 className="font-bold text-slate-900">{t('booking.step2.transferTitle')}</h3>
                 <p className="text-[11px] sm:text-xs text-vivid-blue font-bold tracking-wider uppercase">Alphard Transfer Service</p>
               </div>
             </div>
@@ -323,7 +337,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                 htmlFor="transfer"
                 className="text-sm font-bold text-slate-700 cursor-pointer select-none"
               >
-                無料送迎（アルファード）を利用する
+                {t('booking.step2.transferCheckbox')}
               </label>
             </div>
 
@@ -331,12 +345,12 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
               <div className="space-y-4 pt-2 animate-in slide-in-from-top-2 fade-in duration-300">
                 <div className="space-y-2">
                   <Label htmlFor="pickupAddress" className="text-xs font-bold text-slate-500 flex items-center justify-between">
-                    お迎え先住所
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">必須</Badge>
+                    {t('booking.step2.pickupLabel')}
+                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-0 px-1.5 border-0">{t('common.required')}</Badge>
                   </Label>
                   <Input
                     id="pickupAddress"
-                    placeholder="例：東京都港区六本木 ◯-◯-◯"
+                    placeholder={t('booking.step2.addressPlaceholder')}
                     {...register("pickupAddress")}
                     className={`bg-white border-slate-200 focus:border-vivid-blue rounded-lg ${errors.pickupAddress ? "border-red-400 focus:border-red-400" : ""}`}
                   />
@@ -345,16 +359,16 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dropoffAddress" className="text-xs font-bold text-slate-500">お送り先住所（省略可）</Label>
+                  <Label htmlFor="dropoffAddress" className="text-xs font-bold text-slate-500">{t('booking.step2.dropoffLabel')}</Label>
                   <Input
                     id="dropoffAddress"
-                    placeholder="例：東京都港区六本木 ◯-◯-◯"
+                    placeholder={t('booking.step2.addressPlaceholder')}
                     {...register("dropoffAddress")}
                     className="bg-white border-slate-200 focus:border-vivid-blue rounded-lg"
                   />
                   <div className="flex items-start gap-1.5 mt-2">
                     <Info className="w-3 h-3 text-slate-400 mt-0.5" />
-                    <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">※対象エリア：東京23区内・横浜市内・舞浜エリア等</p>
+                    <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">{t('booking.step2.transferAreaNote')}</p>
                   </div>
                 </div>
               </div>
@@ -366,12 +380,12 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
         <div className="space-y-4 pt-6 border-t border-slate-100">
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-sm font-bold flex items-center justify-between">
-              備考欄
-              <Badge variant="outline" className="text-slate-400 text-[11px] sm:text-xs py-0 px-1.5 border-slate-200 font-normal">任意</Badge>
+              {t('booking.step2.notesLabel')}
+              <Badge variant="outline" className="text-slate-400 text-[11px] sm:text-xs py-0 px-1.5 border-slate-200 font-normal">{t('common.optional')}</Badge>
             </Label>
             <Textarea
               id="notes"
-              placeholder="特別なご要望や、記念日でのご利用などございましたらご自由にご記入ください"
+              placeholder={t('booking.step2.notesPlaceholder')}
               {...register("notes")}
               className="min-h-[120px] border-slate-200 focus:border-vivid-blue rounded-xl resize-none"
             />
@@ -382,7 +396,7 @@ export function Step2PassengerDetails({ courses, data, updateData, onNext }: Ste
           type="submit"
           className="w-full h-14 text-lg bg-vivid-blue hover:bg-vivid-blue/90 text-white mt-8 rounded-xl font-bold shadow-lg shadow-vivid-blue/10 transition-all active:scale-[0.98]"
         >
-          予約内容を確認する
+          {t('booking.step2.nextBtn')}
         </Button>
       </form>
     </div>

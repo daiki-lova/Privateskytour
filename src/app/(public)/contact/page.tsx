@@ -45,23 +45,21 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header Section */}
-      <div className="bg-gradient-to-b from-slate-900 to-slate-800 text-white py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+    <div className="min-h-screen bg-slate-50 pt-24 lg:pt-40 pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             {language === "ja" ? "お問い合わせ" : "Contact Us"}
           </h1>
-          <p className="text-slate-300 text-lg">
+          <p className="text-slate-500 text-lg">
             {language === "ja"
               ? "ご質問・ご相談など、お気軽にお問い合わせください"
               : "Please feel free to contact us with any questions"}
           </p>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-8">
+        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Info */}
           <div className="lg:col-span-1 space-y-6">

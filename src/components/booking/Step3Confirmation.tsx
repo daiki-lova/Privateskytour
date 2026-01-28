@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Checkbox } from "../ui/checkbox";
 import { format } from "date-fns";
-import { ja } from "date-fns/locale";
+import { ja, enUS } from "date-fns/locale";
 import {
   CheckCircle,
   Calendar,
@@ -24,6 +24,7 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import type { Course } from "@/lib/data/types";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 interface Step3Props {
   courses: Course[];
@@ -31,21 +32,22 @@ interface Step3Props {
   onClose: () => void;
 }
 
-// Cancellation policy data
-const CANCELLATION_POLICIES = [
-  { daysBefore: 7, refundPercentage: 100, label: "7日前まで" },
-  { daysBefore: 4, refundPercentage: 70, label: "4日前まで" },
-  { daysBefore: 2, refundPercentage: 50, label: "2日前まで" },
-  { daysBefore: 0, refundPercentage: 0, label: "前日〜当日" },
-];
-
 export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
+  const { t, language } = useTranslation();
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [healthConfirmed, setHealthConfirmed] = useState(false);
   const [testMode, setTestMode] = useState(false);
+
+  // Cancellation policy data (Translated)
+  const cancellationPolicies = [
+    { daysBefore: 7, refundPercentage: 100, label: t('booking.step3.cancel7days') },
+    { daysBefore: 4, refundPercentage: 70, label: t('booking.step3.cancel4days') },
+    { daysBefore: 2, refundPercentage: 50, label: t('booking.step3.cancel2days') },
+    { daysBefore: 0, refundPercentage: 0, label: t('booking.step3.cancelToday') },
+  ];
 
   // Check if test mode is enabled
   useEffect(() => {
@@ -79,9 +81,10 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
     if (minutes >= 60) {
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
-      return mins > 0 ? `${hours}時間${mins}分` : `${hours}時間`;
+      // Simple format
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
     }
-    return `${minutes}分`;
+    return `${minutes}min`;
   };
 
   // Validation for payment button
@@ -90,12 +93,12 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
   // Handle Stripe payment
   const handlePayment = async () => {
     if (!canProceedToPayment) {
-      toast.error("全ての同意事項にチェックを入れてください");
+      toast.error(t('booking.step3.acceptTermsError'));
       return;
     }
 
     if (!data.date || !data.time || !selectedCourse) {
-      toast.error("予約情報が不完全です");
+      toast.error(t('booking.step3.incompleteDataError'));
       return;
     }
 
@@ -117,7 +120,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
             phone: data.contactPhone,
           },
           passengers: Array.from({ length: pax }, (_, i) => ({
-            name: i === 0 ? data.contactName : `搭乗者${i + 1}`,
+            name: i === 0 ? data.contactName : `${t('booking.step2.guestLabel')}${i + 1}`,
           })),
           customerNotes: data.notes || null,
           healthConfirmed: true,
@@ -128,7 +131,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
 
       if (!reservationRes.ok) {
         const errorData = await reservationRes.json();
-        throw new Error(errorData.error || "予約の作成に失敗しました");
+        throw new Error(errorData.error || t('booking.step3.reservationCreateError'));
       }
 
       const reservationData = await reservationRes.json();
@@ -146,7 +149,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
 
         if (!confirmRes.ok) {
           const errorData = await confirmRes.json();
-          throw new Error(errorData.error || "予約の確定に失敗しました");
+          throw new Error(errorData.error || t('booking.step3.reservationConfirmError'));
         }
 
         // Redirect to success page with test mode indicator
@@ -168,7 +171,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
 
       if (!stripeRes.ok) {
         const errorData = await stripeRes.json();
-        throw new Error(errorData.error || "決済セッションの作成に失敗しました");
+        throw new Error(errorData.error || t('booking.step3.sessionCreateError'));
       }
 
       const { data: stripeData } = await stripeRes.json();
@@ -177,12 +180,12 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
       if (stripeData?.url) {
         window.location.href = stripeData.url;
       } else {
-        throw new Error("決済URLの取得に失敗しました");
+        throw new Error(t('booking.step3.urlError'));
       }
     } catch (error) {
       console.error("Payment error:", error);
       toast.error(
-        error instanceof Error ? error.message : "決済処理中にエラーが発生しました"
+        error instanceof Error ? error.message : t('booking.step3.paymentError')
       );
       setIsSubmitting(false);
     }
@@ -200,18 +203,16 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
           <CheckCircle className="w-12 h-12 text-green-600" />
         </motion.div>
         <h2 className="text-3xl font-bold text-slate-900">
-          ご予約ありがとうございます
+          {t('booking.step3.confTitle')}
         </h2>
         <p className="text-slate-500 max-w-md mx-auto">
-          ご予約完了メールをお送りいたしました。
-          <br />
-          当日お会いできることを心よりお待ちしております。
+          {t('booking.step3.confDesc')}
         </p>
         <Button
           onClick={onClose}
           className="bg-vivid-blue text-white px-8 py-3 h-auto text-lg mt-8"
         >
-          トップページへ戻る
+          {t('booking.step3.backToHome')}
         </Button>
       </div>
     );
@@ -220,9 +221,9 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-slate-900">予約内容の確認</h2>
+        <h2 className="text-2xl font-bold text-slate-900">{t('booking.step3.title')}</h2>
         <p className="text-slate-500">
-          以下の内容をご確認の上、お支払いへお進みください
+          {t('booking.step3.desc')}
         </p>
       </div>
 
@@ -238,35 +239,35 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
               />
             </div>
             <CardHeader>
-              <CardTitle>フライト情報</CardTitle>
+              <CardTitle>{t('booking.step3.flightInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <div className="text-sm text-slate-500 flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" /> フライト日
+                    <Calendar className="w-3 h-3 mr-1" /> {t('booking.step1.dateLabel')}
                   </div>
                   <div className="font-medium">
                     {data.date
-                      ? format(data.date, "yyyy年MM月dd日 (EEE)", { locale: ja })
+                      ? format(data.date, language === 'en' ? "EEE, MMM dd, yyyy" : "yyyy年MM月dd日 (EEE)", { locale: language === 'en' ? enUS : ja })
                       : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-sm text-slate-500 flex items-center">
-                    <Clock className="w-3 h-3 mr-1" /> 時間
+                    <Clock className="w-3 h-3 mr-1" /> {t('booking.step1.timeLabel')}
                   </div>
                   <div className="font-medium">{data.time || "-"}</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-sm text-slate-500 flex items-center">
-                    <Users className="w-3 h-3 mr-1" /> 人数
+                    <Users className="w-3 h-3 mr-1" /> {t('booking.step1.paxLabel')}
                   </div>
-                  <div className="font-medium">{pax}名</div>
+                  <div className="font-medium">{pax}{t('common.person')}</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-sm text-slate-500 flex items-center">
-                    <Clock className="w-3 h-3 mr-1" /> 所要時間
+                    <Clock className="w-3 h-3 mr-1" /> {t('common.duration')}
                   </div>
                   <div className="font-medium">
                     {formatDuration(selectedCourse?.durationMinutes)}
@@ -277,21 +278,21 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
               <Separator />
 
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-slate-500">プラン名</h4>
+                <h4 className="font-medium text-sm text-slate-500">{t('booking.step1.currentPlan')}</h4>
                 <p className="font-bold text-lg">{selectedCourse?.title}</p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-medium text-sm text-slate-500">集合場所</h4>
+                <h4 className="font-medium text-sm text-slate-500">{t('booking.step1.location')}</h4>
                 <div className="flex items-start">
                   <MapPin className="w-4 h-4 mr-1 text-slate-400 mt-0.5" />
                   <div>
                     <p className="font-medium">
-                      {selectedCourse?.heliport?.name || "東京ヘリポート"}
+                      {selectedCourse?.heliport?.name || "Tokyo Heliport"}
                     </p>
                     <p className="text-xs text-slate-500">
                       {selectedCourse?.heliport?.address ||
-                        "東京都江東区新木場4-7-25"}
+                        "Tokyo, Koto-ku, Shinkiba 4-7-25"}
                     </p>
                   </div>
                 </div>
@@ -302,25 +303,25 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
           {/* Customer Information Card */}
           <Card>
             <CardHeader>
-              <CardTitle>お客様情報</CardTitle>
+              <CardTitle>{t('booking.step2.customerInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <div className="text-sm text-slate-500">お名前</div>
+                  <div className="text-sm text-slate-500">{t('booking.step2.nameLabel')}</div>
                   <div className="font-medium">{data.contactName}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-500">メールアドレス</div>
+                  <div className="text-sm text-slate-500">{t('booking.step2.emailLabel')}</div>
                   <div className="font-medium">{data.contactEmail}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-500">電話番号</div>
+                  <div className="text-sm text-slate-500">{t('booking.step2.phoneLabel')}</div>
                   <div className="font-medium">{data.contactPhone}</div>
                 </div>
                 {data.notes && (
                   <div>
-                    <div className="text-sm text-slate-500">備考</div>
+                    <div className="text-sm text-slate-500">{t('booking.step2.notesLabel')}</div>
                     <div className="font-medium text-sm whitespace-pre-wrap">
                       {data.notes}
                     </div>
@@ -335,12 +336,12 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-amber-800">
                 <AlertTriangle className="w-5 h-5" />
-                キャンセルポリシー
+                {t('booking.step3.cancelPolicyTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                {CANCELLATION_POLICIES.map((policy, index) => (
+                {cancellationPolicies.map((policy, index) => (
                   <div
                     key={index}
                     className="flex justify-between items-center py-2 border-b border-amber-200 last:border-0"
@@ -349,27 +350,26 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                       {policy.label}
                     </span>
                     <span
-                      className={`text-sm font-bold ${
-                        policy.refundPercentage === 100
-                          ? "text-green-600"
-                          : policy.refundPercentage >= 50
-                            ? "text-amber-600"
-                            : "text-red-600"
-                      }`}
+                      className={`text-sm font-bold ${policy.refundPercentage === 100
+                        ? "text-green-600"
+                        : policy.refundPercentage >= 50
+                          ? "text-amber-600"
+                          : "text-red-600"
+                        }`}
                     >
                       {policy.refundPercentage === 100
-                        ? "全額返金"
+                        ? t('booking.step3.fullRefund')
                         : policy.refundPercentage > 0
-                          ? `${policy.refundPercentage}%返金`
-                          : "返金不可"}
+                          ? `${policy.refundPercentage}% ${t('booking.step3.refund')}`
+                          : t('booking.step3.noRefund')}
                     </span>
                   </div>
                 ))}
               </div>
               <div className="bg-white rounded-lg p-3 border border-amber-200">
                 <p className="text-xs text-amber-800 leading-relaxed">
-                  <span className="font-bold">天候による中止の場合：</span>
-                  悪天候によりフライトが中止となった場合は、全額返金または振替対応をいたします。
+                  <span className="font-bold">{t('booking.step3.weatherCancelTitle')}: </span>
+                  {t('booking.step3.weatherCancelDesc')}
                 </p>
               </div>
             </CardContent>
@@ -380,7 +380,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-vivid-blue" />
-                同意事項
+                {t('booking.step3.termsTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -400,9 +400,9 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                       target="_blank"
                       className="text-vivid-blue underline"
                     >
-                      利用規約
+                      {t('common.terms')}
                     </a>
-                    に同意します
+                    {t('booking.step3.agreeTerms')}
                   </span>
                 </label>
 
@@ -421,9 +421,9 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                       target="_blank"
                       className="text-vivid-blue underline"
                     >
-                      プライバシーポリシー
+                      {t('common.privacy')}
                     </a>
-                    に同意します
+                    {t('booking.step3.agreePrivacy')}
                   </span>
                 </label>
 
@@ -437,7 +437,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                     className="mt-0.5"
                   />
                   <span className="text-sm text-slate-700 group-hover:text-slate-900">
-                    搭乗者全員が健康状態に問題がなく、搭乗に支障がないことを確認しました
+                    {t('booking.step3.agreeHealth')}
                   </span>
                 </label>
               </div>
@@ -449,28 +449,28 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
         <div className="md:col-span-1">
           <Card className="md:sticky md:top-8 bg-slate-50 border-vivid-blue/20">
             <CardContent className="p-6 space-y-6">
-              <h3 className="font-bold text-lg">お支払い金額</h3>
+              <h3 className="font-bold text-lg">{t('booking.step3.paymentAmount')}</h3>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-600">プラン料金</span>
+                  <span className="text-slate-600">{t('booking.step3.planPrice')}</span>
                   <span>¥{basePrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">人数</span>
-                  <span>x {pax}名</span>
+                  <span className="text-slate-600">{t('booking.step3.paxCount')}</span>
+                  <span>x {pax}{t('common.person')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">小計</span>
+                  <span className="text-slate-600">{t('booking.step3.subtotal')}</span>
                   <span>¥{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">消費税 (10%)</span>
+                  <span className="text-slate-600">{t('booking.step3.tax')}</span>
                   <span>¥{tax.toLocaleString()}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-end pt-2">
-                  <span className="font-bold text-slate-900">合計(税込)</span>
+                  <span className="font-bold text-slate-900">{t('booking.step3.total')}</span>
                   <span className="text-2xl font-bold text-vivid-blue">
                     ¥{totalPrice.toLocaleString()}
                   </span>
@@ -482,42 +482,41 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                   <div className="bg-amber-100 border border-amber-300 rounded-lg p-3 mb-3">
                     <div className="flex items-center gap-2 text-amber-800">
                       <TestTube2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">テストモード</span>
+                      <span className="text-sm font-medium">Test Mode</span>
                     </div>
                     <p className="text-xs text-amber-700 mt-1">
-                      決済はスキップされ、予約が直接確定されます
+                      Payment skipped. Reservation confirmed immediately.
                     </p>
                   </div>
                 )}
                 <Button
-                  className={`w-full font-bold h-14 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                    testMode
-                      ? "bg-amber-500 hover:bg-amber-600 text-white"
-                      : "bg-orange-400 hover:bg-orange-500 text-white"
-                  }`}
+                  className={`w-full font-bold h-14 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${testMode
+                    ? "bg-amber-500 hover:bg-amber-600 text-white"
+                    : "bg-orange-400 hover:bg-orange-500 text-white"
+                    }`}
                   onClick={handlePayment}
                   disabled={isSubmitting || !canProceedToPayment}
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      処理中...
+                      {t('common.processing')}
                     </>
                   ) : testMode ? (
                     <>
                       <TestTube2 className="w-5 h-5 mr-2" />
-                      テスト予約を確定
+                      Confirm Test Booking
                     </>
                   ) : (
                     <>
                       <CreditCard className="w-5 h-5 mr-2" />
-                      お支払いへ進む
+                      {t('booking.step3.payBtn')}
                     </>
                   )}
                 </Button>
                 {!canProceedToPayment && (
                   <p className="text-xs text-center text-amber-600">
-                    上記の同意事項全てにチェックを入れてください
+                    {t('booking.step3.checkAllTerms')}
                   </p>
                 )}
                 {!testMode && (
@@ -533,7 +532,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                       />
                     </div>
                     <p className="text-xs text-center text-slate-500">
-                      安全な決済はStripeによって処理されます
+                      {t('booking.step3.stripeSecure')}
                     </p>
                   </>
                 )}

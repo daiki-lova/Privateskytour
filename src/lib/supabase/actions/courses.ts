@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/database.types";
 
 export type Course = Tables<"courses">;
@@ -21,7 +21,7 @@ export interface PublicCourse extends Course {
 export async function getPublicCourseById(
   courseId: string
 ): Promise<PublicCourse | null> {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("courses")
@@ -31,7 +31,16 @@ export async function getPublicCourseById(
     .single();
 
   if (error || !data) {
-    console.error("Failed to fetch course:", error);
+    if (error) {
+      console.error(`Failed to fetch course (${courseId}):`, {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+    } else {
+      console.error(`Failed to fetch course (${courseId}): Course not found or not active`);
+    }
     return null;
   }
 
@@ -42,7 +51,7 @@ export async function getPublicCourseById(
  * 公開コース一覧を取得（is_active=true のみ）
  */
 export async function getPublicCourses(): Promise<PublicCourse[]> {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("courses")
@@ -64,7 +73,7 @@ export async function getPublicCourses(): Promise<PublicCourse[]> {
 export async function getPopularCourses(
   limit: number = 4
 ): Promise<PublicCourse[]> {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("courses")

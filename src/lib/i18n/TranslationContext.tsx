@@ -1,10 +1,12 @@
+"use client";
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { translations, Language, TranslationKey } from './translations';
 
 type TranslationContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
 };
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
@@ -12,11 +14,24 @@ const TranslationContext = createContext<TranslationContextType | undefined>(und
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('ja');
 
+  // Initialize from localStorage on mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') as Language;
+    if (savedLanguage && (savedLanguage === 'ja' || savedLanguage === 'en')) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  // Sync to localStorage when language changes
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
   // Nested object lookup for translation keys (e.g., "common.login")
-  const t = (path: string): string => {
+  const t = (path: string, params?: Record<string, string>): string => {
     const keys = path.split('.');
     let current: any = translations[language];
-    
+
     for (const key of keys) {
       if (current[key] === undefined) {
         console.warn(`Translation key not found: ${path}`);
@@ -24,8 +39,15 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
       }
       current = current[key];
     }
-    
-    return current as string;
+
+    let text = current as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        text = text.replace(new RegExp(`{${key}}`, 'g'), value);
+      });
+    }
+
+    return text;
   };
 
   return (

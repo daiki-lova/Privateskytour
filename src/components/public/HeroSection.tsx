@@ -5,12 +5,14 @@ import { ArrowDown } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { motion } from "motion/react";
 import heroImageData from "../../assets/hero-bg.png";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 interface HeroSectionProps {
   onViewPlansClick?: () => void;
 }
 
 export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
+  const { t } = useTranslation();
   const handleScrollToPlans = () => {
     if (onViewPlansClick) {
       onViewPlansClick();
@@ -60,12 +62,13 @@ export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
           transition={{ duration: 1 }}
           className="mb-12"
         >
-          <h1 className="text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] mb-6 font-serif tracking-widest text-4xl md:text-6xl lg:text-7xl leading-tight font-light">
-            SKYVIEW TOKYO
+          <h1 className="text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] mb-6 font-serif tracking-widest text-6xl md:text-7xl lg:text-8xl leading-tight font-light">
+            <span className="md:hidden">SKYVIEW<br />TOKYO</span>
+            <span className="hidden md:inline">SKYVIEW TOKYO</span>
           </h1>
           <div className="w-24 h-[1px] bg-white mx-auto my-8 opacity-80"></div>
-          <p className="text-white/90 text-lg md:text-xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] leading-relaxed max-w-2xl mx-auto font-light tracking-wider">
-            上質な空の旅を、あなたに。
+          <p className="text-white/90 text-lg md:text-xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] leading-relaxed max-w-2xl mx-auto font-light tracking-wider whitespace-pre-line">
+            {t('hero.tagline')}
           </p>
         </motion.div>
 
@@ -79,7 +82,7 @@ export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
             variant="outline"
             className="bg-transparent text-white border-white hover:bg-white hover:text-black transition-all duration-300 px-10 py-6 text-sm tracking-[0.2em] rounded-sm uppercase"
           >
-            View Plans
+            {t('hero.viewPlans')}
           </Button>
         </motion.div>
       </div>
@@ -92,7 +95,7 @@ export function HeroSection({ onViewPlansClick }: HeroSectionProps) {
         className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/70 flex flex-col items-center animate-bounce cursor-pointer"
         onClick={handleScrollToPlans}
       >
-        <span className="text-[10px] tracking-[0.3em] mb-2 uppercase">Scroll</span>
+        <span className="text-[10px] tracking-[0.3em] mb-2 uppercase">{t('hero.scroll')}</span>
         <ArrowDown className="w-4 h-4" />
       </motion.div>
     </section>

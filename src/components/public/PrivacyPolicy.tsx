@@ -1,7 +1,84 @@
+"use client";
+
+import { useTranslation } from "@/lib/i18n/TranslationContext";
+
 export function PrivacyPolicy() {
+  const { t, language } = useTranslation();
+
+  if (language === 'en') {
+    return (
+      <div className="max-w-4xl mx-auto px-4 pt-24 lg:pt-40 pb-24 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('privacy.title')}</h1>
+        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-100">
+          <div className="prose prose-slate max-w-none">
+            <p className="text-sm text-slate-600 mb-8">
+              PrivateSky Co., Ltd. (hereinafter referred to as the &quot;Company&quot;) establishes the following privacy policy (hereinafter referred to as the &quot;Policy&quot;) regarding the handling of users&apos; personal information in the services provided by the Company (hereinafter referred to as the &quot;Service&quot;).
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 1 (Personal Information)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              &quot;Personal Information&quot; refers to &quot;personal information&quot; as defined in the Personal Information Protection Act, and means information about a living individual, including information that can identify a specific individual by name, date of birth, address, telephone number, contact information, or other descriptions contained in such information, as well as data related to appearance, fingerprints, voice prints, and information that can identify a specific individual from such information alone (personal identification information) such as the insurer number of the health insurance card.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 2 (Method of Collecting Personal Information)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              The Company may ask for personal information such as name, date of birth, address, telephone number, email address, bank account number, credit card number, etc. when a user registers for use. In addition, the Company may collect information regarding transaction records and payments containing personal information made between users and our partners from our partners (including information providers, advertisers, ad distribution destinations, etc.; hereinafter referred to as &quot;Partners&quot;).
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 3 (Purpose of Collecting and Using Personal Information)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              The purposes for which the Company collects and uses personal information are as follows:
+            </p>
+            <ul className="list-disc pl-5 text-sm text-slate-600 space-y-2 mb-4">
+              <li>To provide and operate our services</li>
+              <li>To respond to inquiries from users (including identity verification)</li>
+              <li>To send emails regarding new features, updates, campaigns, etc. of the service being used by the user and other services provided by the Company</li>
+              <li>To contact users as necessary for maintenance, important notices, etc.</li>
+              <li>To identify users who violate the Terms of Service or try to use the service for fraudulent or unjustified purposes, and to refuse their use</li>
+              <li>To allow users to view, change, or delete their own registered information and view their usage status</li>
+              <li>To charge usage fees to users in paid services</li>
+              <li>Purposes incidental to the above purposes</li>
+            </ul>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 4 (Change of Purpose of Use)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              The Company shall change the purpose of use of personal information only when it is reasonably recognized that the purpose of use is relevant to that before the change.
+              If the purpose of use is changed, the Company shall notify the user of the changed purpose by the method prescribed by the Company or announce it on this website.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 5 (Provision of Personal Information to Third Parties)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              The Company will not provide personal information to third parties without the prior consent of the user, except in the following cases. However, this excludes cases permitted by the Personal Information Protection Act and other laws and regulations.
+            </p>
+            <ul className="list-disc pl-5 text-sm text-slate-600 space-y-2 mb-4">
+              <li>When it is necessary for the protection of human life, body, or property and it is difficult to obtain the consent of the person concerned</li>
+              <li>When it is particularly necessary for improving public health or promoting the sound growth of children and it is difficult to obtain the consent of the person concerned</li>
+              <li>When it is necessary to cooperate with a national agency, a local government, or a person entrusted by them in carrying out the affairs prescribed by laws and regulations, and obtaining the consent of the person concerned is likely to impede the execution of such affairs</li>
+            </ul>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 6 (Disclosure of Personal Information)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              When the Company is requested to disclose personal information by the person concerned, the Company will disclose it to the person without delay. However, if the disclosure falls under any of the following, the Company may not disclose all or part of it, and if the Company decides not to disclose it, it will notify the person to that effect without delay.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 7 (Contact for Inquiries)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              For inquiries regarding this policy, please contact the following window.
+            </p>
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm text-slate-600">
+              <p>Address: 7F Ginza Itchome Bldg, 1-15-4 Ginza, Chuo-ku, Tokyo 104-0061</p>
+              <p>Company Name: PrivateSky Co., Ltd.</p>
+              <p>E-mail: info@privatesky.co.jp</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">プライバシーポリシー</h1>
+    <div className="max-w-4xl mx-auto px-4 pt-24 lg:pt-40 pb-24 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('privacy.title')}</h1>
 
       <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-100">
         <div className="prose prose-slate max-w-none">

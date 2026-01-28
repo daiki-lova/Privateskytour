@@ -1,7 +1,85 @@
+"use client";
+
+import { useTranslation } from "@/lib/i18n/TranslationContext";
+
 export function TermsOfService() {
+  const { t, language } = useTranslation();
+
+  if (language === 'en') {
+    return (
+      <div className="max-w-4xl mx-auto px-4 pt-24 lg:pt-40 pb-24 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('terms.title')}</h1>
+        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-100">
+          <div className="prose prose-slate max-w-none">
+            <p className="text-sm text-slate-600 mb-8">
+              These Terms of Service (hereinafter referred to as the &quot;Terms&quot;) set forth the terms and conditions for using the services (hereinafter referred to as the &quot;Service&quot;) provided by PrivateSky Co., Ltd. (hereinafter referred to as the &quot;Company&quot;) on this website. Registered users (hereinafter referred to as &quot;Users&quot;) are requested to use the Service in accordance with these Terms.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 1 (Applicability)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              1. These Terms shall apply to all relationships related to the use of the Service between the User and the Company.<br />
+              2. In addition to these Terms, the Company may establish various rules and regulations regarding the use of the Service (hereinafter referred to as &quot;Individual Regulations&quot;). regardless of their name, these Individual Regulations shall constitute a part of these Terms.<br />
+              3. If the provisions of these Terms contradict the provisions of the Individual Regulations mentioned in the preceding paragraph, the provisions of the Individual Regulations shall take precedence unless otherwise specified in the Individual Regulations.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 2 (Registration)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              1. In this Service, the registration for use shall be completed when the applicant for registration agrees to these Terms, applies for registration by the method specified by the Company, and the Company approves this application.<br />
+              2. The Company may not approve the application for registration if it determines that the applicant has any of the following reasons, and shall not be obliged to disclose the reason accordingly:
+            </p>
+            <ul className="list-disc pl-5 text-sm text-slate-600 space-y-2 mb-4">
+              <li>When false matters were reported at the time of application for registration</li>
+              <li>When the application is from a person who has violated these Terms</li>
+              <li>Other cases where the Company determines that the registration for use is not appropriate</li>
+            </ul>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 3 (Management of User ID and Password)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              1. Users shall properly manage their user ID and password for the Service at their own responsibility.<br />
+              2. Users may not transfer or lend their user ID and password to a third party, or share it with a third party under any circumstances. When a user logs in with a combination of user ID and password that matches the registered information, the Company will consider the use to be by the user who has registered that user ID.<br />
+              3. The Company shall not be liable for any damages caused by the use of User IDs and passwords by third parties, unless there is intentional or gross negligence on the part of the Company.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 4 (Usage Fees and Payment Method)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              1. Users shall pay the usage fees separately determined by the Company and displayed on this website as consideration for the paid portion of the Service by the method specified by the Company.<br />
+              2. If the user delays the payment of the usage fee, the user shall pay delay damages at a rate of 14.6% per annum.
+            </p>
+
+            <h2 className="text-lg font-bold text-slate-900 mt-8 mb-4">Article 5 (Prohibited Acts)</h2>
+            <p className="text-sm text-slate-600 mb-4">
+              Users must not perform the following acts when using the Service:
+            </p>
+            <ul className="list-disc pl-5 text-sm text-slate-600 space-y-2 mb-4">
+              <li>Acts that violate laws and regulations or public order and morals</li>
+              <li>Acts related to criminal acts</li>
+              <li>Acts of infringing on copyrights, trademark rights, and other intellectual property rights contained in the Service</li>
+              <li>Acts of destroying or interfering with the functions of the server or network of the Company, other users, or other third parties</li>
+              <li>Acts of commercially using information obtained by the Service</li>
+              <li>Acts that may interfere with the operation of the Company's services</li>
+              <li>Acts of making or attempting unauthorized access</li>
+              <li>Acts of collecting or accumulating personal information relating to other users</li>
+              <li>Acts of using the Service for fraudulent purposes</li>
+              <li>Acts that cause disadvantage, damage, or discomfort to other users of the Service or other third parties</li>
+              <li>Acts of impersonating other users</li>
+              <li>Advertising, publicity, solicitation, or business activities on the Service not authorized by the Company</li>
+              <li>Acts aimed at meeting unrelated persons</li>
+              <li>Acts of providing benefits directly or indirectly to anti-social forces in relation to the Company's services</li>
+              <li>Other acts deemed inappropriate by the Company</li>
+            </ul>
+
+            <p className="text-sm text-slate-400 mt-12 text-center">
+              (End of Terms)
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">利用規約</h1>
+    <div className="max-w-4xl mx-auto px-4 pt-24 lg:pt-40 pb-24 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('terms.title')}</h1>
 
       <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-100">
         <div className="prose prose-slate max-w-none">

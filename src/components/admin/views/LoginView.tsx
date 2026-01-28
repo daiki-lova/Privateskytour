@@ -53,16 +53,16 @@ export function LoginView() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <Card className="w-full max-w-sm shadow-xl border-slate-200">
-        <CardHeader className="space-y-1 text-center pb-2">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+      <Card className="w-full max-w-md shadow-2xl border-slate-200 rounded-3xl overflow-hidden bg-white">
+        <CardHeader className="space-y-2 text-center pb-6 pt-10">
           <div className="flex flex-col items-center justify-center mb-2">
             <img
               src={logo.src}
               alt="PrivateSky Tour"
-              className="h-10 object-contain mb-2"
+              className="h-14 object-contain mb-4"
             />
-            <p className="text-sm text-slate-400 font-medium">管理画面</p>
+            <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">Administrator</h2>
           </div>
         </CardHeader>
         <CardContent className="pt-2 pb-8">
@@ -76,12 +76,13 @@ export function LoginView() {
             )}
 
             {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
+            <div className="space-y-3">
+              <Label htmlFor="email" className="text-sm font-black text-slate-700 ml-1">メールアドレス</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="admin@example.com"
+                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 autoComplete="email"
                 aria-invalid={!!errors.email}
                 {...register("email", {
@@ -98,12 +99,13 @@ export function LoginView() {
             </div>
 
             {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password">パスワード</Label>
+            <div className="space-y-3">
+              <Label htmlFor="password" className="text-sm font-black text-slate-700 ml-1">パスワード</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
+                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
                 {...register("password", {
@@ -122,7 +124,7 @@ export function LoginView() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 h-10 font-medium"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 h-14 text-lg font-black rounded-xl shadow-xl shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

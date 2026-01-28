@@ -11,44 +11,22 @@ import { motion } from "motion/react";
 import { Star } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 export function TestimonialsSection() {
+  const { t } = useTranslation();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  const testimonials = [
-    {
-      title: "両親の記念日に",
-      user: "30代女性",
-      comment: "私の両親のヘリコプター体験を誕生日プレゼントとして予約させて頂きましたが、私にとっても忘れられない素敵な時間を共有できました。",
-      rating: 5
-    },
-    {
-      title: "彼女へのプレゼントに",
-      user: "20代男性",
-      comment: "初めての誕生日プレゼントで空の旅をお願いしました。サプライズ演出にもスタッフの皆様が快く協力してくれたおかげで、彼女も涙を流して喜んでくれました。",
-      rating: 5
-    },
-    {
-      title: "プロポーズに",
-      user: "30代男性",
-      comment: "一生の思い出になりました。夜景の美しさはもちろんですが、スタッフの方の事前の段取りや協力のおかげでプロポーズも成功し、最高の瞬間でした。",
-      rating: 5
-    },
-    {
-      title: "最高の夜景でした",
-      user: "40代男性",
-      comment: "東京の夜景がこれほど綺麗だとは思いませんでした。パイロットの方のガイドも素晴らしく、安心して楽しめました。",
-      rating: 5
-    },
-    {
-      title: "感動しました",
-      user: "20代女性",
-      comment: "人生で一度は乗ってみたかったヘリコプター。夢が叶いました！スタッフの方もとても親切で、また絶対に利用したいです。",
-      rating: 5
-    }
-  ];
+  const testimonials = (t('testimonials.items') as unknown) as {
+    title: string;
+    user: string;
+    comment: string;
+  }[];
+
+  // Create ratings based on index (just for display consistency with original)
+  const ratings = [5, 5, 5, 5, 5];
 
   const plugin = useRef(
     Autoplay({ delay: 4000, stopOnInteraction: true })
@@ -78,7 +56,7 @@ export function TestimonialsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-            お客様の声
+            {t('testimonials.title')}
           </h2>
         </motion.div>
 
@@ -109,7 +87,7 @@ export function TestimonialsSection() {
                               {testimonial.user}
                             </p>
                             <div className="flex text-yellow-400">
-                              {[...Array(testimonial.rating)].map((_, i) => (
+                              {[...Array(ratings[index] || 5)].map((_, i) => (
                                 <Star key={i} size={12} fill="currentColor" />
                               ))}
                             </div>

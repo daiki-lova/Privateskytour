@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 import { useState, useEffect, useMemo } from "react";
 import { BookingData } from "./BookingWizard";
 import { Button } from "../ui/button";
@@ -37,6 +38,7 @@ type OperatingSettings = {
 };
 
 export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1Props) {
+  const { t } = useTranslation();
   const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(data.planId);
   const [date, setDate] = useState<Date | undefined>(data.date);
   const [time, setTime] = useState<string>(data.time || "");
@@ -171,9 +173,9 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
     if (minutes >= 60) {
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
-      return mins > 0 ? `${hours}時間${mins}分` : `${hours}時間`;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
     }
-    return `${minutes}分`;
+    return `${minutes}min`;
   };
 
   // ------------------------------------------------------------------
@@ -235,7 +237,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                   </div>
 
                   <Button className="w-full bg-vivid-blue hover:bg-vivid-blue/90 text-white h-9 text-xs mt-auto rounded-lg">
-                    選択する
+                    {t('common.select')}
                   </Button>
                 </CardContent>
               </Card>
@@ -250,19 +252,19 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
         <div className="text-center space-y-2">
           {data.date && (
             <div className="inline-block bg-slate-50 text-slate-600 px-4 py-1 rounded-full text-sm font-medium mb-2 border border-slate-100">
-              希望日: {format(data.date, "yyyy年MM月dd日", { locale: ja })} / {data.passengers}名
+              {t('booking.step1.selectedDate')}: {format(data.date, "yyyy/MM/dd")} / {data.passengers}
             </div>
           )}
-          <h2 className="text-2xl font-bold text-slate-900">プランを選択してください</h2>
-          <p className="text-slate-500">ご希望のフライトプランをお選びください</p>
+          <h2 className="text-2xl font-bold text-slate-900">{t('booking.step1.planSelectTitle')}</h2>
+          <p className="text-slate-500">{t('booking.step1.planSelectDesc')}</p>
         </div>
 
         <div>
           {sightseeingCourses.length > 0 && (
-            <CourseGrid title="遊覧フライト" coursesData={sightseeingCourses} />
+            <CourseGrid title={t('popularTours.sightseeingTitle')} coursesData={sightseeingCourses} />
           )}
           {transferCourses.length > 0 && (
-            <CourseGrid title="移動・送迎" coursesData={transferCourses} />
+            <CourseGrid title={t('popularTours.transferTitle')} coursesData={transferCourses} />
           )}
         </div>
       </div>
@@ -275,18 +277,18 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-slate-900">日時の選択</h2>
-        <p className="text-slate-500">ご希望のフライト日時を選択してください</p>
+        <h2 className="text-2xl font-bold text-slate-900">{t('booking.step1.title')}</h2>
+        <p className="text-slate-500">{t('booking.step1.desc')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         {/* Left Column: Selected Plan Details */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <Label className="text-lg font-bold text-slate-900">選択中のプラン</Label>
+            <Label className="text-lg font-bold text-slate-900">{t('booking.step1.currentPlan')}</Label>
             {!data.planId && (
               <Button variant="ghost" size="sm" onClick={handleResetPlan} className="text-slate-500 h-8 hover:text-slate-900">
-                変更する
+                {t('booking.step1.changePlan')}
               </Button>
             )}
           </div>
@@ -328,7 +330,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
 
               <div className="pt-2 flex items-center text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
                 <Check className="w-4 h-4 mr-2 text-vivid-blue" />
-                <span>プランは選択済みです。日時をお選びください。</span>
+                <span>{t('booking.step1.desc')}</span>
               </div>
             </div>
           </div>
@@ -337,13 +339,13 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
         {/* Right Column: Date & Time Selection */}
         <div className="space-y-6">
           <div className="space-y-4">
-            <Label className="text-lg font-bold text-slate-900">日時を選択</Label>
-            
+            <Label className="text-lg font-bold text-slate-900">{t('booking.step1.title')}</Label>
+
             <Card className="border-slate-200 shadow-sm">
               <CardContent className="p-6 space-y-6">
                 {/* Date Picker */}
                 <div>
-                  <Label className="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">フライト日</Label>
+                  <Label className="mb-2 block text-xs font-bold text-slate-400 uppercase tracking-wider">{t('booking.step1.dateLabel')}</Label>
                   <div className="border border-slate-100 rounded-xl p-4 flex justify-center bg-white shadow-inner">
                     <Calendar
                       mode="single"
@@ -359,7 +361,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                 {/* Passenger Count */}
                 <div>
                   <Label className="mb-3 block text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    搭乗人数
+                    {t('booking.step1.paxLabel')}
                   </Label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3].map((num) => (
@@ -384,30 +386,30 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                           }
                         }}
                       >
-                        {num}名
+                        {num}{t('booking.step1.paxLabel')}
                       </Button>
                     ))}
                   </div>
                   <p className="text-[10px] text-slate-400 mt-2 text-center">
-                    ※ 最大3名まで搭乗可能です
+                    {t('booking.step1.paxNote')}
                   </p>
                 </div>
 
                 {/* Time Slots */}
                 <div>
                   <Label className="mb-3 block text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    出発時間
-                    {isLoadingSlots && <span className="ml-2 text-[10px] text-vivid-blue lowercase">loading...</span>}
+                    {t('booking.step1.timeLabel')}
+                    {isLoadingSlots && <span className="ml-2 text-[10px] text-vivid-blue lowercase">{t('booking.step1.loading')}</span>}
                     {operatingSettings?.holidayMode && (
                       <span className="ml-2 text-[10px] text-red-500 normal-case font-medium">
-                        （臨時休業中）
+                        （{t('booking.step1.holiday')}）
                       </span>
                     )}
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                     {availableSlots.length === 0 && !isLoadingSlots && date ? (
                       <div className="col-span-full text-center py-8 text-slate-400 text-sm">
-                        この日に利用可能なスロットはありません
+                        {t('booking.step1.noSlots')}
                       </div>
                     ) : (
                       availableSlots.map((slot) => {
@@ -449,12 +451,12 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                               !isOutsideHours && isUnavailable && "text-slate-400"
                             )}>
                               {operatingSettings?.holidayMode
-                                ? "休業中"
+                                ? t('booking.step1.holiday')
                                 : isOutsideHours
-                                  ? "受付不可"
+                                  ? "-"
                                   : isFull
-                                    ? "満席"
-                                    : `残${availablePax}席`}
+                                    ? "Full"
+                                    : `${availablePax} left`}
                             </span>
                           </Button>
                         );
@@ -463,10 +465,10 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                   </div>
                   <p className="text-[10px] text-slate-400 mt-3 text-center">
                     {!date
-                      ? "※ まずはフライト日を選択してください"
+                      ? t('booking.step1.desc')
                       : operatingSettings?.holidayMode
-                        ? "※ 現在臨時休業中のため予約を受け付けておりません"
-                        : "※ 薄いグレーは受付不可時間帯、濃いグレーは空席不足です"}
+                        ? t('booking.step1.holidayNote')
+                        : t('booking.step1.timeNote')}
                   </p>
                 </div>
 
@@ -475,10 +477,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
                   <MapPin className="w-5 h-5 text-vivid-blue mt-0.5" />
                   <div>
                     <span className="block font-bold text-sm text-slate-900">
-                      集合場所: {selectedCourse?.heliport?.name || "東京ヘリポート"}
-                    </span>
-                    <span className="text-[11px] text-slate-500">
-                      {selectedCourse?.heliport?.address || "東京都江東区新木場4-7-25"}
+                      {t('booking.step1.location')}: {selectedCourse?.heliport?.name || "Tokyo Heliport"}
                     </span>
                   </div>
                 </div>
@@ -487,12 +486,12 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
           </div>
 
           <div className="pt-4">
-            <Button 
-              onClick={handleNext} 
+            <Button
+              onClick={handleNext}
               disabled={!date || !time}
               className="w-full h-14 text-lg bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-md rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              次へ進む
+              {t('booking.step1.nextBtn')}
             </Button>
           </div>
         </div>

@@ -15,26 +15,41 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/i18n/TranslationContext";
 
-// Zod schema for contact form validation
-const contactSchema = z.object({
-  name: z.string().min(1, "お名前を入力してください"),
-  email: z
-    .string()
-    .min(1, "メールアドレスを入力してください")
-    .email("有効なメールアドレスを入力してください"),
-  subject: z.string().min(1, "件名を入力してください"),
-  message: z
-    .string()
-    .min(1, "本文を入力してください")
-    .min(10, "本文は10文字以上で入力してください"),
-});
 
-type ContactFormData = z.infer<typeof contactSchema>;
+type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
 
 export function ContactForm() {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Zod schema for contact form validation
+  // Note: We need to recreate the schema inside the component or use a function to make it reactive to language
+  // But for simplicity, we'll keep the schema static or use a validation resolver that translates errors.
+  // Actually, standard practice is to let Zod handle structure and pass translated strings to resolver,
+  // or just Map error types. Here we will define schema with T keys but Zod doesn't support that easily without some work.
+  // Instead, we'll use a trick: standard schema, but we will rely on manual error mapping OR simple schema.
+  // For this tasks, let's keep it simple: we want translated errors.
+  // Since `t` is available, we can define the schema inside validation logic or use `t` directly if we move schema inside component (uncommon but works for small comps)
+  // OR we just use the schema for validation and override the message display.
+  // Let's move schema definition inside for easiest translation access.
+  const contactSchema = z.object({
+    name: z.string().min(1, t('contact.validation.name')),
+    email: z
+      .string()
+      .min(1, t('contact.validation.email'))
+      .email(t('contact.validation.emailInvalid')),
+    subject: z.string().min(1, t('contact.validation.subject')),
+    message: z
+      .string()
+      .min(1, t('contact.validation.message'))
+      .min(10, t('contact.validation.messageLength')),
+  });
 
   const {
     register,
@@ -74,27 +89,18 @@ export function ContactForm() {
       if (!response.ok) {
         // Handle validation or server errors
         const errorMessage =
-          result.error ||
-          (language === "ja"
-            ? "送信に失敗しました。もう一度お試しください。"
-            : "Failed to send. Please try again.");
+          result.error || t('contact.failed');
         throw new Error(errorMessage);
       }
 
       setIsSubmitted(true);
-      toast.success(
-        language === "ja"
-          ? "お問い合わせを送信しました"
-          : "Your message has been sent"
-      );
+      toast.success(t('contact.successTitle'));
       reset();
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : language === "ja"
-            ? "送信に失敗しました。もう一度お試しください。"
-            : "Failed to send. Please try again.";
+          : t('contact.failed');
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -117,19 +123,17 @@ export function ContactForm() {
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
-          {language === "ja" ? "送信完了" : "Message Sent"}
+          {t('contact.successTitle')}
         </h3>
-        <p className="text-slate-600 mb-6">
-          {language === "ja"
-            ? "お問い合わせいただきありがとうございます。\n担当者より順次ご連絡いたします。"
-            : "Thank you for your inquiry.\nWe will contact you shortly."}
+        <p className="text-slate-600 mb-6 whitespace-pre-line">
+          {t('contact.successDesc')}
         </p>
         <Button
           variant="outline"
           onClick={handleReset}
           className="border-slate-200 hover:bg-slate-50"
         >
-          {language === "ja" ? "新しいお問い合わせ" : "New Inquiry"}
+          {t('contact.newInquiry')}
         </Button>
       </motion.div>
     );
@@ -139,30 +143,29 @@ export function ContactForm() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8"
+      className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Name Field */}
         <div className="space-y-2">
           <Label
             htmlFor="name"
             className="text-sm font-bold flex items-center justify-between"
           >
-            {language === "ja" ? "お名前" : "Name"}
+            {t('contact.form.name')}
             <Badge
               variant="secondary"
               className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0"
             >
-              {language === "ja" ? "必須" : "Required"}
+              {t('contact.form.required')}
             </Badge>
           </Label>
           <Input
             id="name"
-            placeholder={language === "ja" ? "山田 太郎" : "John Doe"}
+            placeholder={t('contact.form.namePlaceholder')}
             {...register("name")}
-            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${
-              errors.name ? "border-red-400 focus:border-red-400" : ""
-            }`}
+            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${errors.name ? "border-red-400 focus:border-red-400" : ""
+              }`}
             disabled={isSubmitting}
           />
           <AnimatePresence>
@@ -185,22 +188,21 @@ export function ContactForm() {
             htmlFor="email"
             className="text-sm font-bold flex items-center justify-between"
           >
-            {language === "ja" ? "メールアドレス" : "Email"}
+            {t('contact.form.email')}
             <Badge
               variant="secondary"
               className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0"
             >
-              {language === "ja" ? "必須" : "Required"}
+              {t('contact.form.required')}
             </Badge>
           </Label>
           <Input
             id="email"
             type="email"
-            placeholder="your@email.com"
+            placeholder={t('contact.form.emailPlaceholder')}
             {...register("email")}
-            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${
-              errors.email ? "border-red-400 focus:border-red-400" : ""
-            }`}
+            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${errors.email ? "border-red-400 focus:border-red-400" : ""
+              }`}
             disabled={isSubmitting}
           />
           <AnimatePresence>
@@ -223,25 +225,20 @@ export function ContactForm() {
             htmlFor="subject"
             className="text-sm font-bold flex items-center justify-between"
           >
-            {language === "ja" ? "件名" : "Subject"}
+            {t('contact.form.subject')}
             <Badge
               variant="secondary"
               className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0"
             >
-              {language === "ja" ? "必須" : "Required"}
+              {t('contact.form.required')}
             </Badge>
           </Label>
           <Input
             id="subject"
-            placeholder={
-              language === "ja"
-                ? "お問い合わせ内容の件名"
-                : "Subject of your inquiry"
-            }
+            placeholder={t('contact.form.subjectPlaceholder')}
             {...register("subject")}
-            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${
-              errors.subject ? "border-red-400 focus:border-red-400" : ""
-            }`}
+            className={`h-12 border-slate-200 focus:border-vivid-blue rounded-lg ${errors.subject ? "border-red-400 focus:border-red-400" : ""
+              }`}
             disabled={isSubmitting}
           />
           <AnimatePresence>
@@ -264,25 +261,20 @@ export function ContactForm() {
             htmlFor="message"
             className="text-sm font-bold flex items-center justify-between"
           >
-            {language === "ja" ? "本文" : "Message"}
+            {t('contact.form.message')}
             <Badge
               variant="secondary"
               className="bg-slate-100 text-slate-500 text-[10px] py-0 px-1.5 border-0"
             >
-              {language === "ja" ? "必須" : "Required"}
+              {t('contact.form.required')}
             </Badge>
           </Label>
           <Textarea
             id="message"
-            placeholder={
-              language === "ja"
-                ? "お問い合わせ内容を入力してください"
-                : "Please enter your message"
-            }
+            placeholder={t('contact.form.messagePlaceholder')}
             {...register("message")}
-            className={`min-h-[160px] border-slate-200 focus:border-vivid-blue rounded-xl resize-none ${
-              errors.message ? "border-red-400 focus:border-red-400" : ""
-            }`}
+            className={`min-h-[160px] border-slate-200 focus:border-vivid-blue rounded-xl resize-none ${errors.message ? "border-red-400 focus:border-red-400" : ""
+              }`}
             disabled={isSubmitting}
           />
           <AnimatePresence>
@@ -308,12 +300,12 @@ export function ContactForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              {language === "ja" ? "送信中..." : "Sending..."}
+              {t('contact.sending')}
             </>
           ) : (
             <>
               <Send className="w-5 h-5 mr-2" />
-              {language === "ja" ? "送信する" : "Send Message"}
+              {t('contact.send')}
             </>
           )}
         </Button>

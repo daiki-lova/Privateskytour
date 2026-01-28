@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
 import { useTranslation } from "@/lib/i18n/TranslationContext";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import logoImageData from "../../assets/logo-header.png";
 
@@ -19,6 +20,8 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +32,7 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isVisible = alwaysVisible || isScrolled;
+  const isVisible = alwaysVisible || isScrolled || !isHomePage;
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -55,8 +58,8 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isVisible
-            ? "backdrop-blur-lg bg-white/80 shadow-lg border-b border-white/20"
-            : "bg-transparent"
+          ? `backdrop-blur-lg bg-white/80 border-b border-white/20 ${isHomePage ? "shadow-lg" : ""}`
+          : "bg-transparent"
           }`}
       >
         <div className="w-[93%] md:w-[90%] mx-auto">
@@ -90,8 +93,8 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
                     whileTap={{ scale: 0.95 }}
                     onClick={() => scrollToSection(item.id)}
                     className={`px-3 py-2 transition-colors duration-300 relative group font-bold tracking-wide ${isVisible
-                        ? "text-slate-700 hover:text-vivid-blue"
-                        : "text-white/90 hover:text-white"
+                      ? "text-slate-700 hover:text-vivid-blue"
+                      : "text-white/90 hover:text-white"
                       }`}
                   >
                     {item.name}
@@ -124,17 +127,43 @@ export function Header({ isLoggedIn = false, alwaysVisible = false }: HeaderProp
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className={`transition-colors duration-300 ${isVisible
-                      ? "text-slate-900 hover:text-[#003366]"
-                      : "text-white/90 hover:text-white"
+                  className={`p-1 transition-colors duration-300 ${isVisible
+                    ? "text-slate-900 hover:text-[#003366]"
+                    : "text-white/90 hover:text-white"
                     }`}
                 >
                   {isMobileMenuOpen ? (
-                    <X className="h-6 w-6" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                   ) : (
-                    <Menu className="h-6 w-6" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="3" y1="12" x2="21" y2="12"></line>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
                   )}
                 </Button>
               </motion.div>

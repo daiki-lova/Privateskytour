@@ -43,13 +43,13 @@ const SidebarContent = ({ currentUser, onLogout, isMobile = false }: SidebarProp
 
   return (
     <div className="flex flex-col h-full bg-white text-slate-600">
-      <div className={cn("p-4 border-b border-slate-100", isMobile && "pt-12")}>
-        <img src={logo.src} alt="PrivateSky Tour" className={cn("mb-1 object-contain", isMobile ? "h-5" : "h-7")} />
-        <p className="text-xs text-slate-400 font-medium tracking-wide">管理画面</p>
+      <div className={cn("p-6 border-b border-slate-100", isMobile && "pt-12")}>
+        <img src={logo.src} alt="PrivateSky Tour" className={cn("mb-2 object-contain", isMobile ? "h-6" : "h-9")} />
+        <p className="text-xs text-indigo-900 font-extrabold tracking-[0.2em] opacity-70">ADMIN CONSOLE</p>
       </div>
 
-      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        <div className="mb-3 px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+      <div className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
+        <div className="mb-4 px-3 text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.25em]">
           MAIN MENU
         </div>
         {menuItems.map((item) => {
@@ -62,13 +62,13 @@ const SidebarContent = ({ currentUser, onLogout, isMobile = false }: SidebarProp
               key={item.id}
               href={item.path}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                "w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[15px] font-semibold transition-all duration-200",
                 isActive
-                  ? "bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100"
-                  : "hover:bg-slate-50 hover:text-slate-800 text-slate-600"
+                  ? "bg-indigo-600 text-white shadow-xl shadow-indigo-100 border-transparent translate-x-1"
+                  : "hover:bg-indigo-50 hover:text-indigo-700 text-slate-500"
               )}
             >
-              <Icon className="w-[18px] h-[18px]" />
+              <Icon className="w-[20px] h-[20px]" />
               {item.label}
               {item.id === 'refunds' && pendingRefundsCount > 0 && (
                 <Badge variant="destructive" className="ml-auto text-xs px-2 py-0.5 h-5">{pendingRefundsCount}</Badge>

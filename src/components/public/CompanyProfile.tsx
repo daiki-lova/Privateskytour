@@ -1,6 +1,7 @@
 "use client";
 
 import { useCompanyInfo, useContactInfo } from "@/lib/api/hooks/usePublicSettings";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 export function CompanyProfile() {
   const { data: companyInfo, isLoading: companyLoading } = useCompanyInfo();
@@ -8,11 +9,13 @@ export function CompanyProfile() {
 
   const isLoading = companyLoading || contactLoading;
 
+  const { t, language } = useTranslation();
+
   // ローディング中はスケルトン表示
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">会社概要</h1>
+      <div className="max-w-4xl mx-auto px-4 pt-24 lg:pt-40 pb-24 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('company.title')}</h1>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="animate-pulse">
             {[...Array(7)].map((_, i) => (
@@ -28,27 +31,31 @@ export function CompanyProfile() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">会社概要</h1>
+    <div className="max-w-4xl mx-auto px-4 pt-40 pb-24 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold text-slate-900 mb-12 text-center">{t('company.title')}</h1>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <dl className="divide-y divide-slate-100">
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-bold text-slate-500">会社名</dt>
+            <dt className="text-sm font-bold text-slate-500">{t('company.name')}</dt>
             <dd className="mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
-              {companyInfo?.name_ja ?? "株式会社PrivateSky"}
+              {language === 'ja' ? (companyInfo?.name_ja ?? "株式会社PrivateSky") : t('company.name')}
             </dd>
           </div>
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-bold text-slate-500">事業内容</dt>
+            <dt className="text-sm font-bold text-slate-500">{t('company.business')}</dt>
             <dd className="mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
-              {companyInfo?.business_description_ja ?? "航空運送代理店業 上記に付帯関連するサービス提供"}
+              {language === 'ja'
+                ? (companyInfo?.business_description_ja ?? "航空運送代理店業 上記に付帯関連するサービス提供")
+                : t('company.business')}
             </dd>
           </div>
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-bold text-slate-500">住所</dt>
+            <dt className="text-sm font-bold text-slate-500">{t('company.address')}</dt>
             <dd className="mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
-              〒{companyInfo?.postal_code ?? "104-0061"} {companyInfo?.address_ja ?? "東京都中央区銀座1丁目15-4 銀座一丁目ビル 7階"}
+              {language === 'ja'
+                ? `〒${companyInfo?.postal_code ?? "104-0061"} ${companyInfo?.address_ja ?? "東京都中央区銀座1丁目15-4 銀座一丁目ビル 7階"}`
+                : t('company.address')}
             </dd>
           </div>
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
@@ -64,15 +71,15 @@ export function CompanyProfile() {
             </dd>
           </div>
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-bold text-slate-500">代表取締役</dt>
+            <dt className="text-sm font-bold text-slate-500">{t('company.representative')}</dt>
             <dd className="mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
-              {companyInfo?.representative ?? "中村 和真"}
+              {language === 'ja' ? (companyInfo?.representative ?? "中村 和真") : t('company.representative')}
             </dd>
           </div>
           <div className="px-6 py-6 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt className="text-sm font-bold text-slate-500">取引銀行</dt>
+            <dt className="text-sm font-bold text-slate-500">{t('company.bank')}</dt>
             <dd className="mt-1 text-sm text-slate-900 sm:mt-0 sm:col-span-2">
-              {companyInfo?.bank ?? "みずほ銀行"}
+              {language === 'ja' ? (companyInfo?.bank ?? "みずほ銀行") : t('company.bank')}
             </dd>
           </div>
         </dl>

@@ -2,31 +2,34 @@
 
 import { ClipboardList, CalendarCheck, CreditCard, Plane } from "lucide-react";
 import { motion } from "motion/react";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 export function FlowSection() {
+  const { t } = useTranslation();
+
   const steps = [
     {
       icon: <ClipboardList className="h-10 w-10" />,
-      title: "予約申し込み",
-      description: "ウェブの予約フォームから希望日時・コース・人数などを入力・送信いただきます。お支払いはクレジットカード決済となります。",
+      title: t('flow.step1.title'),
+      description: t('flow.step1.desc'),
       step: "01"
     },
     {
       icon: <CalendarCheck className="h-10 w-10" />,
-      title: "確定とパイロットの確保",
-      description: "空席があるか確認後パイロットの確保を行い、確定完了メールをお送りし、予約完了となります。",
+      title: t('flow.step2.title'),
+      description: t('flow.step2.desc'),
       step: "02"
     },
     {
       icon: <CreditCard className="h-10 w-10" />,
-      title: "事前決済",
-      description: "クレジットカード決済の案内が届きますので、事前決済をお願い致します。決済確認後、予約確定となります。",
+      title: t('flow.step3.title'),
+      description: t('flow.step3.desc'),
       step: "03"
     },
     {
       icon: <Plane className="h-10 w-10" />,
-      title: "ご搭乗",
-      description: "当日は、指定時刻の20分前に所定の場所にお越しいただき、身分証の確認後フライトをお楽しみください。",
+      title: t('flow.step4.title'),
+      description: t('flow.step4.desc'),
       step: "04"
     }
   ];
@@ -42,7 +45,7 @@ export function FlowSection() {
           className="text-center mb-20"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-            ご利用の流れ
+            {t('flow.title')}
           </h2>
         </motion.div>
 

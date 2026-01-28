@@ -3,26 +3,42 @@
 import { motion } from "motion/react";
 import { MapPin, Train, Car, ExternalLink } from "lucide-react";
 import { Button } from "../ui/button";
+import { useTranslation } from "@/lib/i18n/TranslationContext";
 
 export interface AccessPoint {
   id: string;
   name: string;
+  nameEn?: string;
   address: string;
+  addressEn?: string;
   trainAccess: string;
+  trainAccessEn?: string;
   carAccess: string;
+  carAccessEn?: string;
   mapUrl: string;
 }
 
 export const TOKYO_HELIPORT: AccessPoint = {
   id: "tokyo",
   name: "東京ヘリポート",
+  nameEn: "Tokyo Heliport",
   address: "東京都江東区新木場4-7-25",
+  addressEn: "4-7-25 Shinkiba, Koto-ku, Tokyo",
   trainAccess: "JR京葉線・りんかい線・東京メトロ有楽町線「新木場駅」よりバスで約5分",
+  trainAccessEn: "Approx. 5 min by bus from Shinkiba Station (JR Keiyo Line, Rinkai Line, Tokyo Metro Yurakucho Line)",
   carAccess: "首都高速湾岸線「新木場IC」より約5分（無料駐車場あり）",
+  carAccessEn: "Approx. 5 min from Shinkiba IC (Shuto Expressway Bayshore Route). Free parking available.",
   mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3242.188289456748!2d139.8402513763787!3d35.64771597259806!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601887eeb5555555%3A0x296415444634356e!2z5p2x5Lqs44OY44Oq44Od44O844OI!5e0!3m2!1sja!2sjp!4v1703056123456!5m2!1sja!2sjp"
 };
 
 export function AccessSection() {
+  const { t, language } = useTranslation();
+
+  const displayName = language === 'en' ? TOKYO_HELIPORT.nameEn : TOKYO_HELIPORT.name;
+  const displayAddress = language === 'en' ? TOKYO_HELIPORT.addressEn : TOKYO_HELIPORT.address;
+  const displayTrain = language === 'en' ? TOKYO_HELIPORT.trainAccessEn : TOKYO_HELIPORT.trainAccess;
+  const displayCar = language === 'en' ? TOKYO_HELIPORT.carAccessEn : TOKYO_HELIPORT.carAccess;
+
   return (
     <section id="access" className="py-24 bg-white relative">
       <div className="max-w-[1280px] w-[93%] md:w-full mx-auto md:px-4">
@@ -34,11 +50,10 @@ export function AccessSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-            アクセス
+            {t('access.title')}
           </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto leading-loose">
-            すべてのフライトは東京ヘリポートより出発いたします。<br />
-            都心からのアクセスも良く、お車でもお越しいただけます。
+          <p className="text-slate-600 max-w-2xl mx-auto leading-loose whitespace-pre-line">
+            {t('access.description')}
           </p>
         </motion.div>
 
@@ -60,7 +75,7 @@ export function AccessSection() {
                 allowFullScreen={true}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title={`${TOKYO_HELIPORT.name} Map`}
+                title={`${displayName} Map`}
                 className="absolute inset-0"
               ></iframe>
             </div>
@@ -71,8 +86,8 @@ export function AccessSection() {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-2xl text-slate-900 mb-2">{TOKYO_HELIPORT.name}</h3>
-                  <p className="text-slate-600">{TOKYO_HELIPORT.address}</p>
+                  <h3 className="font-bold text-2xl text-slate-900 mb-2">{displayName}</h3>
+                  <p className="text-slate-600">{displayAddress}</p>
                 </div>
               </div>
 
@@ -82,8 +97,8 @@ export function AccessSection() {
                     <Train className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-slate-900 block text-xs mb-1 uppercase tracking-wider">電車・バス</span>
-                    <p className="text-slate-600 leading-relaxed">{TOKYO_HELIPORT.trainAccess}</p>
+                    <span className="font-bold text-slate-900 block text-xs mb-1 uppercase tracking-wider">{t('access.trainBus')}</span>
+                    <p className="text-slate-600 leading-relaxed font-medium">{displayTrain}</p>
                   </div>
                 </div>
 
@@ -92,8 +107,8 @@ export function AccessSection() {
                     <Car className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-slate-900 block text-xs mb-1 uppercase tracking-wider">お車</span>
-                    <p className="text-slate-600 leading-relaxed">{TOKYO_HELIPORT.carAccess}</p>
+                    <span className="font-bold text-slate-900 block text-xs mb-1 uppercase tracking-wider">{t('access.car')}</span>
+                    <p className="text-slate-600 leading-relaxed font-medium">{displayCar}</p>
                   </div>
                 </div>
               </div>
@@ -103,8 +118,8 @@ export function AccessSection() {
                   className="w-full bg-vivid-blue text-white hover:bg-vivid-blue/90 font-bold py-6 rounded-xl group"
                   asChild
                 >
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(TOKYO_HELIPORT.name + " " + TOKYO_HELIPORT.address)}`} target="_blank" rel="noopener noreferrer">
-                    Google Mapでルートを確認
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((displayName || "") + " " + (displayAddress || ""))}`} target="_blank" rel="noopener noreferrer">
+                    {t('access.viewMap')}
                     <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </Button>
