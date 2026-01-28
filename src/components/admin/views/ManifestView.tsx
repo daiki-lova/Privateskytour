@@ -157,7 +157,7 @@ export const ManifestView = () => {
     <div className="space-y-6 print:space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-8 gap-6 mb-4 print:hidden">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">搭乗名簿</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">搭乗名簿</h1>
           <p className="text-base font-medium text-slate-500 mt-2">{format(selectedDate, 'yyyy年 MM月 dd日 (eee)', { locale: ja })} の搭乗者リスト</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto flex-wrap">
@@ -268,12 +268,12 @@ export const ManifestView = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-base text-slate-600 uppercase tracking-widest font-black mb-1.5 block">特記事項</Label>
-              <Textarea value={notesInput} onChange={(e) => setNotesInput(e.target.value)} className="min-h-[160px] text-base font-medium px-4 py-3 resize-none border-slate-200 focus-visible:ring-indigo-500" />
+              <Textarea value={notesInput} onChange={(e) => setNotesInput(e.target.value)} className="min-h-[160px] text-base font-medium px-4 py-3 resize-none border-slate-200 focus-visible:ring-vivid-blue" />
             </div>
           </div>
           <DialogFooter className="px-10 py-8 border-t bg-slate-50/50 flex gap-4">
             <Button variant="ghost" onClick={handleCloseDialog} className="h-14 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200 flex-1">キャンセル</Button>
-            <Button onClick={handleSaveManifest} disabled={isProcessing} className="h-14 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex-1">
+            <Button onClick={handleSaveManifest} disabled={isProcessing} className="h-14 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20 flex-1">
               {isProcessing ? <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> 保存中...</> : '変更を保存して閉じる'}
             </Button>
           </DialogFooter>

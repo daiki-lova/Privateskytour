@@ -164,7 +164,7 @@ export const CustomersView = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">顧客管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">顧客管理</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">顧客情報の検索・編集・予約履歴の確認</p>
         </div>
       </div>
@@ -175,7 +175,7 @@ export const CustomersView = () => {
             <Search className="absolute left-4 top-4.5 h-6 w-6 text-slate-400" />
             <Input
               placeholder="氏名・メール・電話番号で検索..."
-              className="pl-14 h-16 text-lg border-slate-200 focus-visible:ring-indigo-500 rounded-xl"
+              className="pl-14 h-16 text-lg border-slate-200 focus-visible:ring-vivid-blue rounded-xl"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -199,7 +199,7 @@ export const CustomersView = () => {
                 >
                   <div className="flex items-start gap-3 mb-3">
                     <Avatar className="h-10 w-10 shrink-0 border-2 border-white shadow-sm ring-1 ring-slate-100">
-                      <AvatarFallback className="bg-indigo-50 text-indigo-700 text-xs font-bold">
+                      <AvatarFallback className="bg-vivid-blue/10 text-vivid-blue text-xs font-bold">
                         {c.name.substring(0, 2)}
                       </AvatarFallback>
                     </Avatar>
@@ -248,7 +248,7 @@ export const CustomersView = () => {
                       <TableCell className="pl-6">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs">
+                            <AvatarFallback className="bg-vivid-blue/20 text-vivid-blue text-xs">
                               {c.name.substring(0, 2)}
                             </AvatarFallback>
                           </Avatar>
@@ -288,7 +288,7 @@ export const CustomersView = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4 w-full">
                     <Avatar className="h-16 w-16 border-2 border-white shadow-sm shrink-0">
-                      <AvatarFallback className="bg-indigo-600 text-white text-xl">
+                      <AvatarFallback className="bg-vivid-blue text-white text-xl">
                         {selectedCustomer.name.substring(0, 2)}
                       </AvatarFallback>
                     </Avatar>
@@ -308,7 +308,7 @@ export const CustomersView = () => {
 
                       <SheetDescription className="flex items-center gap-2">
                         <span className="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">{selectedCustomer.id}</span>
-                        <Badge variant="outline" className="text-xs font-normal border-indigo-200 text-indigo-700 bg-indigo-50">
+                        <Badge variant="outline" className="text-xs font-normal border-vivid-blue/20 text-vivid-blue bg-vivid-blue/10">
                           {selectedCustomer.bookingCount > 5 ? 'VIP Customer' : 'Standard'}
                         </Badge>
                       </SheetDescription>
@@ -318,7 +318,7 @@ export const CustomersView = () => {
                   {isEditing ? (
                     <div className="flex gap-3 shrink-0">
                       <Button variant="ghost" onClick={handleCancelEdit} disabled={isSaving} className="h-12 px-6 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200">キャンセル</Button>
-                      <Button onClick={handleSaveEdit} disabled={isSaving} className="h-12 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100">
+                      <Button onClick={handleSaveEdit} disabled={isSaving} className="h-12 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20">
                         {isSaving ? (
                           <><RefreshCcw className="w-5 h-5 mr-2 animate-spin" />保存中</>
                         ) : (
@@ -527,7 +527,7 @@ export const RefundsView = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-slate-200 pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">未返金管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">未返金管理</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">運休・キャンセル後の返金漏れ防止リスト</p>
         </div>
         <Button onClick={() => mutate()} className="h-14 px-8 text-base font-bold bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 shadow-sm">
@@ -728,7 +728,7 @@ export const RefundsView = () => {
                           size="sm"
                           className={cn(
                             "h-9 text-xs",
-                            refundReason === key && "bg-indigo-600 hover:bg-indigo-700"
+                            refundReason === key && "bg-vivid-blue hover:bg-vivid-blue/90"
                           )}
                           onClick={() => setRefundReason(key as typeof refundReason)}
                         >
@@ -884,7 +884,7 @@ export const LogsView = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-slate-200 pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">連携・ログ</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">連携・ログ</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">システム連携ログと操作履歴</p>
         </div>
         <Button onClick={() => mutate()} className="h-12 px-6 text-base font-bold bg-white hover:bg-slate-50 text-slate-900 border border-slate-200">
@@ -1069,7 +1069,7 @@ export const LogsView = () => {
                   <Copy className="w-3.5 h-3.5 mr-2" /> JSONをコピー
                 </Button>
                 {selectedLog.status === 'failure' && (
-                  <Button size="sm" className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button size="sm" className="h-8 text-xs bg-vivid-blue hover:bg-vivid-blue/90 text-white">
                     <RotateCcw className="w-3.5 h-3.5 mr-2" /> 再試行
                   </Button>
                 )}
@@ -1310,13 +1310,13 @@ export const SettingsView = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-slate-200 pb-8 mb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">設定</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">設定</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">システム設定・マスタ管理・運用時間設定</p>
         </div>
         <Button
           onClick={handleSaveSettings}
           disabled={isSaving || isLoading}
-          className="h-14 px-10 text-lg font-black bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl transition-all hover:scale-[1.02] active:scale-95"
+          className="h-14 px-10 text-lg font-black bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl transition-all hover:scale-[1.02] active:scale-95"
         >
           {isSaving ? (
             <><RefreshCcw className="w-6 h-6 mr-3 animate-spin" /> 保存中...</>
@@ -1331,7 +1331,7 @@ export const SettingsView = () => {
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold text-indigo-950">予約可能時間枠 (Slots Config)</CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900">予約可能時間枠 (Slots Config)</CardTitle>
                 <CardDescription className="text-sm">日没時間や機材運用の都合に合わせて、予約を受け付ける時間帯をオンオフできます。</CardDescription>
               </div>
             </div>
@@ -1352,8 +1352,8 @@ export const SettingsView = () => {
                       className={cn(
                         "relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 active:scale-95",
                         isActive
-                          ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100"
-                          : "bg-white border-slate-200 text-slate-400 hover:border-indigo-200 hover:bg-slate-50"
+                          ? "bg-vivid-blue border-vivid-blue text-white shadow-md shadow-vivid-blue/20"
+                          : "bg-white border-slate-200 text-slate-400 hover:border-vivid-blue/30 hover:bg-slate-50"
                       )}
                     >
                       <span className="text-sm font-bold tracking-tight font-mono">{time}</span>
@@ -1361,11 +1361,11 @@ export const SettingsView = () => {
                       {/* 時間帯アイコン (装飾) */}
                       <div className="mt-1.5 opacity-80">
                         {isMorning ? (
-                          <Sun className={cn("w-3.5 h-3.5", isActive ? "text-indigo-100" : "text-amber-400/60")} />
+                          <Sun className={cn("w-3.5 h-3.5", isActive ? "text-white/90" : "text-amber-400/60")} />
                         ) : isEvening ? (
-                          <Moon className={cn("w-3.5 h-3.5", isActive ? "text-indigo-100" : "text-blue-400/60")} />
+                          <Moon className={cn("w-3.5 h-3.5", isActive ? "text-white/90" : "text-blue-400/60")} />
                         ) : (
-                          <div className={cn("w-3.5 h-3.5 rounded-full border-2", isActive ? "border-indigo-100" : "border-slate-200")} />
+                          <div className={cn("w-3.5 h-3.5 rounded-full border-2", isActive ? "border-white/90" : "border-slate-200")} />
                         )}
                       </div>
                     </button>
@@ -1374,7 +1374,7 @@ export const SettingsView = () => {
               </div>
 
               <div className="bg-slate-50 rounded-lg p-4 border border-slate-100 flex items-start gap-3">
-                <Activity className="w-4 h-4 text-indigo-600 mt-0.5" />
+                <Activity className="w-4 h-4 text-vivid-blue mt-0.5" />
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-slate-900">
                     現在、{activeHours.length}個の時間枠が有効です
@@ -1390,7 +1390,7 @@ export const SettingsView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-indigo-950">臨時休業設定</CardTitle>
+            <CardTitle className="text-lg font-bold text-slate-900">臨時休業設定</CardTitle>
             <CardDescription className="text-sm">特定日の休業や緊急停止</CardDescription>
           </CardHeader>
           <CardContent>
@@ -1410,7 +1410,7 @@ export const SettingsView = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold text-indigo-950">キャンセルポリシー要約</CardTitle>
+            <CardTitle className="text-lg font-bold text-slate-900">キャンセルポリシー要約</CardTitle>
             <CardDescription className="text-sm">予約画面やメールに表示される文言</CardDescription>
           </CardHeader>
           <div className="space-y-4">
@@ -1418,7 +1418,7 @@ export const SettingsView = () => {
               <Label className="text-sm font-bold text-slate-700 ml-1">日本語</Label>
               <div className="relative group">
                 <Textarea
-                  className="min-h-[160px] text-base leading-relaxed p-4 bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all rounded-xl"
+                  className="min-h-[160px] text-base leading-relaxed p-4 bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-vivid-blue/20 transition-all rounded-xl"
                   value={policyJa}
                   onChange={(e) => setPolicyJa(e.target.value)}
                 />
@@ -1428,7 +1428,7 @@ export const SettingsView = () => {
               <Label className="text-sm font-bold text-slate-700 ml-1">English</Label>
               <div className="relative group">
                 <Textarea
-                  className="min-h-[160px] text-base leading-relaxed p-4 bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all rounded-xl"
+                  className="min-h-[160px] text-base leading-relaxed p-4 bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-vivid-blue/20 transition-all rounded-xl"
                   value={policyEn}
                   onChange={(e) => setPolicyEn(e.target.value)}
                 />
@@ -1441,9 +1441,9 @@ export const SettingsView = () => {
         <Card className="lg:col-span-2">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Percent className="w-4 h-4 text-indigo-600" />
+              <Percent className="w-4 h-4 text-vivid-blue" />
               <div>
-                <CardTitle className="text-base font-bold text-indigo-950">キャンセル料率設定</CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900">キャンセル料率設定</CardTitle>
                 <CardDescription className="text-sm">日数ごとのキャンセル料率を設定します（実際の返金計算に使用されます）</CardDescription>
               </div>
             </div>
@@ -1522,8 +1522,8 @@ export const SettingsView = () => {
         {/* 当日連絡先設定カード */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-indigo-950">
-              <Phone className="w-5 h-5 text-indigo-600" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <Phone className="w-5 h-5 text-vivid-blue" />
               当日連絡先
             </CardTitle>
             <CardDescription className="text-sm">お客様への案内に表示される連絡先情報</CardDescription>
@@ -1560,8 +1560,8 @@ export const SettingsView = () => {
         {/* 天候判断設定カード */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-indigo-950">
-              <Cloud className="w-5 h-5 text-indigo-600" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <Cloud className="w-5 h-5 text-vivid-blue" />
               天候判断設定
             </CardTitle>
             <CardDescription className="text-sm">フライト当日の天候判断に関する設定</CardDescription>
@@ -1600,8 +1600,8 @@ export const SettingsView = () => {
         {/* 管理者通知設定カード */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-bold text-indigo-950">
-              <Mail className="w-5 h-5 text-indigo-600" />
+            <CardTitle className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <Mail className="w-5 h-5 text-vivid-blue" />
               管理者通知設定
             </CardTitle>
             <CardDescription className="text-sm">予約・キャンセル等の通知先メールアドレス</CardDescription>

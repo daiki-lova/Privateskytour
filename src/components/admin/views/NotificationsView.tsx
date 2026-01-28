@@ -216,14 +216,14 @@ export const NotificationsView = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-8 gap-6 mb-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">お知らせ管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">お知らせ管理</h1>
           <p className="text-base font-medium text-slate-500 mt-2">予約者へのメッセージ送信とホームページのお知らせ掲載</p>
         </div>
         <div className="flex gap-4 w-full sm:w-auto">
           <Button variant="ghost" onClick={() => mutate()} className="h-14 px-6 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200 rounded-xl">
             <RefreshCcw className="w-5 h-5 mr-3" /> 更新
           </Button>
-          <Button onClick={() => setIsCreateOpen(true)} className="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl flex-1 sm:flex-none">
+          <Button onClick={() => setIsCreateOpen(true)} className="h-14 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl flex-1 sm:flex-none">
             <Plus className="w-5 h-5 mr-3" /> 新規作成
           </Button>
         </div>
@@ -231,7 +231,7 @@ export const NotificationsView = () => {
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'reservation' | 'public')} className="w-full">
         <TabsList className="bg-slate-100 p-1 border border-slate-200 h-14">
-          <TabsTrigger value="reservation" className="text-sm font-black px-8 h-full data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm rounded-lg">
+          <TabsTrigger value="reservation" className="text-sm font-black px-8 h-full data-[state=active]:bg-white data-[state=active]:text-vivid-blue data-[state=active]:shadow-sm rounded-lg">
             <Mail className="w-4 h-4 mr-3" />
             予約者へのメッセージ
           </TabsTrigger>
@@ -520,7 +520,7 @@ const NotificationDetail = ({ notification, onBack, onDelete, onDuplicate }: Not
                 </div>
                 <div className="p-4 bg-slate-50 rounded border border-slate-100 text-center">
                   <div className="text-xs text-slate-500 mb-1">既読率</div>
-                  <div className="text-xl font-bold text-indigo-600">-<span className="text-xs font-normal text-slate-400 ml-1">%</span></div>
+                  <div className="text-xl font-bold text-vivid-blue">-<span className="text-xs font-normal text-slate-400 ml-1">%</span></div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded border border-slate-100 text-center">
                   <div className="text-xs text-slate-500 mb-1">クリック数</div>
@@ -541,7 +541,7 @@ const NotificationDetail = ({ notification, onBack, onDelete, onDuplicate }: Not
               <div>
                 <Label className="text-xs text-slate-400 uppercase tracking-wider">配信タイプ</Label>
                 <div className="flex items-center gap-2 mt-1">
-                  {notification.type === 'reservation' ? <Mail className="w-3.5 h-3.5 text-indigo-500" /> : <Globe className="w-3.5 h-3.5 text-emerald-500" />}
+                  {notification.type === 'reservation' ? <Mail className="w-3.5 h-3.5 text-vivid-blue" /> : <Globe className="w-3.5 h-3.5 text-emerald-500" />}
                   <span className="text-sm font-medium text-slate-700">
                     {notification.type === 'reservation' ? '予約者へのメッセージ' : 'ホームページ掲載'}
                   </span>
@@ -599,7 +599,7 @@ const NotificationDetail = ({ notification, onBack, onDelete, onDuplicate }: Not
 
 const StatusBadge = ({ status }: { status: string }) => {
   const styles: Record<string, string> = {
-    sent: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    sent: 'bg-vivid-blue/10 text-vivid-blue border-vivid-blue/200',
     published: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     scheduled: 'bg-amber-50 text-amber-700 border-amber-200',
     draft: 'bg-slate-50 text-slate-500 border-slate-200',

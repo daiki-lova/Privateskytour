@@ -223,13 +223,13 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-slate-200 pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">予約管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">予約管理</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">すべての予約ステータスの確認・編集・返金処理</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Dialog open={isNewReservationModalOpen} onOpenChange={setIsNewReservationModalOpen}>
             <DialogTrigger asChild>
-              <Button className="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl flex-1 sm:flex-none">
+              <Button className="h-14 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl flex-1 sm:flex-none">
                 <Plus className="w-5 h-5 mr-3" /> 新規予約を作成
               </Button>
             </DialogTrigger>
@@ -373,7 +373,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                 <Button variant="ghost" onClick={() => setIsNewReservationModalOpen(false)} className="h-14 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200 flex-1">
                   キャンセル
                 </Button>
-                <Button onClick={handleCreateReservation} className="h-14 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex-1">
+                <Button onClick={handleCreateReservation} className="h-14 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20 flex-1">
                   作成して確定する
                 </Button>
               </DialogFooter>
@@ -395,7 +395,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
               <div className="relative flex-1">
                 <Input
                   placeholder="予約番号、顧客名、メールで検索..."
-                  className="pl-12 h-14 text-base bg-white border-slate-200 focus-visible:ring-indigo-500 rounded-xl w-full"
+                  className="pl-12 h-14 text-base bg-white border-slate-200 focus-visible:ring-vivid-blue rounded-xl w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -421,7 +421,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
             <div className="lg:col-span-4 flex justify-end">
               <div className="flex items-center gap-2 text-xs text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                 <span className="font-medium">合計:</span>
-                <span className="font-mono font-bold text-indigo-600 text-sm">{filteredReservations.length}</span>
+                <span className="font-mono font-bold text-vivid-blue text-sm">{filteredReservations.length}</span>
                 <span className="font-medium">件</span>
               </div>
             </div>
@@ -484,7 +484,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
               {(selectedYear !== 'all' || selectedMonth !== 'all' || filterStatus !== 'all' || searchQuery) && (
                 <Button
                   variant="ghost"
-                  className="btn-secondary h-8 hover:text-indigo-600 hover:bg-indigo-50 px-4 rounded-full border-slate-200"
+                  className="btn-secondary h-8 hover:text-vivid-blue hover:bg-vivid-blue/10 px-4 rounded-full border-slate-200"
                   onClick={() => {
                     setFilterStatus('all');
                     setSearchQuery('');
@@ -517,7 +517,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
                 <div className="flex justify-between items-start mb-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-indigo-600 tracking-tight">{res.bookingNumber}</span>
+                      <span className="font-mono text-xs font-bold text-vivid-blue tracking-tight">{res.bookingNumber}</span>
                       <StatusBadge status={res.status} />
                     </div>
                     <div className="text-xs font-medium text-slate-900">
@@ -573,7 +573,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
               ) : (
                 filteredReservations.map((res) => (
                   <TableRow key={res.id} className="cursor-pointer hover:bg-slate-50/80 border-slate-100 group transition-colors" onClick={() => setSelectedRes(res)}>
-                    <TableCell className="font-mono text-sm font-bold text-slate-900 py-4 pl-6 group-hover:text-indigo-600">{res.bookingNumber}</TableCell>
+                    <TableCell className="font-mono text-sm font-bold text-slate-900 py-4 pl-6 group-hover:text-vivid-blue">{res.bookingNumber}</TableCell>
                     <TableCell className="py-4">
                       <div className="text-sm font-bold text-slate-800">{res.date}</div>
                       <div className="text-xs text-slate-400 font-mono font-bold mt-1">{res.time?.slice(0, 5)}</div>
@@ -646,7 +646,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
           <ArrowLeft className="w-6 h-6 text-slate-600" />
         </Button>
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950 flex items-center gap-5">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-5">
             {reservation.bookingNumber}
             <StatusBadge status={reservation.status} />
           </h1>
@@ -698,7 +698,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
               </div>
               <div>
                 <Label className="text-sm font-bold text-slate-400 uppercase tracking-widest">メールアドレス</Label>
-                <div className="text-lg font-bold text-indigo-600 mt-2 font-mono">{reservation.customerEmail}</div>
+                <div className="text-lg font-bold text-vivid-blue mt-2 font-mono">{reservation.customerEmail}</div>
               </div>
               <div>
                 <Label className="text-sm font-bold text-slate-400 uppercase tracking-widest">電話番号</Label>
@@ -720,8 +720,8 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
             <CardContent className="p-6">
               <div className="relative space-y-4 before:absolute before:inset-0 before:ml-2.5 before:w-px before:-translate-x-1/2 before:bg-slate-100 before:h-full">
                 <div className="relative flex gap-3 items-start">
-                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border border-indigo-200 ring-2 ring-white z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border border-vivid-blue/200 ring-2 ring-white z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-vivid-blue/100" />
                   </span>
                   <div className="flex flex-col pt-0.5">
                     <span className="text-xs font-medium text-slate-900">予約確定</span>
@@ -757,9 +757,9 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
 
         {/* Right Column: Actions */}
         <div className="space-y-4">
-          <Card className="border-indigo-100 bg-indigo-50/30 shadow-none">
-            <CardHeader className="py-4 px-6 border-b border-indigo-100/50">
-              <CardTitle className="text-xs font-semibold text-indigo-900 uppercase tracking-wider">決済情報</CardTitle>
+          <Card className="border-vivid-blue/100 bg-vivid-blue/10/30 shadow-none">
+            <CardHeader className="py-4 px-6 border-b border-vivid-blue/100/50">
+              <CardTitle className="text-xs font-semibold text-slate-900 uppercase tracking-wider">決済情報</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="flex justify-between items-center">
@@ -770,10 +770,10 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
                 <span className="text-xs text-slate-600">ステータス</span>
                 <PaymentBadge status={reservation.paymentStatus} />
               </div>
-              <div className="pt-3 border-t border-indigo-100/50 mt-2">
+              <div className="pt-3 border-t border-vivid-blue/100/50 mt-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="font-mono">Stripe ID</span>
-                  <a href="#" className="flex items-center hover:text-indigo-600 hover:underline">
+                  <a href="#" className="flex items-center hover:text-vivid-blue hover:underline">
                     {reservation.stripePaymentId} <ExternalLink className="w-2.5 h-2.5 ml-1" />
                   </a>
                 </div>
@@ -856,7 +856,7 @@ const ReservationDetail = ({ reservation, onBack, currentUser, onStatusChange: _
 // バッジ類 (より洗練されたスタイル)
 const StatusBadge = ({ status }: { status: string }) => {
   const styles: Record<string, string> = {
-    confirmed: 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50',
+    confirmed: 'bg-white text-vivid-blue border-vivid-blue/200 hover:bg-vivid-blue/10',
     pending: 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
     cancelled: 'bg-slate-50 text-slate-400 border-slate-200 line-through decoration-slate-400',
     suspended: 'bg-amber-50 text-amber-700 border-amber-200',

@@ -82,7 +82,7 @@ export function LoginView() {
                 id="email"
                 type="email"
                 placeholder="admin@example.com"
-                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-vivid-blue/20 transition-all"
                 autoComplete="email"
                 aria-invalid={!!errors.email}
                 {...register("email", {
@@ -105,7 +105,7 @@ export function LoginView() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="h-14 text-base font-medium px-4 border-slate-200 rounded-xl focus:ring-2 focus:ring-vivid-blue/20 transition-all"
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
                 {...register("password", {
@@ -124,7 +124,7 @@ export function LoginView() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 h-14 text-lg font-black rounded-xl shadow-xl shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95"
+              className="w-full bg-vivid-blue hover:bg-vivid-blue/90 h-14 text-lg font-black rounded-xl shadow-xl shadow-vivid-blue/20 transition-all hover:scale-[1.02] active:scale-95"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -141,7 +141,7 @@ export function LoginView() {
             <div className="text-center">
               <Link
                 href="/admin/forgot-password"
-                className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+                className="text-sm text-vivid-blue hover:text-vivid-blue/800 hover:underline"
               >
                 パスワードをお忘れですか？
               </Link>

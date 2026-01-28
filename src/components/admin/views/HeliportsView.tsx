@@ -135,7 +135,7 @@ export const HeliportsView = () => {
             <h1 className="text-lg font-bold tracking-tight text-slate-900">ヘリポート管理</h1>
             <p className="text-xs text-slate-500 mt-1">フライト発着地のロケーション管理 (CMS)</p>
           </div>
-          <Button disabled className="w-full sm:w-auto h-9 text-xs bg-indigo-600">
+          <Button disabled className="w-full sm:w-auto h-9 text-xs bg-vivid-blue">
             <Plus className="w-3.5 h-3.5 mr-1.5" /> 新規ヘリポート
           </Button>
         </div>
@@ -148,10 +148,10 @@ export const HeliportsView = () => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-8 gap-6 mb-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">ヘリポート管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">ヘリポート管理</h1>
           <p className="text-base font-medium text-slate-500 mt-2">フライト発着地のロケーション管理 (CMS)</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl">
+        <Button onClick={() => handleOpenDialog()} className="h-14 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl">
           <Plus className="w-5 h-5 mr-3" /> 新規ヘリポート登録
         </Button>
       </div>
@@ -281,10 +281,10 @@ export const HeliportsView = () => {
                   </div>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 hover:border-indigo-300 transition-colors bg-white">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-lg cursor-pointer hover:bg-slate-50 hover:border-vivid-blue/300 transition-colors bg-white">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <div className="p-2 bg-indigo-50 rounded-full mb-2">
-                      <Upload className="w-5 h-5 text-indigo-500" />
+                    <div className="p-2 bg-vivid-blue/10 rounded-full mb-2">
+                      <Upload className="w-5 h-5 text-vivid-blue" />
                     </div>
                     <p className="text-sm text-slate-600 font-medium">クリックして画像をアップロード</p>
                     <p className="text-xs text-slate-400 mt-1">またはドラッグ＆ドロップ (PNG, JPG)</p>
@@ -304,7 +304,7 @@ export const HeliportsView = () => {
             <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200 flex-1">
               キャンセル
             </Button>
-            <Button onClick={handleSave} className="h-14 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex-1">
+            <Button onClick={handleSave} className="h-14 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20 flex-1">
               <Save className="w-5 h-5 mr-3" /> 変更を保存する
             </Button>
           </DialogFooter>
@@ -316,7 +316,7 @@ export const HeliportsView = () => {
 
 const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEdit: () => void, onDelete: () => void }) => {
   return (
-    <Card className="overflow-hidden flex flex-col h-full group hover:border-indigo-300 transition-colors shadow-sm bg-white">
+    <Card className="overflow-hidden flex flex-col h-full group hover:border-vivid-blue/300 transition-colors shadow-sm bg-white">
       <div className="relative h-28 bg-slate-100">
         {heliport.imageUrl ? (
           <img src={heliport.imageUrl} alt={heliport.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -326,7 +326,7 @@ const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEd
           </div>
         )}
         <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 p-0.5 rounded border border-slate-100 shadow-sm">
-          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-indigo-600" onClick={onEdit}>
+          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-vivid-blue" onClick={onEdit}>
             <Edit2 className="w-3 h-3" />
           </Button>
           <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-red-600" onClick={onDelete}>
@@ -358,7 +358,7 @@ const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEd
           href={heliport.googleMapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-indigo-600 hover:text-indigo-700 hover:underline flex items-center justify-center gap-2 w-full font-bold"
+          className="text-xs text-vivid-blue hover:text-vivid-blue hover:underline flex items-center justify-center gap-2 w-full font-bold"
         >
           <ExternalLink className="w-4 h-4" /> Mapで位置を確認
         </a>

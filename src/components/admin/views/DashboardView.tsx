@@ -99,7 +99,7 @@ export const DashboardView = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">ダッシュボード</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">ダッシュボード</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">本日の運航状況と主要な運用通知</p>
         </div>
         <div className="flex items-center gap-4">
@@ -119,7 +119,7 @@ export const DashboardView = () => {
             <DollarSign className="h-5 w-5 text-slate-300" />
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-indigo-950 leading-none tracking-tighter">
+            <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">
               {thisMonthRevenue.toLocaleString()}<span className="text-base font-bold text-slate-400 ml-2 uppercase">JPY</span>
             </div>
             <p className="text-sm font-medium text-slate-500 mt-4">確定済み予約の合計</p>
@@ -132,7 +132,7 @@ export const DashboardView = () => {
             <Plane className="h-5 w-5 text-slate-300" />
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-indigo-950 leading-none tracking-tighter">{todayFlights}<span className="text-base font-bold text-slate-400 ml-2 uppercase">枠</span></div>
+            <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">{todayFlights}<span className="text-base font-bold text-slate-400 ml-2 uppercase">枠</span></div>
             <p className="text-sm font-medium text-slate-500 mt-4">{format(new Date(), 'M/d')} のスロット数</p>
           </CardContent>
         </Card>
@@ -143,7 +143,7 @@ export const DashboardView = () => {
             <Users className="h-5 w-5 text-slate-300" />
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-indigo-950 leading-none tracking-tighter">{todayReservations}<span className="text-base font-bold text-slate-400 ml-2">件</span></div>
+            <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">{todayReservations}<span className="text-base font-bold text-slate-400 ml-2">件</span></div>
             <p className="text-sm font-medium text-slate-500 mt-4">{format(new Date(), 'M/d')} の予約数</p>
           </CardContent>
         </Card>
@@ -154,7 +154,7 @@ export const DashboardView = () => {
             <Calendar className="h-5 w-5 text-slate-300" />
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-indigo-950 leading-none tracking-tighter">{thisMonthReservations}<span className="text-base font-bold text-slate-400 ml-2">件</span></div>
+            <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">{thisMonthReservations}<span className="text-base font-bold text-slate-400 ml-2">件</span></div>
             <p className="text-sm font-medium text-slate-500 mt-4">{format(new Date(), 'M')}月の累計予約</p>
           </CardContent>
         </Card>
@@ -193,7 +193,7 @@ export const DashboardView = () => {
                           <div className="flex items-center gap-2">
                             <span className={cn(
                               "text-xs font-bold px-3 py-1 rounded-full",
-                              isFull ? 'bg-indigo-100 text-indigo-700' :
+                              isFull ? 'bg-vivid-blue/20 text-vivid-blue' :
                                 isEmpty ? 'bg-slate-100 text-slate-500' :
                                   'bg-emerald-100 text-emerald-700'
                             )}>
@@ -209,7 +209,7 @@ export const DashboardView = () => {
                         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className={cn("h-full rounded-full transition-all duration-500",
-                              isFull ? 'bg-indigo-500' :
+                              isFull ? 'bg-vivid-blue/100' :
                                 isEmpty ? 'bg-transparent' :
                                   'bg-emerald-500'
                             )}
@@ -218,7 +218,7 @@ export const DashboardView = () => {
                         </div>
                       </div>
 
-                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-slate-300 group-hover:text-indigo-600 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-slate-300 group-hover:text-vivid-blue shrink-0">
                         <ArrowUpRight className="w-4 h-4" />
                       </Button>
                     </div>
@@ -245,12 +245,12 @@ export const DashboardView = () => {
             <CardContent className="px-6 pb-6">
               <div className="space-y-4">
                 <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm transition-all hover:border-red-200">
-                  <p className="text-lg font-black text-indigo-950">未返金の予約 (2件)</p>
+                  <p className="text-lg font-black text-slate-900">未返金の予約 (2件)</p>
                   <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">運休処理された予約の返金処理が未完了です。お客様への信頼に関わります。</p>
                   <Button className="w-full mt-4 h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-100">詳細を確認</Button>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-amber-100 shadow-sm transition-all hover:border-amber-200">
-                  <p className="text-lg font-black text-indigo-950">CRM同期エラー</p>
+                  <p className="text-lg font-black text-slate-900">CRM同期エラー</p>
                   <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">顧客データの同期に失敗しました。</p>
                   <Button className="w-full mt-4 h-12 bg-white text-slate-900 font-bold border border-slate-200 hover:bg-slate-50 rounded-xl">同期を再試行</Button>
                 </div>

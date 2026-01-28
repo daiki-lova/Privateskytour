@@ -121,10 +121,10 @@ export const CoursesView = () => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-8 gap-6 mb-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-indigo-950">コース管理</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">コース管理</h1>
           <p className="text-lg font-medium text-slate-500 mt-2">Webサイト掲載用の遊覧プランの編集・管理 (CMS)</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl">
+        <Button onClick={() => handleOpenDialog()} className="h-14 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl">
           <Plus className="w-5 h-5 mr-3" /> 新規コース作成
         </Button>
       </div>
@@ -161,7 +161,7 @@ const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, h
   const duration = course.durationMinutes ?? course.duration ?? 0;
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden group hover:border-indigo-300 transition-colors shadow-sm bg-white">
+    <Card className="flex flex-col h-full overflow-hidden group hover:border-vivid-blue/300 transition-colors shadow-sm bg-white">
       <div className="relative h-32 bg-slate-100 overflow-hidden">
         {mainImage ? (
           <img src={mainImage} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -171,7 +171,7 @@ const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, h
           </div>
         )}
         <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 p-0.5 rounded border border-slate-100 shadow-sm">
-          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-indigo-600" onClick={onEdit}>
+          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-vivid-blue" onClick={onEdit}>
             <Edit2 className="w-3 h-3" />
           </Button>
           <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-100 hover:text-red-600" onClick={onDelete}>
@@ -271,7 +271,7 @@ const CourseEditDialog = ({
             {/* Left Column: Basic Info */}
             <div className="col-span-1 md:col-span-12 lg:col-span-5 space-y-8">
               <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
-                <Tag className="w-5 h-5 text-indigo-500" />
+                <Tag className="w-5 h-5 text-vivid-blue" />
                 <h4 className="text-xl font-black text-slate-900 tracking-tight">基本設定</h4>
               </div>
 
@@ -375,7 +375,7 @@ const CourseEditDialog = ({
             {/* Right Column: Detailed Content */}
             <div className="col-span-1 md:col-span-12 lg:col-span-7 space-y-5">
               <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
-                <ImageIcon className="w-5 h-5 text-indigo-500" />
+                <ImageIcon className="w-5 h-5 text-vivid-blue" />
                 <h4 className="text-xl font-black text-slate-900 tracking-tight">コンテンツ詳細 & スケジュール</h4>
               </div>
 
@@ -402,7 +402,7 @@ const CourseEditDialog = ({
                         className={`
                           flex flex-col items-center justify-center w-full h-40 rounded-md border-2 border-dashed 
                           transition-colors cursor-pointer
-                          ${formData.images?.[0] ? 'border-indigo-200 bg-indigo-50/10' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}
+                          ${formData.images?.[0] ? 'border-vivid-blue/200 bg-vivid-blue/10/10' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}
                         `}
                       >
                         {formData.images?.[0] ? (
@@ -423,7 +423,7 @@ const CourseEditDialog = ({
                         ) : (
                           <div className="flex flex-col items-center text-slate-400 gap-2">
                             <div className="p-3 bg-white rounded-full shadow-sm">
-                              <Upload className="w-5 h-5 text-indigo-500" />
+                              <Upload className="w-5 h-5 text-vivid-blue" />
                             </div>
                             <div className="text-center">
                               <p className="text-sm font-medium text-slate-600">クリックして画像をアップロード</p>
@@ -525,7 +525,7 @@ const CourseEditDialog = ({
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isSaving} className="h-14 text-base font-bold bg-white hover:bg-slate-50 border border-slate-200 flex-1">
             キャンセル
           </Button>
-          <Button onClick={onSave} disabled={isSaving} className="h-14 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex-1">
+          <Button onClick={onSave} disabled={isSaving} className="h-14 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20 flex-1">
             {isSaving ? (
               <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> 保存中...</>
             ) : (

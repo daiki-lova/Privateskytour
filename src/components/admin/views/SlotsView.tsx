@@ -182,7 +182,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
         </div>
         <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-100 rounded-xl">
+            <Button className="h-14 px-8 text-base font-bold bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-xl shadow-vivid-blue/20 rounded-xl">
               <Plus className="w-5 h-5 mr-3" /> スロットを一括生成
             </Button>
           </DialogTrigger>
@@ -226,10 +226,10 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
 
       <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 w-full sm:w-auto mt-4">
         <div className="flex bg-slate-100 p-0.5 rounded-md border border-slate-200 flex-1 xs:flex-none">
-          <button onClick={() => setViewMode('day')} className={cn("flex-1 px-6 py-2.5 text-sm font-black rounded-sm transition-all flex items-center justify-center gap-2", viewMode === 'day' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}>
+          <button onClick={() => setViewMode('day')} className={cn("flex-1 px-6 py-2.5 text-sm font-black rounded-sm transition-all flex items-center justify-center gap-2", viewMode === 'day' ? "bg-white text-vivid-blue shadow-sm" : "text-slate-500")}>
             <List className="w-4 h-4" /> 日次
           </button>
-          <button onClick={() => setViewMode('week')} className={cn("flex-1 px-6 py-2.5 text-sm font-black rounded-sm transition-all flex items-center justify-center gap-2", viewMode === 'week' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500")}>
+          <button onClick={() => setViewMode('week')} className={cn("flex-1 px-6 py-2.5 text-sm font-black rounded-sm transition-all flex items-center justify-center gap-2", viewMode === 'week' ? "bg-white text-vivid-blue shadow-sm" : "text-slate-500")}>
             <LayoutGrid className="w-4 h-4" /> 週次
           </button>
         </div>
@@ -260,7 +260,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                 <tr>
                   <th className="p-3 border-b border-r bg-slate-50/50 w-20 sticky left-0 font-bold text-slate-500">TIME</th>
                   {weekDays.map(day => (
-                    <th key={day.toISOString()} className={cn("p-3 border-b border-slate-100 text-center font-bold min-w-[100px]", format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? "bg-indigo-50 text-indigo-700" : "bg-slate-50/50 text-slate-700")}>
+                    <th key={day.toISOString()} className={cn("p-3 border-b border-slate-100 text-center font-bold min-w-[100px]", format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? "bg-vivid-blue/10 text-vivid-blue" : "bg-slate-50/50 text-slate-700")}>
                       <div className="text-sm">{format(day, 'MM/dd')}</div>
                       <div className="text-xs text-slate-400 mt-1 uppercase tracking-widest">{format(day, 'eee', { locale: ja })}</div>
                     </th>
@@ -284,8 +284,8 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
                                 "w-full h-full rounded p-2 cursor-pointer transition-all border flex flex-col justify-between items-center group",
                                 slot.status === 'suspended' ? "bg-amber-50 border-amber-200" :
                                   slot.status === 'closed' ? "bg-slate-100 border-slate-200 opacity-60" :
-                                    (slot.reservations?.length ?? 0) > 0 ? "bg-indigo-50 border-indigo-200" :
-                                      "bg-white border-slate-100 hover:border-indigo-300"
+                                    (slot.reservations?.length ?? 0) > 0 ? "bg-vivid-blue/10 border-vivid-blue/200" :
+                                      "bg-white border-slate-100 hover:border-vivid-blue/300"
                               )}
                             >
                               <Badge variant="outline" className="text-xs font-bold py-0 h-4 uppercase">
@@ -321,7 +321,7 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
         "group p-4 rounded-xl border transition-all hover:shadow-lg cursor-pointer bg-white",
         slot.status === 'suspended' ? "border-amber-200 bg-amber-50/50" :
           slot.status === 'closed' ? "border-slate-200 bg-slate-50" :
-            hasReservation ? "border-indigo-100 bg-indigo-50/20" : "border-slate-100"
+            hasReservation ? "border-vivid-blue/100 bg-vivid-blue/10/20" : "border-slate-100"
       )}
     >
       <div className="flex justify-between items-center mb-4">
@@ -333,7 +333,7 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
       <div className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 flex justify-between items-center">
         <span className="text-xs font-bold text-slate-400">搭乗状況</span>
         <div className="flex items-baseline gap-1">
-          <span className="text-lg font-black font-mono text-indigo-600">{slot.currentPax}</span>
+          <span className="text-lg font-black font-mono text-vivid-blue">{slot.currentPax}</span>
           <span className="text-xs font-bold text-slate-400">/ {slot.maxPax}</span>
         </div>
       </div>
@@ -441,14 +441,14 @@ const SlotDetail = ({ slot, onBack, currentUser, onMutate }: { slot: Slot, onBac
         </div>
 
         <div className="lg:col-span-4 space-y-8">
-          <Card className="border-indigo-100 bg-indigo-50/20 shadow-none">
-            <CardHeader className="px-10 py-8 border-b border-indigo-100/50">
-              <CardTitle className="text-sm font-black text-indigo-900 uppercase tracking-widest">フライト概要</CardTitle>
+          <Card className="border-vivid-blue/100 bg-vivid-blue/10/20 shadow-none">
+            <CardHeader className="px-10 py-8 border-b border-vivid-blue/100/50">
+              <CardTitle className="text-sm font-black text-slate-900 uppercase tracking-widest">フライト概要</CardTitle>
             </CardHeader>
             <CardContent className="p-10 space-y-6">
               <div className="flex justify-between items-center">
-                <span className="text-base font-black text-indigo-700/70">現在搭乗</span>
-                <span className="text-4xl font-black font-mono text-indigo-950">{slot.currentPax} <span className="text-xl text-indigo-400">/</span> {slot.maxPax} <span className="text-xl">名</span></span>
+                <span className="text-base font-black text-vivid-blue/70">現在搭乗</span>
+                <span className="text-4xl font-black font-mono text-slate-900">{slot.currentPax} <span className="text-xl text-slate-400">/</span> {slot.maxPax} <span className="text-xl">名</span></span>
               </div>
             </CardContent>
           </Card>
@@ -458,7 +458,7 @@ const SlotDetail = ({ slot, onBack, currentUser, onMutate }: { slot: Slot, onBac
               <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-500">アクション</CardTitle>
             </CardHeader>
             <CardContent className="p-10 space-y-6">
-              <Button className="h-16 text-base font-black w-full justify-start px-8 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100" disabled={reservations.length === 0} onClick={() => setIsEmailModalOpen(true)}>
+              <Button className="h-16 text-base font-black w-full justify-start px-8 bg-vivid-blue hover:bg-vivid-blue/90 text-white shadow-lg shadow-vivid-blue/20" disabled={reservations.length === 0} onClick={() => setIsEmailModalOpen(true)}>
                 <Mail className="w-6 h-6 mr-4" /> 一斉通知メールを送信
               </Button>
               <Button variant="ghost" onClick={handleToggleClose} disabled={isToggling} className="h-16 text-base font-black w-full justify-start px-8 border border-slate-200 hover:bg-slate-50 text-slate-700">
