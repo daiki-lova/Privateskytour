@@ -1,27 +1,21 @@
-/**
- * マイページアクセス用メールテンプレート
- * トークン付きのマイページURLを顧客に送信する
- */
-
-export type MypageAccessParams = {
-  customerName: string;
-  mypageUrl: string;
-  expiresAt: string;
-};
+import type { ContactConfirmationParams } from '../client';
 
 /**
- * マイページアクセスメールテンプレート
+ * お問い合わせ受付確認メールテンプレート（お客様宛）
  * HTMLとプレーンテキストの両方を生成
  */
-export function mypageAccessTemplate(params: MypageAccessParams): {
+export function contactConfirmationTemplate(params: ContactConfirmationParams): {
   html: string;
   text: string;
 } {
-  const { customerName, mypageUrl, expiresAt } = params;
+  const {
+    customerName,
+    subject,
+    message,
+  } = params;
 
-  // 有効期限を日本語でフォーマット
-  const expiresDate = new Date(expiresAt);
-  const formattedExpires = `${expiresDate.getFullYear()}年${expiresDate.getMonth() + 1}月${expiresDate.getDate()}日`;
+  // メッセージ内の改行をHTML用に変換
+  const htmlMessage = message.replace(/\n/g, '<br>');
 
   const html = `
 <!DOCTYPE html>
@@ -29,7 +23,7 @@ export function mypageAccessTemplate(params: MypageAccessParams): {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>マイページアクセス - PrivateSky Tour</title>
+  <title>お問い合わせ受付 - PrivateSky Tour</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f5f5f5;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
@@ -47,7 +41,7 @@ export function mypageAccessTemplate(params: MypageAccessParams): {
           <tr>
             <td style="padding: 8px 24px 16px; text-align: center;">
               <h2 style="margin: 0; font-size: 20px; color: #1a1a1a; font-weight: 600;">
-                マイページへのアクセス
+                お問い合わせを受け付けました
               </h2>
             </td>
           </tr>
@@ -57,51 +51,49 @@ export function mypageAccessTemplate(params: MypageAccessParams): {
             <td style="padding: 16px 24px 24px;">
               <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
                 ${customerName} 様<br><br>
-                マイページへのアクセスリクエストを受け付けました。<br>
-                下記のボタンをクリックして、予約状況の確認やキャンセルなどをご利用いただけます。
+                この度はPrivateSky Tourへお問い合わせいただき、誠にありがとうございます。<br>
+                以下の内容でお問い合わせを受け付けました。<br>
+                担当者より2営業日以内にご連絡いたしますので、今しばらくお待ちください。
               </p>
             </td>
           </tr>
 
-          <!-- CTA Button -->
+          <!-- Inquiry Content -->
           <tr>
-            <td style="padding: 0 24px 32px; text-align: center;">
-              <a href="${mypageUrl}" style="display: inline-block; background-color: #0066FF; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600;">
-                マイページにアクセス
-              </a>
-            </td>
-          </tr>
-
-          <!-- Link Info -->
-          <tr>
-            <td style="padding: 0 24px 24px;">
+            <td style="padding: 0 24px 32px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
-                  <td style="padding: 16px 20px;">
-                    <p style="margin: 0 0 8px; font-size: 14px; color: #6b7280;">
-                      <strong style="color: #1a1a1a;">リンクの有効期限:</strong> ${formattedExpires}
-                    </p>
-                    <p style="margin: 0; font-size: 13px; color: #6b7280; word-break: break-all;">
-                      ボタンが機能しない場合は、以下のURLをブラウザに貼り付けてください:<br>
-                      <a href="${mypageUrl}" style="color: #0066FF;">${mypageUrl}</a>
-                    </p>
+                  <td style="padding: 24px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">件名</p>
+                          <p style="margin: 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">${subject}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top: 16px;">
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">お問い合わせ内容</p>
+                          <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">${htmlMessage}</p>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- Security Notice -->
+          <!-- Notice -->
           <tr>
             <td style="padding: 0 24px 32px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
                   <td style="padding: 16px 20px;">
-                    <p style="margin: 0 0 8px; font-size: 14px; color: #1a1a1a; font-weight: 600;">セキュリティに関するご注意</p>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #6b7280; line-height: 1.6;">
-                      <li>このリンクは個人専用です。他の方と共有しないでください。</li>
-                      <li>心当たりのない場合は、このメールを無視してください。</li>
-                    </ul>
+                    <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.8;">
+                      ※ このメールはお問い合わせの受付確認として自動送信しています。<br>
+                      ※ 2営業日を過ぎても返信がない場合は、お手数ですが再度お問い合わせいただくか、お電話にてご連絡ください。
+                    </p>
                   </td>
                 </tr>
               </table>
@@ -128,25 +120,26 @@ export function mypageAccessTemplate(params: MypageAccessParams): {
   `.trim();
 
   const text = `
-【マイページアクセス】PrivateSky Tour
+【お問い合わせ受付】PrivateSky Tour
 
 ${customerName} 様
 
-マイページへのアクセスリクエストを受け付けました。
-下記のURLから、予約状況の確認やキャンセルなどをご利用いただけます。
+この度はPrivateSky Tourへお問い合わせいただき、誠にありがとうございます。
+以下の内容でお問い合わせを受け付けました。
+担当者より2営業日以内にご連絡いたしますので、今しばらくお待ちください。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-▼ マイページにアクセス
-${mypageUrl}
+■ 件名: ${subject}
 
-リンクの有効期限: ${formattedExpires}
+■ お問い合わせ内容:
+${message}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-【セキュリティに関するご注意】
-・このリンクは個人専用です。他の方と共有しないでください。
-・心当たりのない場合は、このメールを無視してください。
+※ このメールはお問い合わせの受付確認として自動送信しています。
+※ 2営業日を過ぎても返信がない場合は、お手数ですが再度お問い合わせいただくか、
+  お電話にてご連絡ください。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

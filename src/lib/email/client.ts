@@ -8,6 +8,10 @@ import { reservationReminder1DayTemplate } from './templates/reservation-reminde
 import { reservationThankYouTemplate, type ThankYouEmailParams } from './templates/reservation-thankyou';
 import { refundCompletedTemplate } from './templates/refund-completed';
 import { mypageAccessTemplate, type MypageAccessParams } from './templates/mypage-access';
+import { adminNewBookingTemplate } from './templates/admin-new-booking';
+import { adminContactInquiryTemplate } from './templates/admin-contact-inquiry';
+import { adminCancellationNoticeTemplate } from './templates/admin-cancellation-notice';
+import { contactConfirmationTemplate } from './templates/contact-confirmation';
 
 // Resendクライアントの初期化
 // 環境変数が未設定の場合は開発モードとして動作
@@ -83,6 +87,50 @@ export type RefundNotificationParams = {
 export type MypageAccessEmailParams = {
   to: string;
 } & MypageAccessParams;
+
+// 管理者向け新規予約通知のパラメータ
+export type AdminNewBookingParams = {
+  to: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  courseName: string;
+  flightDate: string;
+  flightTime: string;
+  pax: number;
+  totalPrice: number;
+  bookingNumber: string;
+};
+
+// 管理者向けお問い合わせ通知のパラメータ
+export type AdminContactInquiryParams = {
+  to: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  subject: string;
+  message: string;
+};
+
+// 運営側キャンセル通知のパラメータ（お客様宛）
+export type AdminCancellationNoticeParams = {
+  to: string;
+  customerName: string;
+  courseName: string;
+  flightDate: string;
+  flightTime: string;
+  bookingNumber: string;
+  reason?: string;
+  refundAmount?: number;
+};
+
+// お問い合わせ受付確認のパラメータ（お客様宛）
+export type ContactConfirmationParams = {
+  to: string;
+  customerName: string;
+  subject: string;
+  message: string;
+};
 
 /**
  * 予約確認メールを送信
@@ -500,6 +548,155 @@ export async function scheduleThankYouEmail(
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     console.error('[Email] Exception while scheduling thank you email:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * 管理者向け新規予約通知メールを送信
+ */
+export async function sendAdminNewBookingNotification(
+  params: AdminNewBookingParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent admin new booking notification to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = adminNewBookingTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【新規予約】${params.courseName} - ${params.bookingNumber}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send admin new booking notification:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Admin new booking notification sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending admin new booking notification:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * 管理者向けお問い合わせ通知メールを送信
+ */
+export async function sendAdminContactInquiryNotification(
+  params: AdminContactInquiryParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent admin contact inquiry notification to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = adminContactInquiryTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【お問い合わせ】${params.subject}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send admin contact inquiry notification:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Admin contact inquiry notification sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending admin contact inquiry notification:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * 運営側キャンセル通知メールを送信（お客様宛）
+ * 天候・運航上の理由で管理者がキャンセルした場合
+ */
+export async function sendAdminCancellationNotice(
+  params: AdminCancellationNoticeParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent admin cancellation notice to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = adminCancellationNoticeTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【予約キャンセルのお知らせ】${params.courseName} - ${params.bookingNumber}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send admin cancellation notice:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Admin cancellation notice sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending admin cancellation notice:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * お問い合わせ受付確認メールを送信（お客様宛）
+ */
+export async function sendContactConfirmation(
+  params: ContactConfirmationParams
+): Promise<EmailResult> {
+  if (!resend) {
+    console.warn('[Email] Resend API key not configured. Skipping email send.');
+    console.log('[Email] Would have sent contact confirmation to:', params.to);
+    return { success: true, messageId: 'dev-mode-skip' };
+  }
+
+  try {
+    const { html, text } = contactConfirmationTemplate(params);
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `【お問い合わせ受付】${params.subject}`,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error('[Email] Failed to send contact confirmation:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('[Email] Contact confirmation sent successfully:', data?.id);
+    return { success: true, messageId: data?.id };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Email] Exception while sending contact confirmation:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

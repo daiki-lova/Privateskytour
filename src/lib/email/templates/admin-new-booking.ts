@@ -1,24 +1,23 @@
-import type { ReservationConfirmationParams } from '../client';
+import type { AdminNewBookingParams } from '../client';
 
 /**
- * 予約確認メールテンプレート
+ * 管理者向け新規予約通知メールテンプレート
  * HTMLとプレーンテキストの両方を生成
  */
-export function reservationConfirmedTemplate(params: ReservationConfirmationParams): {
+export function adminNewBookingTemplate(params: AdminNewBookingParams): {
   html: string;
   text: string;
 } {
   const {
     customerName,
+    customerEmail,
+    customerPhone,
     courseName,
     flightDate,
     flightTime,
     pax,
     totalPrice,
     bookingNumber,
-    heliportName,
-    heliportAddress,
-    mypageUrl,
   } = params;
 
   const formattedPrice = totalPrice.toLocaleString('ja-JP');
@@ -29,7 +28,7 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>予約確認 - PrivateSky Tour</title>
+  <title>新規予約通知 - PrivateSky Tour</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f5f5f5;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
@@ -47,25 +46,23 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
           <tr>
             <td style="padding: 8px 24px 16px; text-align: center;">
               <h2 style="margin: 0; font-size: 20px; color: #1a1a1a; font-weight: 600;">
-                ご予約が確定しました
+                新規予約が入りました
               </h2>
             </td>
           </tr>
 
-          <!-- Greeting -->
+          <!-- Intro -->
           <tr>
             <td style="padding: 16px 24px 24px;">
               <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
-                ${customerName} 様<br><br>
-                この度はPrivateSky Tourをご予約いただき、誠にありがとうございます。<br>
-                以下の内容でご予約を承りました。
+                新しい予約が完了しました。以下の内容をご確認ください。
               </p>
             </td>
           </tr>
 
           <!-- Booking Details -->
           <tr>
-            <td style="padding: 0 24px 32px;">
+            <td style="padding: 0 24px 24px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
                   <td style="padding: 24px;">
@@ -114,11 +111,37 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
                           </table>
                         </td>
                       </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Customer Info -->
+          <tr>
+            <td style="padding: 0 24px 24px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <p style="margin: 0 0 16px; font-size: 14px; color: #1a1a1a; font-weight: 600;">お客様情報</p>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                       <tr>
-                        <td style="padding-top: 16px;">
-                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">集合場所</p>
-                          <p style="margin: 0 0 4px; font-size: 16px; color: #1a1a1a; font-weight: 600;">${heliportName}</p>
-                          <p style="margin: 0; font-size: 14px; color: #6b7280;">${heliportAddress}</p>
+                        <td style="padding-bottom: 12px;">
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">お名前</p>
+                          <p style="margin: 0; font-size: 15px; color: #1a1a1a;">${customerName}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-bottom: 12px;">
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">メールアドレス</p>
+                          <p style="margin: 0; font-size: 15px; color: #1a1a1a;">${customerEmail}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">電話番号</p>
+                          <p style="margin: 0; font-size: 15px; color: #1a1a1a;">${customerPhone}</p>
                         </td>
                       </tr>
                     </table>
@@ -131,39 +154,17 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
           <!-- CTA Button -->
           <tr>
             <td style="padding: 0 24px 32px; text-align: center;">
-              <a href="${mypageUrl}" style="display: inline-block; background-color: #0066FF; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600;">
-                マイページで予約を確認
+              <a href="https://tour.privatesky.co.jp/admin/reservations" style="display: inline-block; background-color: #0066FF; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600;">
+                管理画面で確認
               </a>
-            </td>
-          </tr>
-
-          <!-- Notice -->
-          <tr>
-            <td style="padding: 0 24px 32px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <tr>
-                  <td style="padding: 16px 20px;">
-                    <p style="margin: 0 0 8px; font-size: 14px; color: #1a1a1a; font-weight: 600;">ご搭乗前のご注意</p>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #6b7280; line-height: 1.6;">
-                      <li>集合時刻の15分前までにお越しください</li>
-                      <li>本人確認書類（運転免許証等）をご持参ください</li>
-                      <li>動きやすい服装・靴でお越しください</li>
-                      <li>天候により運航を中止する場合がございます</li>
-                    </ul>
-                  </td>
-                </tr>
-              </table>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
             <td style="background-color: #f9fafb; padding: 24px;">
-              <p style="margin: 0 0 8px; font-size: 13px; color: #6b7280; text-align: center;">
-                ご不明な点がございましたら、お気軽にお問い合わせください。
-              </p>
               <p style="margin: 0; font-size: 12px; color: #6b7280; text-align: center;">
-                PrivateSky Tour | info@privatesky.co.jp
+                PrivateSky Tour | 管理者通知
               </p>
             </td>
           </tr>
@@ -176,12 +177,9 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
   `.trim();
 
   const text = `
-【予約確認】PrivateSky Tour
+【新規予約】PrivateSky Tour
 
-${customerName} 様
-
-この度はPrivateSky Tourをご予約いただき、誠にありがとうございます。
-以下の内容でご予約を承りました。
+新しい予約が完了しました。以下の内容をご確認ください。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -195,29 +193,21 @@ ${customerName} 様
 
 ■ お支払い金額: ¥${formattedPrice}
 
-■ 集合場所:
-  ${heliportName}
-  ${heliportAddress}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【お客様情報】
+・お名前: ${customerName}
+・メールアドレス: ${customerEmail}
+・電話番号: ${customerPhone}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-▼ マイページで予約を確認
-${mypageUrl}
+▼ 管理画面で確認
+https://tour.privatesky.co.jp/admin/reservations
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-【ご搭乗前のご注意】
-・集合時刻の15分前までにお越しください
-・本人確認書類（運転免許証等）をご持参ください
-・動きやすい服装・靴でお越しください
-・天候により運航を中止する場合がございます
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-ご不明な点がございましたら、お気軽にお問い合わせください。
-
-PrivateSky Tour
-info@privatesky.co.jp
+PrivateSky Tour | 管理者通知
   `.trim();
 
   return { html, text };

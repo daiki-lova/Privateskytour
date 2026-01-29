@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
-import { sendReservationConfirmation } from '@/lib/email/client';
+import { sendReservationConfirmation, sendAdminNewBookingNotification } from '@/lib/email/client';
 import type Stripe from 'stripe';
 
 /**
@@ -151,6 +151,26 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     } else {
       console.error(`Failed to send confirmation email for reservation ${reservationId}:`, emailResult.error);
       // Don't throw - reservation is already confirmed, email failure is logged but not critical
+    }
+
+    // Send admin new booking notification (fire-and-forget)
+    try {
+      sendAdminNewBookingNotification({
+        to: 'info@privatesky.co.jp',
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerPhone: '',
+        courseName: course.title,
+        flightDate: reservation.reservation_date || '',
+        flightTime: reservation.reservation_time || '',
+        pax: reservation.pax,
+        totalPrice: reservation.total_price || 0,
+        bookingNumber: reservation.booking_number,
+      }).catch((emailError) => {
+        console.error('[Email] Failed to send admin new booking notification:', emailError);
+      });
+    } catch (emailError) {
+      console.error('[Email] Failed to send admin new booking notification:', emailError);
     }
   } catch (error) {
     console.error('Error handling checkout.session.completed:', error);

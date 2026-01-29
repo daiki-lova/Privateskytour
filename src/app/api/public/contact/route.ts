@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
+import { sendContactConfirmation, sendAdminContactInquiryNotification } from '@/lib/email/client';
 import type { ContactInquiry, InquiryStatus, SupportedLang } from '@/lib/data/types';
 
 /**
@@ -119,6 +120,38 @@ export async function POST(request: NextRequest) {
     }
 
     const inquiry = toContactInquiry(data);
+
+    // Send email notifications (fire-and-forget)
+    const customerEmail = (body.email as string).trim().toLowerCase();
+    const customerName = (body.name as string).trim();
+    const subject = body.subject ? (body.subject as string).trim() : 'お問い合わせ';
+    const message = (body.message as string).trim();
+
+    try {
+      // 1. Send confirmation email to the customer
+      sendContactConfirmation({
+        to: customerEmail,
+        customerName,
+        subject,
+        message,
+      }).catch((emailError) => {
+        console.error('[Email] Failed to send contact confirmation:', emailError);
+      });
+
+      // 2. Send notification to admin
+      sendAdminContactInquiryNotification({
+        to: 'info@privatesky.co.jp',
+        customerName,
+        customerEmail,
+        customerPhone: body.phone ? (body.phone as string).trim() : undefined,
+        subject,
+        message,
+      }).catch((emailError) => {
+        console.error('[Email] Failed to send admin contact inquiry notification:', emailError);
+      });
+    } catch (emailError) {
+      console.error('[Email] Failed to send contact emails:', emailError);
+    }
 
     return successResponse(inquiry, HttpStatus.CREATED);
   } catch (error) {

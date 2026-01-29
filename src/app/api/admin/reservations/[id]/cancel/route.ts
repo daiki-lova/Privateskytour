@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { requireRole, AuthenticationError, AuthorizationError } from '@/lib/auth';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
+import { sendAdminCancellationNotice } from '@/lib/email/client';
 import type {
   Reservation,
   ReservationStatus,
@@ -224,6 +225,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
     console.log(
       `Reservation ${reservation.bookingNumber} cancelled by ${adminUser.email}. Reason: ${body.reason}`
     );
+
+    // Send cancellation notice email to customer (fire-and-forget)
+    if (reservation.customer?.email) {
+      try {
+        sendAdminCancellationNotice({
+          to: reservation.customer.email,
+          customerName: reservation.customer.name,
+          courseName: reservation.course?.title || '',
+          flightDate: reservation.reservationDate || '',
+          flightTime: reservation.reservationTime || '',
+          bookingNumber: reservation.bookingNumber,
+          reason: body.reason?.trim(),
+          refundAmount: cancellationFee > 0 && reservation.totalPrice ? reservation.totalPrice - cancellationFee : undefined,
+        }).catch((emailError) => {
+          console.error('[Email] Failed to send admin cancellation notice:', emailError);
+        });
+      } catch (emailError) {
+        console.error('[Email] Failed to send admin cancellation notice:', emailError);
+      }
+    }
 
     return successResponse({
       reservation,

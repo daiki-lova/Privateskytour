@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireRole, AuthenticationError, AuthorizationError } from '@/lib/auth';
 import { successResponse, errorResponse, HttpStatus } from '@/lib/api/response';
 import { stripe } from '@/lib/stripe/client';
+import { sendRefundNotification } from '@/lib/email/client';
 import type { Database } from '@/lib/supabase/database.types';
 
 type RefundReason = Database['public']['Enums']['refund_reason'];
@@ -211,6 +212,57 @@ export async function POST(request: NextRequest, context: RouteContext) {
     console.log(
       `Refund processed: ${reservation.booking_number} - ${refundAmount} yen by ${adminUser.email}. Reason: ${reason}`
     );
+
+    // Send refund notification email (fire-and-forget)
+    const customer = reservation.customers as { id: string; name: string; email: string } | null;
+    if (customer?.email) {
+      // Attempt to retrieve card last4 from the Stripe payment intent
+      let cardLast4: string | undefined;
+      try {
+        const paymentIntent = await stripe.paymentIntents.retrieve(payment.stripe_payment_intent_id);
+        if (paymentIntent.latest_charge) {
+          const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+          cardLast4 = charge.payment_method_details?.card?.last4 ?? undefined;
+        }
+      } catch (cardError) {
+        console.error('[Email] Failed to retrieve card info for refund email:', cardError);
+      }
+
+      // Fetch course name for the email
+      let courseName = reservation.booking_number;
+      try {
+        const { data: resWithCourse } = await supabase
+          .from('reservations')
+          .select('courses(title)')
+          .eq('id', reservationId)
+          .single();
+        const course = resWithCourse?.courses as { title: string } | null;
+        if (course?.title) {
+          courseName = course.title;
+        }
+      } catch {
+        // Use booking number as fallback
+      }
+
+      const refundDate = new Date();
+      const formattedRefundDate = `${refundDate.getFullYear()}年${refundDate.getMonth() + 1}月${refundDate.getDate()}日`;
+
+      try {
+        sendRefundNotification({
+          to: customer.email,
+          customerName: customer.name,
+          courseName,
+          bookingNumber: reservation.booking_number,
+          refundAmount,
+          cardLast4,
+          refundDate: formattedRefundDate,
+        }).catch((emailError) => {
+          console.error('[Email] Failed to send refund notification:', emailError);
+        });
+      } catch (emailError) {
+        console.error('[Email] Failed to send refund notification:', emailError);
+      }
+    }
 
     return successResponse({
       refund: {

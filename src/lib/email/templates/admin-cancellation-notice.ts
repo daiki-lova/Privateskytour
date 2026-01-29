@@ -1,10 +1,11 @@
-import type { ReservationConfirmationParams } from '../client';
+import type { AdminCancellationNoticeParams } from '../client';
 
 /**
- * 予約確認メールテンプレート
+ * 運営側キャンセル通知メールテンプレート（お客様宛）
+ * 天候・運航上の理由で管理者がキャンセルした場合に送信
  * HTMLとプレーンテキストの両方を生成
  */
-export function reservationConfirmedTemplate(params: ReservationConfirmationParams): {
+export function adminCancellationNoticeTemplate(params: AdminCancellationNoticeParams): {
   html: string;
   text: string;
 } {
@@ -13,15 +14,12 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
     courseName,
     flightDate,
     flightTime,
-    pax,
-    totalPrice,
     bookingNumber,
-    heliportName,
-    heliportAddress,
-    mypageUrl,
+    reason,
+    refundAmount,
   } = params;
 
-  const formattedPrice = totalPrice.toLocaleString('ja-JP');
+  const formattedRefund = refundAmount ? refundAmount.toLocaleString('ja-JP') : null;
 
   const html = `
 <!DOCTYPE html>
@@ -29,7 +27,7 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>予約確認 - PrivateSky Tour</title>
+  <title>予約キャンセルのお知らせ - PrivateSky Tour</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background-color: #f5f5f5;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
@@ -47,25 +45,26 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
           <tr>
             <td style="padding: 8px 24px 16px; text-align: center;">
               <h2 style="margin: 0; font-size: 20px; color: #1a1a1a; font-weight: 600;">
-                ご予約が確定しました
+                予約キャンセルのお知らせ
               </h2>
             </td>
           </tr>
 
-          <!-- Greeting -->
+          <!-- Greeting & Apology -->
           <tr>
             <td style="padding: 16px 24px 24px;">
               <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
                 ${customerName} 様<br><br>
-                この度はPrivateSky Tourをご予約いただき、誠にありがとうございます。<br>
-                以下の内容でご予約を承りました。
+                いつもPrivateSky Tourをご利用いただき、誠にありがとうございます。<br><br>
+                大変申し訳ございませんが、下記のご予約につきまして、運航側の事情によりキャンセルとさせていただくこととなりました。<br>
+                お客様にはご迷惑をおかけし、深くお詫び申し上げます。
               </p>
             </td>
           </tr>
 
           <!-- Booking Details -->
           <tr>
-            <td style="padding: 0 24px 32px;">
+            <td style="padding: 0 24px 24px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
                   <td style="padding: 24px;">
@@ -83,7 +82,7 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 16px 0;${reason || formattedRefund ? ' border-bottom: 1px solid #e5e7eb;' : ''}">
                           <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                             <tr>
                               <td width="50%">
@@ -98,29 +97,22 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
                           </table>
                         </td>
                       </tr>
+                      ${reason ? `
                       <tr>
-                        <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb;">
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                            <tr>
-                              <td width="50%">
-                                <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">人数</p>
-                                <p style="margin: 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">${pax}名</p>
-                              </td>
-                              <td width="50%">
-                                <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">お支払い金額</p>
-                                <p style="margin: 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">&yen;${formattedPrice}</p>
-                              </td>
-                            </tr>
-                          </table>
+                        <td style="padding: 16px 0;${formattedRefund ? ' border-bottom: 1px solid #e5e7eb;' : ''}">
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">キャンセル理由</p>
+                          <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.6;">${reason}</p>
                         </td>
                       </tr>
+                      ` : ''}
+                      ${formattedRefund ? `
                       <tr>
                         <td style="padding-top: 16px;">
-                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">集合場所</p>
-                          <p style="margin: 0 0 4px; font-size: 16px; color: #1a1a1a; font-weight: 600;">${heliportName}</p>
-                          <p style="margin: 0; font-size: 14px; color: #6b7280;">${heliportAddress}</p>
+                          <p style="margin: 0 0 4px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">返金額</p>
+                          <p style="margin: 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">&yen;${formattedRefund}</p>
                         </td>
                       </tr>
+                      ` : ''}
                     </table>
                   </td>
                 </tr>
@@ -128,31 +120,29 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
             </td>
           </tr>
 
-          <!-- CTA Button -->
-          <tr>
-            <td style="padding: 0 24px 32px; text-align: center;">
-              <a href="${mypageUrl}" style="display: inline-block; background-color: #0066FF; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600;">
-                マイページで予約を確認
-              </a>
-            </td>
-          </tr>
-
-          <!-- Notice -->
+          <!-- Refund Notice -->
           <tr>
             <td style="padding: 0 24px 32px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
                   <td style="padding: 16px 20px;">
-                    <p style="margin: 0 0 8px; font-size: 14px; color: #1a1a1a; font-weight: 600;">ご搭乗前のご注意</p>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #6b7280; line-height: 1.6;">
-                      <li>集合時刻の15分前までにお越しください</li>
-                      <li>本人確認書類（運転免許証等）をご持参ください</li>
-                      <li>動きやすい服装・靴でお越しください</li>
-                      <li>天候により運航を中止する場合がございます</li>
-                    </ul>
+                    <p style="margin: 0 0 8px; font-size: 14px; color: #1a1a1a; font-weight: 600;">返金について</p>
+                    <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.8;">
+                      運航側の都合によるキャンセルのため、お支払い金額は全額返金いたします。返金はご利用のクレジットカードへ処理され、カード会社の処理状況により5〜10営業日程度お時間をいただく場合がございます。
+                    </p>
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
+
+          <!-- Closing -->
+          <tr>
+            <td style="padding: 0 24px 32px;">
+              <p style="margin: 0; font-size: 15px; color: #1a1a1a; line-height: 1.8;">
+                改めまして、この度はご迷惑をおかけし誠に申し訳ございません。<br>
+                またのご利用を心よりお待ちしております。
+              </p>
             </td>
           </tr>
 
@@ -176,12 +166,14 @@ export function reservationConfirmedTemplate(params: ReservationConfirmationPara
   `.trim();
 
   const text = `
-【予約確認】PrivateSky Tour
+【予約キャンセルのお知らせ】PrivateSky Tour
 
 ${customerName} 様
 
-この度はPrivateSky Tourをご予約いただき、誠にありがとうございます。
-以下の内容でご予約を承りました。
+いつもPrivateSky Tourをご利用いただき、誠にありがとうございます。
+
+大変申し訳ございませんが、下記のご予約につきまして、運航側の事情によりキャンセルとさせていただくこととなりました。
+お客様にはご迷惑をおかけし、深くお詫び申し上げます。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -190,29 +182,20 @@ ${customerName} 様
 ■ コース: ${courseName}
 
 ■ 搭乗日時: ${flightDate} ${flightTime}
-
-■ 人数: ${pax}名
-
-■ お支払い金額: ¥${formattedPrice}
-
-■ 集合場所:
-  ${heliportName}
-  ${heliportAddress}
+${reason ? `\n■ キャンセル理由: ${reason}` : ''}
+${formattedRefund ? `\n■ 返金額: ¥${formattedRefund}` : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-▼ マイページで予約を確認
-${mypageUrl}
+【返金について】
+運航側の都合によるキャンセルのため、お支払い金額は全額返金いたします。
+返金はご利用のクレジットカードへ処理され、カード会社の処理状況により
+5〜10営業日程度お時間をいただく場合がございます。
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-【ご搭乗前のご注意】
-・集合時刻の15分前までにお越しください
-・本人確認書類（運転免許証等）をご持参ください
-・動きやすい服装・靴でお越しください
-・天候により運航を中止する場合がございます
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+改めまして、この度はご迷惑をおかけし誠に申し訳ございません。
+またのご利用を心よりお待ちしております。
 
 ご不明な点がございましたら、お気軽にお問い合わせください。
 
