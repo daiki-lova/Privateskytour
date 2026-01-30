@@ -109,12 +109,10 @@ export async function GET(request: NextRequest) {
         .map(res => {
           const paymentArray = res.payments;
           const payment = Array.isArray(paymentArray) && paymentArray.length > 0 ? paymentArray[0] : null;
-          // customers is a single object due to FK relationship (reservation has one customer)
-          const customerData = res.customers;
-          const customer = customerData && !Array.isArray(customerData) ? customerData : null;
-          // courses is a single object due to FK relationship
-          const courseData = res.courses;
-          const course = courseData && !Array.isArray(courseData) ? courseData : null;
+          const customerRaw = res.customers;
+          const customer = Array.isArray(customerRaw) ? customerRaw[0] ?? null : customerRaw;
+          const courseRaw = res.courses;
+          const course = Array.isArray(courseRaw) ? courseRaw[0] ?? null : courseRaw;
 
           return {
             id: res.id,
