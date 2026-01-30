@@ -16,7 +16,7 @@ function isProtectedAdminPath(pathname: string): boolean {
   return pathname.startsWith('/admin') && pathname !== '/admin/login';
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({
     request,
   });
