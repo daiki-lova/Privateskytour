@@ -12,6 +12,7 @@ import { adminNewBookingTemplate } from './templates/admin-new-booking';
 import { adminContactInquiryTemplate } from './templates/admin-contact-inquiry';
 import { adminCancellationNoticeTemplate } from './templates/admin-cancellation-notice';
 import { contactConfirmationTemplate } from './templates/contact-confirmation';
+import { emailLogger } from './logger';
 
 // Resendクライアントの初期化
 // 環境変数が未設定の場合は開発モードとして動作
@@ -139,8 +140,7 @@ export async function sendReservationConfirmation(
   params: ReservationConfirmationParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent confirmation email to:', params.to);
+    emailLogger.devSkip('confirmation email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -160,7 +160,7 @@ export async function sendReservationConfirmation(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Confirmation email sent successfully:', data?.id);
+    emailLogger.info('Confirmation email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -176,8 +176,7 @@ export async function sendReservationReminder(
   params: ReservationReminderParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent reminder email to:', params.to);
+    emailLogger.devSkip('reminder email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -197,7 +196,7 @@ export async function sendReservationReminder(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Reminder email sent successfully:', data?.id);
+    emailLogger.info('Reminder email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -213,8 +212,7 @@ export async function sendReservationReminder3Days(
   params: ReservationReminderParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent 3-day reminder email to:', params.to);
+    emailLogger.devSkip('3-day reminder email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -234,7 +232,7 @@ export async function sendReservationReminder3Days(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] 3-day reminder email sent successfully:', data?.id);
+    emailLogger.info('3-day reminder email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -251,8 +249,7 @@ export async function scheduleReservationReminder(
   scheduledAt: Date
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping scheduled email.');
-    console.log('[Email] Would have scheduled reminder for:', scheduledAt.toISOString());
+    emailLogger.devSkip('scheduled reminder', { to: params.to, scheduledAt: scheduledAt.toISOString() });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -273,7 +270,7 @@ export async function scheduleReservationReminder(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Reminder email scheduled successfully:', data?.id);
+    emailLogger.info('Reminder email scheduled', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -289,8 +286,7 @@ export async function sendCancellationConfirmation(
   params: CancellationConfirmationParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent cancellation email to:', params.to);
+    emailLogger.devSkip('cancellation email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -310,7 +306,7 @@ export async function sendCancellationConfirmation(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Cancellation email sent successfully:', data?.id);
+    emailLogger.info('Cancellation email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -326,8 +322,7 @@ export async function sendRefundNotification(
   params: RefundNotificationParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent refund notification to:', params.to);
+    emailLogger.devSkip('refund notification', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -347,7 +342,7 @@ export async function sendRefundNotification(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Refund notification sent successfully:', data?.id);
+    emailLogger.info('Refund notification sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -364,9 +359,7 @@ export async function sendMypageAccessEmail(
   params: MypageAccessEmailParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent mypage access email to:', params.to);
-    console.log('[Email] Mypage URL:', params.mypageUrl);
+    emailLogger.devSkip('mypage access email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -386,7 +379,7 @@ export async function sendMypageAccessEmail(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Mypage access email sent successfully:', data?.id);
+    emailLogger.info('Mypage access email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -406,8 +399,7 @@ export async function sendReservationReminder1Day(
   params: ReservationReminderParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent 1-day reminder email to:', params.to);
+    emailLogger.devSkip('1-day reminder email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -427,7 +419,7 @@ export async function sendReservationReminder1Day(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] 1-day reminder email sent successfully:', data?.id);
+    emailLogger.info('1-day reminder email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -444,8 +436,7 @@ export async function sendThankYouEmail(
   params: ThankYouEmailParams & { to: string }
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent thank you email to:', params.to);
+    emailLogger.devSkip('thank you email', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -465,7 +456,7 @@ export async function sendThankYouEmail(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Thank you email sent successfully:', data?.id);
+    emailLogger.info('Thank you email sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -482,8 +473,7 @@ export async function scheduleReservationReminder1Day(
   scheduledAt: Date
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping scheduled email.');
-    console.log('[Email] Would have scheduled 1-day reminder for:', scheduledAt.toISOString());
+    emailLogger.devSkip('scheduled 1-day reminder', { to: params.to, scheduledAt: scheduledAt.toISOString() });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -504,7 +494,7 @@ export async function scheduleReservationReminder1Day(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] 1-day reminder email scheduled successfully:', data?.id);
+    emailLogger.info('1-day reminder email scheduled', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -521,8 +511,7 @@ export async function scheduleThankYouEmail(
   scheduledAt: Date
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping scheduled email.');
-    console.log('[Email] Would have scheduled thank you email for:', scheduledAt.toISOString());
+    emailLogger.devSkip('scheduled thank you email', { to: params.to, scheduledAt: scheduledAt.toISOString() });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -543,7 +532,7 @@ export async function scheduleThankYouEmail(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Thank you email scheduled successfully:', data?.id);
+    emailLogger.info('Thank you email scheduled', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -559,8 +548,7 @@ export async function sendAdminNewBookingNotification(
   params: AdminNewBookingParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent admin new booking notification to:', params.to);
+    emailLogger.devSkip('admin new booking notification', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -580,7 +568,7 @@ export async function sendAdminNewBookingNotification(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Admin new booking notification sent successfully:', data?.id);
+    emailLogger.info('Admin new booking notification sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -596,8 +584,7 @@ export async function sendAdminContactInquiryNotification(
   params: AdminContactInquiryParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent admin contact inquiry notification to:', params.to);
+    emailLogger.devSkip('admin contact inquiry notification', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -617,7 +604,7 @@ export async function sendAdminContactInquiryNotification(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Admin contact inquiry notification sent successfully:', data?.id);
+    emailLogger.info('Admin contact inquiry notification sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -634,8 +621,7 @@ export async function sendAdminCancellationNotice(
   params: AdminCancellationNoticeParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent admin cancellation notice to:', params.to);
+    emailLogger.devSkip('admin cancellation notice', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -655,7 +641,7 @@ export async function sendAdminCancellationNotice(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Admin cancellation notice sent successfully:', data?.id);
+    emailLogger.info('Admin cancellation notice sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -671,8 +657,7 @@ export async function sendContactConfirmation(
   params: ContactConfirmationParams
 ): Promise<EmailResult> {
   if (!resend) {
-    console.warn('[Email] Resend API key not configured. Skipping email send.');
-    console.log('[Email] Would have sent contact confirmation to:', params.to);
+    emailLogger.devSkip('contact confirmation', { to: params.to });
     return { success: true, messageId: 'dev-mode-skip' };
   }
 
@@ -692,7 +677,7 @@ export async function sendContactConfirmation(
       return { success: false, error: error.message };
     }
 
-    console.log('[Email] Contact confirmation sent successfully:', data?.id);
+    emailLogger.info('Contact confirmation sent', { messageId: data?.id });
     return { success: true, messageId: data?.id };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
