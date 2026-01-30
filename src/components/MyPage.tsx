@@ -142,7 +142,7 @@ export function MyPage({ onLogout }: MyPageProps) {
 
       setMypageData(data.data);
     } catch (err) {
-      console.error("Mypage fetch error:", err);
+      void err;
       setError("通信エラーが発生しました");
     } finally {
       setIsLoading(false);

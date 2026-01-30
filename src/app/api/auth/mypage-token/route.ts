@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
         mypageUrl,
         expiresAt: tokenExpiresAt ?? '',
       });
-      console.log(`Mypage access email sent to customer: ${customer.id}`);
+      // Mypage access email sent successfully
     } catch (emailError) {
       // メール送信エラーはログに記録するが、処理は続行
       console.error('Failed to send mypage access email:', emailError);

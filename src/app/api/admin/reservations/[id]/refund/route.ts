@@ -209,12 +209,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
       // Non-critical error, continue
     }
 
-    console.log(
-      `Refund processed: ${reservation.booking_number} - ${refundAmount} yen by ${adminUser.email}. Reason: ${reason}`
-    );
-
     // Send refund notification email (fire-and-forget)
-    const customer = reservation.customers as { id: string; name: string; email: string } | null;
+    const customerRaw = reservation.customers;
+    const customer = Array.isArray(customerRaw) ? customerRaw[0] ?? null : customerRaw;
     if (customer?.email) {
       // Attempt to retrieve card last4 from the Stripe payment intent
       let cardLast4: string | undefined;
@@ -236,7 +233,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
           .select('courses(title)')
           .eq('id', reservationId)
           .single();
-        const course = resWithCourse?.courses as { title: string } | null;
+        const courseRaw = resWithCourse?.courses;
+        const course = Array.isArray(courseRaw) ? courseRaw[0] ?? null : courseRaw ?? null;
         if (course?.title) {
           courseName = course.title;
         }

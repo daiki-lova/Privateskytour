@@ -92,7 +92,6 @@ export async function POST(
       );
     }
 
-    console.log(`[TEST MODE] Reservation ${reservationId} confirmed without payment`);
 
     // Type assertions for nested objects (Supabase returns these as unknown)
     const customer = data.customer as unknown as {

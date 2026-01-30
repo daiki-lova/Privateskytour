@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
         });
 
         if (error) {
-          console.error("Session error:", error);
+          void error;
           setError("セッションの設定に失敗しました。リンクが無効か期限切れの可能性があります。");
           setIsLoading(false);
           return;

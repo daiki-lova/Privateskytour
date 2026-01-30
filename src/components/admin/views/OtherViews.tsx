@@ -1186,7 +1186,7 @@ export const SettingsView = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      void error;
       toast.error('設定の読み込みに失敗しました');
     } finally {
       setIsLoading(false);
@@ -1299,7 +1299,7 @@ export const SettingsView = () => {
         toast.error(result.error || '設定の保存に失敗しました');
       }
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      void error;
       toast.error('設定の保存に失敗しました');
     } finally {
       setIsSaving(false);

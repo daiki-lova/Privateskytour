@@ -90,7 +90,7 @@ export async function createClient() {
 
   // 開発モードでSupabase未設定の場合はモッククライアントを返す
   if (devSkipAuth && (!supabaseUrl || !supabaseKey)) {
-    console.warn('⚠️ DEV_SKIP_AUTH mode: Using mock Supabase client');
+    // DEV_SKIP_AUTH mode: Using mock Supabase client
     return createMockClient() as unknown as ReturnType<typeof createServerClient>;
   }
 
@@ -142,7 +142,7 @@ export function createAdminClient() {
 
   // In development mode, fall back to anon key if service role key is missing
   if (!serviceRoleKey && devSkipAuth && anonKey) {
-    console.warn('⚠️ DEV_SKIP_AUTH mode: Using anon key instead of service role key. RLS policies must allow the operation.');
+    // DEV_SKIP_AUTH mode: Using anon key instead of service role key
     return createSupabaseClient(supabaseUrl, anonKey, {
       auth: {
         autoRefreshToken: false,

@@ -36,7 +36,6 @@ export async function GET(request: Request) {
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    console.log(`[Cron:ThankYou] Running at ${now.toISOString()} (JST yesterday: ${yesterdayStr})`);
 
     // 昨日フライトがあった確認済み予約を取得
     const { data: reservations, error: fetchError } = await supabase
@@ -76,7 +75,6 @@ export async function GET(request: Request) {
     }
 
     if (!reservations || reservations.length === 0) {
-      console.log('[Cron:ThankYou] No reservations found for yesterday');
       return NextResponse.json({
         success: true,
         summary: { sent: 0, failed: 0, total: 0 },
@@ -84,7 +82,6 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log(`[Cron:ThankYou] Found ${reservations.length} reservations for yesterday`);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tour.privatesky.co.jp';
 
@@ -152,9 +149,6 @@ export async function GET(request: Request) {
     const failed = results.filter((r) => !r.emailSent).length;
     const updated = results.filter((r) => r.statusUpdated).length;
 
-    console.log(
-      `[Cron:ThankYou] Complete: ${sent} emails sent, ${failed} failed, ${updated} status updated`
-    );
 
     return NextResponse.json({
       success: true,

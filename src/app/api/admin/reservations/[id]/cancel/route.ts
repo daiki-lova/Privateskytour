@@ -176,7 +176,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         }
       } catch {
         // If calculation fails, default to 0
-        console.log('Cancellation fee calculation not available, using 0');
+        // Cancellation fee calculation not available, using 0
       }
     }
 
@@ -221,10 +221,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       reservation.course = toCourse(data.courses as Record<string, unknown>);
       reservation.planName = reservation.course.title;
     }
-
-    console.log(
-      `Reservation ${reservation.bookingNumber} cancelled by ${adminUser.email}. Reason: ${body.reason}`
-    );
 
     // Send cancellation notice email to customer (fire-and-forget)
     if (reservation.customer?.email) {

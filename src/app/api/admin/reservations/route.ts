@@ -338,8 +338,6 @@ export async function POST(request: NextRequest) {
       transformedReservation.planName = transformedReservation.course.title;
     }
 
-    console.log(`Reservation ${reservation.booking_number} created by ${adminUser.email}`);
-
     return successResponse(transformedReservation, HttpStatus.CREATED);
   } catch (error) {
     if (error instanceof AuthenticationError) {

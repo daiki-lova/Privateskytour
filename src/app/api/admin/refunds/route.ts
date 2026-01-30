@@ -203,11 +203,11 @@ export async function GET(request: NextRequest) {
 
       const transformedRefunds = refunds?.map(refund => {
         // reservations is a single object due to FK relationship
-        const reservationData = refund.reservations;
-        const reservation = reservationData && !Array.isArray(reservationData) ? reservationData : null;
+        const reservationRaw = refund.reservations;
+        const reservation = Array.isArray(reservationRaw) ? reservationRaw[0] ?? null : reservationRaw;
         // admin_users is a single object due to FK relationship
         const adminUserRaw = refund.admin_users;
-        const adminUserData = adminUserRaw && !Array.isArray(adminUserRaw) ? adminUserRaw : null;
+        const adminUserData = Array.isArray(adminUserRaw) ? adminUserRaw[0] ?? null : adminUserRaw;
 
         return {
           id: refund.id,
@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
             totalPrice: reservation.total_price,
             customer: (() => {
               const c = reservation.customers;
-              const customerObj = c && !Array.isArray(c) ? c : null;
+              const customerObj = Array.isArray(c) ? c[0] ?? null : c;
               return customerObj ? {
                 id: customerObj.id,
                 name: customerObj.name,
@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
             })(),
             course: (() => {
               const co = reservation.courses;
-              const courseObj = co && !Array.isArray(co) ? co : null;
+              const courseObj = Array.isArray(co) ? co[0] ?? null : co;
               return courseObj ? {
                 id: courseObj.id,
                 title: courseObj.title,

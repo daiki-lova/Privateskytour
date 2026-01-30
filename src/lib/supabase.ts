@@ -680,7 +680,7 @@ export async function getCustomers(options?: {
 
 export async function createReservation(input: CreateReservationInput): Promise<Reservation | null> {
   if (!isConfigured()) {
-    console.log('Mock creating reservation:', input);
+    // Mock mode: skip reservation creation
     await new Promise(resolve => setTimeout(resolve, 1000));
     return null;
   }
@@ -1170,7 +1170,7 @@ export async function calculateCancellationFee(reservationId: string): Promise<n
 
 export async function createContactInquiry(input: CreateContactInquiryInput): Promise<ContactInquiry | null> {
   if (!isConfigured()) {
-    console.log('Mock creating contact inquiry:', input);
+    // Mock mode: skip contact inquiry creation
     return null;
   }
 
@@ -1205,7 +1205,7 @@ export async function createAlphardTransfer(
   customerId?: string
 ): Promise<AlphardTransfer | null> {
   if (!isConfigured()) {
-    console.log('Mock creating alphard transfer:', input);
+    // Mock mode: skip alphard transfer creation
     return null;
   }
 
@@ -1282,7 +1282,7 @@ export async function getPlans() {
 /** @deprecated Use createReservation instead */
 export async function saveBooking(booking: DbBooking) {
   if (!isConfigured()) {
-    console.log('Mock saving booking:', booking);
+    // Mock mode: skip booking save
     await new Promise(resolve => setTimeout(resolve, 1000));
     return { ...booking, id: 'mock-id' };
   }

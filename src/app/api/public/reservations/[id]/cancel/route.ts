@@ -403,9 +403,7 @@ export async function POST(
               refundedAmount: refundAmount,
             };
 
-            console.log(
-              `Self-service refund processed: ${typedReservation.booking_number} - ${refundAmount} yen`
-            );
+            // Self-service refund processed
           } catch (stripeError) {
             console.error('Stripe refund error:', stripeError);
             // Continue without refund - will need manual processing
@@ -438,7 +436,7 @@ export async function POST(
           refundAmount: cancellationResult.refundAmount,
           originalAmount: typedReservation.total_price,
         });
-        console.log(`Cancellation email sent for: ${typedReservation.booking_number}`);
+        // Cancellation email sent successfully
       } catch (emailError) {
         // メール送信エラーはログに記録するが、キャンセル処理は成功とする
         console.error('Failed to send cancellation email:', emailError);

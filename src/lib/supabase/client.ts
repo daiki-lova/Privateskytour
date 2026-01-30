@@ -96,7 +96,7 @@ export function createClient() {
 
   // 開発モードでSupabase未設定の場合はモッククライアントを返す
   if (devSkipAuth && (!supabaseUrl || !supabaseKey)) {
-    console.warn('⚠️ DEV_SKIP_AUTH mode: Using mock Supabase client (browser)');
+    // DEV_SKIP_AUTH mode: Using mock Supabase client (browser)
     return createMockClient() as unknown as ReturnType<typeof createBrowserClient>;
   }
 

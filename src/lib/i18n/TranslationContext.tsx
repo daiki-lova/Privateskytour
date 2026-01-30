@@ -34,7 +34,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
     for (const key of keys) {
       if (current[key] === undefined) {
-        console.warn(`Translation key not found: ${path}`);
+        // Translation key not found
         return path;
       }
       current = current[key];

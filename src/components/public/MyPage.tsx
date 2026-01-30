@@ -832,7 +832,7 @@ export function MyPage() {
 
       setMypageData(data.data);
     } catch (err) {
-      console.error("Mypage fetch error:", err);
+      void err;
       setError("通信エラーが発生しました");
     } finally {
       setIsLoading(false);
@@ -878,7 +878,7 @@ export function MyPage() {
         policy: data.data.policy ?? [],
       }));
     } catch (err) {
-      console.error("Cancel info fetch error:", err);
+      void err;
       setCancellationState((prev) => ({
         ...prev,
         isLoading: false,
@@ -922,7 +922,7 @@ export function MyPage() {
       // Refresh data after successful cancellation
       fetchMypageData();
     } catch (err) {
-      console.error("Cancel confirm error:", err);
+      void err;
       setCancellationState((prev) => ({
         ...prev,
         isConfirming: false,

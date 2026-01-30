@@ -325,8 +325,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       reservation.planName = reservation.course.title;
     }
 
-    console.log(`Reservation ${reservation.bookingNumber} updated by ${adminUser.email}`);
-
     return successResponse(reservation);
   } catch (error) {
     if (error instanceof AuthenticationError) {
@@ -406,10 +404,6 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
         p_pax: existingReservation.pax,
       });
     }
-
-    console.log(
-      `Reservation ${existingReservation.booking_number} deleted by ${adminUser.email}`
-    );
 
     return successResponse({ message: 'Reservation deleted successfully' });
   } catch (error) {

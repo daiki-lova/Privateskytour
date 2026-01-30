@@ -68,7 +68,7 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
           });
         }
       } catch (error) {
-        console.error("Failed to fetch operating settings:", error);
+        void error;
         setOperatingSettings({
           activeHours: ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'],
           holidayMode: false,
@@ -109,11 +109,11 @@ export function Step1PlanSelection({ courses, data, updateData, onNext }: Step1P
           }, []);
           setAvailableSlots(uniqueByTime);
         } else {
-          console.error("Failed to fetch slots:", slotsJson.error);
+          void slotsJson.error;
           setAvailableSlots([]);
         }
       } catch (error) {
-        console.error("Failed to fetch slots:", error);
+        void error;
         setAvailableSlots([]);
       } finally {
         setIsLoadingSlots(false);

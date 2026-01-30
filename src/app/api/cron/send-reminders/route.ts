@@ -48,8 +48,6 @@ export async function GET(request: Request) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-    console.log(`[Cron:Reminders] Running at ${now.toISOString()} (JST: ${todayStr})`);
-    console.log(`[Cron:Reminders] 3-day target: ${threeDaysStr}, 1-day target: ${tomorrowStr}`);
 
     // --- 3日前リマインダー ---
     const { data: threeDayReservations, error: threeDayError } = await supabase
@@ -89,7 +87,6 @@ export async function GET(request: Request) {
     if (threeDayError) {
       console.error('[Cron:Reminders] Error fetching 3-day reservations:', threeDayError);
     } else if (threeDayReservations && threeDayReservations.length > 0) {
-      console.log(`[Cron:Reminders] Found ${threeDayReservations.length} reservations for 3-day reminder`);
 
       for (const reservation of threeDayReservations) {
         const customer = reservation.customers as unknown as { name: string; email: string };
@@ -132,8 +129,6 @@ export async function GET(request: Request) {
           console.error(`[Cron:Reminders] Failed to send 3-day reminder for ${reservation.booking_number}:`, result.error);
         }
       }
-    } else {
-      console.log('[Cron:Reminders] No reservations found for 3-day reminder');
     }
 
     // --- 前日リマインダー ---
@@ -174,7 +169,6 @@ export async function GET(request: Request) {
     if (oneDayError) {
       console.error('[Cron:Reminders] Error fetching 1-day reservations:', oneDayError);
     } else if (oneDayReservations && oneDayReservations.length > 0) {
-      console.log(`[Cron:Reminders] Found ${oneDayReservations.length} reservations for 1-day reminder`);
 
       for (const reservation of oneDayReservations) {
         const customer = reservation.customers as unknown as { name: string; email: string };
@@ -217,14 +211,11 @@ export async function GET(request: Request) {
           console.error(`[Cron:Reminders] Failed to send 1-day reminder for ${reservation.booking_number}:`, result.error);
         }
       }
-    } else {
-      console.log('[Cron:Reminders] No reservations found for 1-day reminder');
     }
 
     const sent = results.filter((r) => r.success).length;
     const failed = results.filter((r) => !r.success).length;
 
-    console.log(`[Cron:Reminders] Complete: ${sent} sent, ${failed} failed`);
 
     return NextResponse.json({
       success: true,

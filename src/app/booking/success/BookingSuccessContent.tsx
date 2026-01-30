@@ -59,7 +59,7 @@ export function BookingSuccessContent() {
             }
           }
         } catch (err) {
-          console.error("Error fetching reservation:", err);
+          void err;
           setError("予約情報の取得に失敗しました");
         }
         setIsLoading(false);
@@ -77,7 +77,7 @@ export function BookingSuccessContent() {
         // For now, we'll show a generic success message
         setIsLoading(false);
       } catch (err) {
-        console.error("Error fetching reservation:", err);
+        void err;
         setError("予約情報の取得に失敗しました");
         setIsLoading(false);
       }

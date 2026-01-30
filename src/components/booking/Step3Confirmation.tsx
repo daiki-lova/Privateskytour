@@ -57,7 +57,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
         const data = await res.json();
         setTestMode(data.testMode);
       } catch (error) {
-        console.error("Failed to check payment mode:", error);
+        void error;
       }
     };
     checkPaymentMode();
@@ -183,7 +183,7 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
         throw new Error(t('booking.step3.urlError'));
       }
     } catch (error) {
-      console.error("Payment error:", error);
+      void error;
       toast.error(
         error instanceof Error ? error.message : t('booking.step3.paymentError')
       );

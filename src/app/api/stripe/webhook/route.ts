@@ -79,7 +79,6 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       throw updateError;
     }
 
-    console.log(`Reservation ${reservationId} confirmed after payment`);
 
     // Fetch reservation details for email
     const { data: reservation, error: fetchError } = await supabase
@@ -116,9 +115,14 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return;
     }
 
-    // Type assertions for nested objects
-    const customer = reservation.customer as { id: string; email: string; name: string; mypage_token?: string } | null;
-    const course = reservation.course as { id: string; title: string; heliport?: { id: string; name: string; address?: string } | null } | null;
+    // Extract nested objects (Supabase may return arrays for joined tables)
+    const customerRaw = reservation.customer;
+    const customer = Array.isArray(customerRaw) ? customerRaw[0] as { id: string; email: string; name: string; mypage_token?: string } | undefined : customerRaw as { id: string; email: string; name: string; mypage_token?: string } | null;
+    const courseRaw = reservation.course;
+    const courseObj = Array.isArray(courseRaw) ? courseRaw[0] as { id: string; title: string; heliport?: { id: string; name: string; address?: string }[] | { id: string; name: string; address?: string } | null } | undefined : courseRaw as { id: string; title: string; heliport?: { id: string; name: string; address?: string }[] | { id: string; name: string; address?: string } | null } | null;
+    const heliportRaw = courseObj?.heliport;
+    const heliport = Array.isArray(heliportRaw) ? heliportRaw[0] : heliportRaw;
+    const course = courseObj ? { ...courseObj, heliport: heliport ?? null } : null;
 
     if (!customer || !course) {
       console.error('Missing customer or course data for email');
@@ -146,9 +150,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       mypageUrl,
     });
 
-    if (emailResult.success) {
-      console.log(`Confirmation email sent for reservation ${reservationId}`);
-    } else {
+    if (!emailResult.success) {
       console.error(`Failed to send confirmation email for reservation ${reservationId}:`, emailResult.error);
       // Don't throw - reservation is already confirmed, email failure is logged but not critical
     }
