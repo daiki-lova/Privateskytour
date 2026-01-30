@@ -26,7 +26,7 @@ export const emailLogger = {
   info(message: string, meta?: Omit<EmailLogEntry, 'level' | 'message' | 'timestamp'>) {
     if (IS_TEST) return;
     const entry: EmailLogEntry = { level: 'info', message, timestamp: new Date().toISOString(), ...meta };
-    console.log(formatLog(entry));
+    console.warn(formatLog(entry));
   },
   warn(message: string, meta?: Omit<EmailLogEntry, 'level' | 'message' | 'timestamp'>) {
     if (IS_TEST) return;

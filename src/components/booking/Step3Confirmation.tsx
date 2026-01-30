@@ -20,6 +20,7 @@ import {
   Loader2,
   TestTube2,
 } from "lucide-react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
@@ -34,7 +35,7 @@ interface Step3Props {
 
 export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
   const { t, language } = useTranslation();
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed, _setIsConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -522,13 +523,12 @@ export function Step3Confirmation({ courses, data, onClose }: Step3Props) {
                 {!testMode && (
                   <>
                     <div className="flex items-center justify-center gap-2 pt-2">
-                      <img
+                      <Image
                         src="/images/stripe-badge.svg"
                         alt="Powered by Stripe"
-                        className="h-6 opacity-60"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
+                        width={120}
+                        height={24}
+                        className="h-6 w-auto opacity-60"
                       />
                     </div>
                     <p className="text-xs text-center text-slate-500">

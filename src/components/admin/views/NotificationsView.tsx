@@ -3,20 +3,20 @@
 import React, { useState, useCallback } from 'react';
 import useSWR from 'swr';
 import {
-  Bell, Globe, Mail, Plus, Search, Calendar,
-  MoreHorizontal, CheckCircle2, AlertCircle, Clock,
+  Globe, Mail, Plus, Search,
+  MoreHorizontal, CheckCircle2, Clock,
   ArrowLeft, Edit2, Trash2, Copy, RefreshCcw
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/components/ui/utils";
 import { TableSkeleton, ErrorAlert } from '@/components/admin/shared';

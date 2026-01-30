@@ -11,7 +11,7 @@ import {
     NotFoundActions,
     ContactButton,
 } from "./CourseDetailActions";
-import { getPublicCourseById, type PublicCourse } from "@/lib/supabase/actions/courses";
+import { type PublicCourse } from "@/lib/supabase/actions/courses";
 // Remove unused import if necessary, or just don't import Course from types since we use PublicCourse
 // import type { Course } from "@/lib/data/types"; 
 

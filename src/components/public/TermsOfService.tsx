@@ -56,7 +56,7 @@ export function TermsOfService() {
               <li>Acts of infringing on copyrights, trademark rights, and other intellectual property rights contained in the Service</li>
               <li>Acts of destroying or interfering with the functions of the server or network of the Company, other users, or other third parties</li>
               <li>Acts of commercially using information obtained by the Service</li>
-              <li>Acts that may interfere with the operation of the Company's services</li>
+              <li>Acts that may interfere with the operation of the Company&apos;s services</li>
               <li>Acts of making or attempting unauthorized access</li>
               <li>Acts of collecting or accumulating personal information relating to other users</li>
               <li>Acts of using the Service for fraudulent purposes</li>
@@ -64,7 +64,7 @@ export function TermsOfService() {
               <li>Acts of impersonating other users</li>
               <li>Advertising, publicity, solicitation, or business activities on the Service not authorized by the Company</li>
               <li>Acts aimed at meeting unrelated persons</li>
-              <li>Acts of providing benefits directly or indirectly to anti-social forces in relation to the Company's services</li>
+              <li>Acts of providing benefits directly or indirectly to anti-social forces in relation to the Company&apos;s services</li>
               <li>Other acts deemed inappropriate by the Company</li>
             </ul>
 

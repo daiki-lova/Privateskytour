@@ -104,17 +104,17 @@ describe('isValidTokenFormat', () => {
   });
 
   it('returns false for a non-string value (null)', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     expect(isValidTokenFormat(null as unknown as string)).toBe(false);
   });
 
   it('returns false for a non-string value (undefined)', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     expect(isValidTokenFormat(undefined as unknown as string)).toBe(false);
   });
 
   it('returns false for a non-string value (number)', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     expect(isValidTokenFormat(12345 as unknown as string)).toBe(false);
   });
 });

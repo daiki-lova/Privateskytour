@@ -5,6 +5,7 @@ import {
   Plus, MapPin, Edit2, Trash2,
   ExternalLink, Image as ImageIcon, Save, Upload
 } from 'lucide-react';
+import Image from 'next/image';
 import { Heliport } from '@/lib/data/types';
 import { useHeliports } from '@/lib/api/hooks';
 import { CardGridSkeleton, ErrorAlert } from '@/components/admin/shared';
@@ -259,7 +260,7 @@ export const HeliportsView = () => {
 
               {formData.imageUrl ? (
                 <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-200 group bg-slate-50">
-                  <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <Image src={formData.imageUrl} alt="Preview" fill className="object-cover" unoptimized />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <label className="cursor-pointer">
                       <Input
@@ -319,7 +320,7 @@ const HeliportCard = ({ heliport, onEdit, onDelete }: { heliport: Heliport, onEd
     <Card className="overflow-hidden flex flex-col h-full group hover:border-vivid-blue/300 transition-colors shadow-sm bg-white">
       <div className="relative h-28 bg-slate-100">
         {heliport.imageUrl ? (
-          <img src={heliport.imageUrl} alt={heliport.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <Image src={heliport.imageUrl} alt={heliport.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
         ) : (
           <div className="flex items-center justify-center h-full text-slate-300">
             <ImageIcon className="w-8 h-8" />

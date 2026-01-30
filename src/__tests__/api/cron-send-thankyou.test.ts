@@ -288,7 +288,7 @@ describe('GET /api/cron/send-thankyou', () => {
 
     it('handles non-Error thrown values gracefully', async () => {
       mockAdminClient.from.mockImplementation(() => {
-        throw 'string error'; // eslint-disable-line no-throw-literal
+        throw 'string error';  
       });
 
       const request = createRequest('Bearer test-cron-secret');

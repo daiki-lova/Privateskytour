@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import useSWR from 'swr';
 import {
   Printer, Calendar as CalendarIcon, FileDown, User as UserIcon,
-  Phone, FileText, CheckCircle2, Scale, Loader2, AlertCircle, ArrowLeft
+  Phone, FileText, Scale, Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -20,7 +20,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { toast } from "sonner";
-import { cn } from "@/components/ui/utils";
 
 // Types for API response
 interface ManifestPassenger {
@@ -76,7 +75,7 @@ function formatTime(time: string): string {
 export const ManifestView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<ManifestReservation | null>(null);
+  const [_selectedReservation, setSelectedReservation] = useState<ManifestReservation | null>(null);
   const [selectedPassenger, setSelectedPassenger] = useState<ManifestPassenger | null>(null);
 
   const [weightInput, setWeightInput] = useState<string>('');

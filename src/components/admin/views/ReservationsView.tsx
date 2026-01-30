@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  Search, Filter, ArrowLeft, Download, Mail, Ban,
+  Filter, ArrowLeft, Download, Mail, Ban,
   RefreshCcw, CheckCircle2, XCircle, AlertCircle,
   ExternalLink, MoreHorizontal, CalendarDays, ArrowUpDown, Plus
 } from 'lucide-react';
@@ -64,9 +64,8 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
 
   const { data: coursesData } = useCourses();
 
-  const reservations = reservationsData?.data ?? [];
+  const reservations = useMemo(() => reservationsData?.data ?? [], [reservationsData?.data]);
   const courses = coursesData?.data ?? [];
-  const totalCount = reservationsData?.pagination?.total ?? 0;
 
   // 予約データから利用可能な「年」のリストを抽出
   const availableYears = useMemo(() => {
@@ -120,7 +119,7 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
         }
       );
       toast.success('ステータスを更新しました');
-    } catch (_err) {
+    } catch {
       toast.error('更新に失敗しました');
     }
   };
@@ -131,14 +130,14 @@ export const ReservationsView = ({ currentUser }: ReservationsViewProps) => {
       await cancelReservation(id);
       toast.success('予約をキャンセルしました');
       mutate();
-    } catch (_err) {
+    } catch {
       toast.error('キャンセルに失敗しました');
     }
   };
 
   // フィルタリングとソートのロジック（クライアントサイド検索を維持）
   const filteredReservations = useMemo(() => {
-    let result = reservations.filter(res => {
+    const result = reservations.filter(res => {
       // テキスト検索（クライアントサイド）
       if (searchQuery) {
         const query = searchQuery.toLowerCase();

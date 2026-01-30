@@ -3,6 +3,7 @@
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { SWRConfig } from 'swr';
+import Image from 'next/image';
 import { SidebarNext, MobileNavNext } from "@/components/admin/SidebarNext";
 import { useAuth, AuthProvider } from "@/components/providers/AuthProvider";
 import logo from '@/assets/logo-header.png';
@@ -58,7 +59,7 @@ function AdminLayoutContent({
         {/* Mobile Header */}
         <div className="lg:hidden px-4 py-3 bg-white border-b border-slate-200 flex items-center gap-3 shadow-sm sticky top-0 z-10">
           <MobileNavNext currentUser={currentUser} onLogout={handleLogout} />
-          <img src={logo.src} alt="PrivateSky Tour" className="h-5 object-contain" />
+          <Image src={logo} alt="PrivateSky Tour" height={20} className="h-5 object-contain" />
         </div>
 
         <div className="flex-1 overflow-y-auto p-0 lg:p-8">

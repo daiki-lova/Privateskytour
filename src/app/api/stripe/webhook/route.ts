@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       break;
     }
     default:
-      console.log(`Unhandled event type: ${event.type}`);
+      console.warn(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });

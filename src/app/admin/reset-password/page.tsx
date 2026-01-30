@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createBrowserClient } from "@supabase/ssr";
 
 import { Button } from "@/components/ui/button";
@@ -146,9 +147,10 @@ export default function ResetPasswordPage() {
         <Card className="w-full max-w-sm shadow-xl border-slate-200">
           <CardHeader className="space-y-1 text-center pb-2">
             <div className="flex flex-col items-center justify-center mb-2">
-              <img
-                src={logo.src}
+              <Image
+                src={logo}
                 alt="PrivateSky Tour"
+                height={40}
                 className="h-10 object-contain mb-2"
               />
               <p className="text-sm text-slate-400 font-medium">管理画面</p>
@@ -186,9 +188,10 @@ export default function ResetPasswordPage() {
         <Card className="w-full max-w-sm shadow-xl border-slate-200">
           <CardHeader className="space-y-1 text-center pb-2">
             <div className="flex flex-col items-center justify-center mb-2">
-              <img
-                src={logo.src}
+              <Image
+                src={logo}
                 alt="PrivateSky Tour"
+                height={40}
                 className="h-10 object-contain mb-2"
               />
               <p className="text-sm text-slate-400 font-medium">管理画面</p>
@@ -227,9 +230,10 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-sm shadow-xl border-slate-200">
         <CardHeader className="space-y-1 text-center pb-2">
           <div className="flex flex-col items-center justify-center mb-2">
-            <img
-              src={logo.src}
+            <Image
+              src={logo}
               alt="PrivateSky Tour"
+              height={40}
               className="h-10 object-contain mb-2"
             />
             <p className="text-sm text-slate-400 font-medium">管理画面</p>

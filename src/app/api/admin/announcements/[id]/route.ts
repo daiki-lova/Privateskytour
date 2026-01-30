@@ -203,7 +203,7 @@ export async function DELETE(
     await requireRole(supabase, ['admin']);
 
     // Check if announcement exists
-    const { data: existing, error: fetchError } = await supabase
+    const { error: fetchError } = await supabase
       .from('announcements')
       .select('id')
       .eq('id', id)

@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Users, Search, RefreshCcw, Activity, Settings,
+  Users, Search, RefreshCcw, Activity,
   CheckCircle2, AlertCircle, XCircle, RotateCcw, Save,
-  CreditCard, History, FileText, Phone, Mail, MapPin, Tag,
-  ExternalLink, ChevronRight, Copy, Terminal, Sun, Moon,
+  CreditCard, History, FileText, Phone, Mail,
+  ChevronRight, Copy, Terminal, Sun, Moon,
   Cloud, Plus, X, Percent, Clock, AlertTriangle
 } from 'lucide-react';
-import { User, AuditLog, Customer, Reservation } from '@/lib/data/types';
+import { AuditLog, Customer } from '@/lib/data/types';
 import { useCustomers, useLogs, useRefundCandidates, processRefund, RefundCandidate, useReservations } from '@/lib/api/hooks';
 import { TableSkeleton, ErrorAlert } from '@/components/admin/shared';
 import { Button } from "@/components/ui/button";
@@ -35,8 +35,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -780,7 +779,7 @@ export const RefundsView = () => {
 
 // --- Logs View ---
 export const LogsView = () => {
-  const [page, setPage] = useState(1);
+  const [page, _setPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'stripe' | 'crm' | 'operation'>('all');
 

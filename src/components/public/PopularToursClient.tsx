@@ -5,7 +5,6 @@ import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { motion } from "motion/react";
 import type { Course } from "@/lib/data/types";
 import { Clock, ArrowRight } from "lucide-react";
-import { Button } from "../ui/button";
 import { cn } from "../ui/utils";
 
 import { useTranslation } from "@/lib/i18n/TranslationContext";

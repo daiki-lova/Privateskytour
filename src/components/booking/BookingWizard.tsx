@@ -78,7 +78,7 @@ export function BookingWizard({ courses, initialPlanId }: BookingWizardProps) {
 
             <div className="w-12 sm:w-24 md:w-32 flex-shrink-0" /> {/* Spacer for centering */}
           </div>
-// ... (content)
+{/* ... (content) */}
 
           {/* Content */}
           <AnimatePresence mode="wait">

@@ -36,7 +36,6 @@ export async function GET(request: Request) {
     const now = new Date();
     const jstOffset = 9 * 60 * 60 * 1000;
     const jstNow = new Date(now.getTime() + jstOffset);
-    const todayStr = jstNow.toISOString().split('T')[0];
 
     // 3日後の日付
     const threeDaysLater = new Date(jstNow);

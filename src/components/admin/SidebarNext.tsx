@@ -1,11 +1,12 @@
 import React from 'react';
 import {
   LayoutDashboard, Calendar, Clock, Users, FileText,
-  Settings, LogOut, Bell, ShieldAlert, CreditCard, Activity,
+  Settings, LogOut, Bell, CreditCard, Activity,
   Navigation, MapPin, Menu
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import logo from '@/assets/logo-header.png';
 import { cn } from "@/components/ui/utils";
 import { User } from '@/lib/data/types';
@@ -44,7 +45,7 @@ const SidebarContent = ({ currentUser, onLogout, isMobile = false }: SidebarProp
   return (
     <div className="flex flex-col h-full bg-white text-slate-600">
       <div className={cn("p-6 border-b border-slate-100", isMobile && "pt-12")}>
-        <img src={logo.src} alt="PrivateSky Tour" className={cn("mb-2 object-contain", isMobile ? "h-6" : "h-9")} />
+        <Image src={logo} alt="PrivateSky Tour" height={36} className={cn("mb-2 object-contain", isMobile ? "h-6" : "h-9")} />
         <p className="text-xs text-slate-900 font-extrabold tracking-[0.2em] opacity-70">ADMIN CONSOLE</p>
       </div>
 

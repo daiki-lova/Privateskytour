@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  Calendar as CalendarIcon, ChevronLeft, ChevronRight, ArrowLeft, AlertTriangle,
-  Mail, Clock, LayoutGrid, List, Plus, RotateCcw
+  ChevronLeft, ChevronRight, ArrowLeft, AlertTriangle,
+  Mail, Clock, LayoutGrid, List, Plus
 } from 'lucide-react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -19,26 +19,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-
-// Fixed cancellation notification template
-const CANCELLATION_TEMPLATE = {
-  subject: '【重要】フライト運休のお知らせ',
-  body: `お客様各位
-
-ご予約いただいておりましたフライトについて、
-天候等の理由により運休となりましたことをお知らせいたします。
-
-ご不便をおかけし誠に申し訳ございません。
-返金手続きについては別途ご連絡いたします。
-
-PrivateSky Tour`,
-};
 
 export const SlotsView = ({ currentUser }: { currentUser: User }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -49,7 +32,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
   const [generateStartDate, setGenerateStartDate] = useState('');
   const [generateEndDate, setGenerateEndDate] = useState('');
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [generateMaxPax, setGenerateMaxPax] = useState(3);
+  const [generateMaxPax, _setGenerateMaxPax] = useState(3);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -133,7 +116,7 @@ export const SlotsView = ({ currentUser }: { currentUser: User }) => {
       } else {
         toast.error(json.error || 'スロット生成に失敗しました');
       }
-    } catch (error) {
+    } catch {
       toast.error('スロット生成に失敗しました');
     } finally {
       setIsGenerating(false);
@@ -341,27 +324,28 @@ const SlotCard = ({ slot, onClick }: { slot: Slot, onClick: () => void }) => {
   );
 };
 
-const SlotDetail = ({ slot, onBack, currentUser, onMutate }: { slot: Slot, onBack: () => void, currentUser: User, onMutate: () => void }) => {
+const SlotDetail = ({ slot, onBack, currentUser: _currentUser, onMutate }: { slot: Slot, onBack: () => void, currentUser: User, onMutate: () => void }) => {
   const slotDate = slot.slotDate ?? slot.date ?? '';
   const slotTime = ((slot.slotTime ?? slot.time) ?? '').substring(0, 5);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [_isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isSuspending, setIsSuspending] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
-  const [emailSubject, setEmailSubject] = useState(CANCELLATION_TEMPLATE.subject);
-  const [emailBody, setEmailBody] = useState(CANCELLATION_TEMPLATE.body);
+  const [_emailSubject, _setEmailSubject] = useState('');
+  const [_emailBody, _setEmailBody] = useState('');
 
-  const reservations: Reservation[] = (slot.reservations ?? []).map((res: any) => {
+  const reservations: Reservation[] = (slot.reservations ?? []).map((res: Reservation | string | Record<string, unknown>) => {
     if (typeof res === 'string') return { id: res } as Reservation;
+    const raw = res as Record<string, unknown>;
     return {
       ...res,
-      bookingNumber: res.bookingNumber ?? res.booking_number ?? '',
-      customerId: res.customerId ?? res.customer_id ?? '',
-      price: res.price ?? res.total_price ?? 0,
-      paymentStatus: res.paymentStatus ?? res.payment_status ?? 'pending',
-      customerName: res.customerName ?? res.customer?.name ?? '',
-      customerEmail: res.customerEmail ?? res.customer?.email ?? '',
-      customerPhone: res.customerPhone ?? res.customer?.phone ?? '',
+      bookingNumber: raw.bookingNumber ?? raw.booking_number ?? '',
+      customerId: raw.customerId ?? raw.customer_id ?? '',
+      price: raw.price ?? raw.total_price ?? 0,
+      paymentStatus: raw.paymentStatus ?? raw.payment_status ?? 'pending',
+      customerName: raw.customerName ?? (raw.customer as Record<string, unknown> | undefined)?.name ?? '',
+      customerEmail: raw.customerEmail ?? (raw.customer as Record<string, unknown> | undefined)?.email ?? '',
+      customerPhone: raw.customerPhone ?? (raw.customer as Record<string, unknown> | undefined)?.phone ?? '',
     } as Reservation;
   });
 

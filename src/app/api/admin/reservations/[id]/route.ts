@@ -350,7 +350,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(_request: NextRequest, context: RouteContext) {
   try {
     const supabase = await createClient();
-    const adminUser = await requireRole(supabase, ['admin', 'staff']);
+    await requireRole(supabase, ['admin', 'staff']);
 
     const { id } = await context.params;
 

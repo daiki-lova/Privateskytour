@@ -450,7 +450,7 @@ describe('POST /api/stripe/webhook', () => {
         },
       });
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const request = createWebhookRequest('{}', 'valid_signature');
       const response = await webhookPOST(request);

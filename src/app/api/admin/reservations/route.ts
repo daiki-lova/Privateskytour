@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const adminUser = await requireRole(supabase, ['admin', 'staff']);
+    await requireRole(supabase, ['admin', 'staff']);
 
     const body = await request.json();
 

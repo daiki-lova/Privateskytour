@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "../ui/button";
-import { Menu, User, X } from "lucide-react";
+import { User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";

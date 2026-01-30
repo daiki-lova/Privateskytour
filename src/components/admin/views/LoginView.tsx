@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -57,9 +58,10 @@ export function LoginView() {
       <Card className="w-full max-w-md shadow-2xl border-slate-200 rounded-3xl overflow-hidden bg-white">
         <CardHeader className="space-y-2 text-center pb-6 pt-10">
           <div className="flex flex-col items-center justify-center mb-2">
-            <img
-              src={logo.src}
+            <Image
+              src={logo}
               alt="PrivateSky Tour"
+              height={56}
               className="h-14 object-contain mb-4"
             />
             <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">Administrator</h2>

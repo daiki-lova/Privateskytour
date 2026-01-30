@@ -1,12 +1,13 @@
 import React from 'react';
-import { 
-  LayoutDashboard, Calendar, Clock, Users, FileText, 
-  Settings, LogOut, Bell, ShieldAlert, CreditCard, Activity,
+import {
+  LayoutDashboard, Calendar, Clock, Users, FileText,
+  Settings, LogOut, Bell, CreditCard, Activity,
   Navigation, MapPin, Menu
 } from 'lucide-react';
+import Image from 'next/image';
 import logo from '@/assets/logo-header.png';
 import { cn } from "@/components/ui/utils";
-import { User, Role } from '@/lib/data/types';
+import { User } from '@/lib/data/types';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -41,7 +42,7 @@ const SidebarContent = ({ currentUser, activeView, onChangeView, onLogout }: Sid
   return (
     <div className="flex flex-col h-full bg-white text-slate-500">
       <div className="p-6 border-b border-slate-100">
-        <img src={logo.src} alt="PrivateSky Tour" className="h-6 mb-1 object-contain -ml-1" />
+        <Image src={logo} alt="PrivateSky Tour" height={24} className="h-6 mb-1 object-contain -ml-1" />
         <p className="text-xs text-slate-400 font-medium">管理画面</p>
       </div>
 

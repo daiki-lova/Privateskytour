@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { translations, Language, TranslationKey } from './translations';
+import { translations, Language } from './translations';
 
 type TranslationContextType = {
   language: Language;
@@ -30,14 +30,18 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   // Nested object lookup for translation keys (e.g., "common.login")
   const t = (path: string, params?: Record<string, string>): string => {
     const keys = path.split('.');
-    let current: any = translations[language];
+    type TranslationNode = Record<string, unknown> | string;
+    let current: TranslationNode = translations[language] as unknown as TranslationNode;
 
     for (const key of keys) {
-      if (current[key] === undefined) {
-        // Translation key not found
+      if (typeof current !== 'object' || current === null) {
         return path;
       }
-      current = current[key];
+      const next = (current as Record<string, unknown>)[key];
+      if (next === undefined) {
+        return path;
+      }
+      current = next as TranslationNode;
     }
 
     let text = current as string;

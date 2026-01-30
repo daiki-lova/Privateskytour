@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "./ui/card";
+import { Card } from "./ui/card";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { motion } from "motion/react";
 import { useState, useMemo } from "react";

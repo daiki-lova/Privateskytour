@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import {
-  Users, Search, Calendar, CheckCircle2, AlertCircle, Clock,
-  ArrowLeft, Edit2, Trash2, Copy, RefreshCcw, Loader2,
+  Users, Clock,
+  Edit2, Trash2, Loader2,
   Plus, Image as ImageIcon, MapPin, Tag, X, ChevronRight, Save, Upload
 } from 'lucide-react';
+import Image from 'next/image';
 import { Course, Heliport } from '@/lib/data/types';
 import { useCourses, useHeliports } from '@/lib/api/hooks';
 import { createCourse, updateCourse, deleteCourse, CreateCourseInput, UpdateCourseInput } from '@/lib/api/mutations/courses';
@@ -90,7 +91,7 @@ export const CoursesView = () => {
       }
       mutate();
       setIsDialogOpen(false);
-    } catch (err) {
+    } catch {
       toast.error(editingCourse ? "更新に失敗しました。" : "作成に失敗しました。");
     } finally {
       setIsSaving(false);
@@ -103,7 +104,7 @@ export const CoursesView = () => {
         await deleteCourse(id);
         toast.success("コース情報を削除いたしました。");
         mutate();
-      } catch (err) {
+      } catch {
         toast.error("削除に失敗しました。");
       }
     }
@@ -164,7 +165,7 @@ const CourseCard = ({ course, heliports, onEdit, onDelete }: { course: Course, h
     <Card className="flex flex-col h-full overflow-hidden group hover:border-vivid-blue/300 transition-colors shadow-sm bg-white">
       <div className="relative h-32 bg-slate-100 overflow-hidden">
         {mainImage ? (
-          <img src={mainImage} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <Image src={mainImage} alt={course.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
         ) : (
           <div className="flex items-center justify-center h-full text-slate-300">
             <ImageIcon className="w-8 h-8" />
@@ -407,10 +408,12 @@ const CourseEditDialog = ({
                       >
                         {formData.images?.[0] ? (
                           <div className="relative w-full h-full p-2">
-                            <img
+                            <Image
                               src={formData.images[0]}
                               alt="Preview"
-                              className="w-full h-full object-cover rounded shadow-sm"
+                              fill
+                              className="object-cover rounded shadow-sm"
+                              unoptimized
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
                               <div className="flex gap-2">

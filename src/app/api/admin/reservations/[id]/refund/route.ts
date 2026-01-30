@@ -169,7 +169,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // 6. Update payment status
-    const isFullRefund = refundAmount === payment.amount;
     const totalRefunded = alreadyRefundedAmount + refundAmount;
     const isFullyRefunded = totalRefunded >= payment.amount;
 
