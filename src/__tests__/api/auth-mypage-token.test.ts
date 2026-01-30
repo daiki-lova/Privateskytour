@@ -153,9 +153,32 @@ describe('GET /api/auth/mypage-token', () => {
 
     it('returns full mypage data when includeData=true and token is valid', async () => {
       const ip = uniqueIp();
-      const mockData = {
-        customer: { id: 'cust-3', email: 'full@example.com', name: 'Full Data' },
-        reservations: [{ id: 'res-1', bookingNumber: 'BK-001' }],
+      const mockData: import('@/lib/auth/mypage-token').MypageData = {
+        customer: {
+          id: 'cust-3',
+          email: 'full@example.com',
+          name: 'Full Data',
+          nameKana: null,
+          phone: null,
+          preferredLang: null,
+          bookingCount: null,
+          totalSpent: null,
+          firstBookingDate: null,
+          lastBookingDate: null,
+        },
+        reservations: [{
+          id: 'res-1',
+          bookingNumber: 'BK-001',
+          reservationDate: '2024-06-18',
+          reservationTime: '10:00',
+          pax: 2,
+          status: null,
+          paymentStatus: null,
+          totalPrice: 50000,
+          course: null,
+          heliport: null,
+          createdAt: '2024-06-01T00:00:00Z',
+        }],
       };
       vi.mocked(isValidTokenFormat).mockReturnValue(true);
       vi.mocked(getMypageData).mockResolvedValue(mockData);

@@ -38,6 +38,17 @@ import {
   AuthenticationError,
   AuthorizationError,
 } from '@/lib/auth';
+import type { AdminUser } from '@/lib/data/types';
+
+const mockAdminUser: AdminUser = {
+  id: 'admin-1',
+  email: 'admin@example.com',
+  name: 'Test Admin',
+  role: 'admin',
+  isActive: true,
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
+};
 
 // Helper to create NextRequest
 function createRequest(body: Record<string, unknown>): NextRequest {
@@ -154,7 +165,7 @@ describe('POST /api/admin/slots/generate', () => {
   // -------------------------------------------------------
   describe('Validation', () => {
     beforeEach(() => {
-      vi.mocked(requireRole).mockResolvedValue(undefined);
+      vi.mocked(requireRole).mockResolvedValue(mockAdminUser);
     });
 
     it('startDateが欠けている場合は400を返す', async () => {
@@ -243,7 +254,7 @@ describe('POST /api/admin/slots/generate', () => {
     });
 
     it('不正なJSONボディの場合は400を返す', async () => {
-      vi.mocked(requireRole).mockResolvedValue(undefined);
+      vi.mocked(requireRole).mockResolvedValue(mockAdminUser);
 
       const request = new NextRequest(
         'http://localhost:3000/api/admin/slots/generate',
@@ -266,7 +277,7 @@ describe('POST /api/admin/slots/generate', () => {
   // -------------------------------------------------------
   describe('Slot Generation', () => {
     beforeEach(() => {
-      vi.mocked(requireRole).mockResolvedValue(undefined);
+      vi.mocked(requireRole).mockResolvedValue(mockAdminUser);
     });
 
     it('正しい数のスロットを生成する (3日 x 3時間 = 9)', async () => {
@@ -287,8 +298,8 @@ describe('POST /api/admin/slots/generate', () => {
 
       // insert が呼ばれた際の引数を検証
       const insertCalls = mockAdminClient.from.mock.results.filter(
-        (_r: { type: string; value: { insert?: unknown } }, i: number) =>
-          mockAdminClient.from.mock.calls[i][0] === 'slots'
+        (_r: unknown, i: number) =>
+          mockAdminClient.from.mock.calls[i]?.[0] === 'slots'
       );
       // insert 呼び出しがあることを確認
       expect(insertCalls.length).toBeGreaterThan(0);
@@ -382,7 +393,7 @@ describe('POST /api/admin/slots/generate', () => {
   // -------------------------------------------------------
   describe('Error Handling', () => {
     beforeEach(() => {
-      vi.mocked(requireRole).mockResolvedValue(undefined);
+      vi.mocked(requireRole).mockResolvedValue(mockAdminUser);
     });
 
     it('バッチ挿入が全て失敗した場合は500を返す', async () => {
@@ -480,7 +491,7 @@ describe('POST /api/admin/slots/generate', () => {
       // insert に渡されたスロットオブジェクトを検証
       const slotsFromCalls = mockAdminClient.from.mock.calls;
       const insertCall = slotsFromCalls.find(
-        (call: string[]) => call[0] === 'slots'
+        (call: unknown[]) => call[0] === 'slots'
       );
       expect(insertCall).toBeDefined();
     });

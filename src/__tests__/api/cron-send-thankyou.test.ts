@@ -11,7 +11,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 const mockSendThankYouEmail = vi.hoisted(() =>
-  vi.fn(() => Promise.resolve({ success: true }))
+  vi.fn(() => Promise.resolve({ success: true } as { success: boolean; error?: string }))
 );
 
 vi.mock('@/lib/email/client', () => ({
@@ -206,7 +206,8 @@ describe('GET /api/cron/send-thankyou', () => {
       expect(mockSendThankYouEmail).toHaveBeenCalledTimes(2);
 
       // Second reservation has no mypage_token, so mypageUrl should be undefined
-      const secondCall = mockSendThankYouEmail.mock.calls[1][0] as Record<string, unknown>;
+      const calls = mockSendThankYouEmail.mock.calls as unknown as [Record<string, unknown>][];
+      const secondCall = calls[1][0];
       expect(secondCall.mypageUrl).toBeUndefined();
     });
 

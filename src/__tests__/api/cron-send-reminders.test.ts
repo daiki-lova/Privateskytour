@@ -11,10 +11,10 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 const mockSendReminder3Days = vi.hoisted(() =>
-  vi.fn(() => Promise.resolve({ success: true }))
+  vi.fn(() => Promise.resolve({ success: true } as { success: boolean; error?: string }))
 );
 const mockSendReminder1Day = vi.hoisted(() =>
-  vi.fn(() => Promise.resolve({ success: true }))
+  vi.fn(() => Promise.resolve({ success: true } as { success: boolean; error?: string }))
 );
 
 vi.mock('@/lib/email/client', () => ({
