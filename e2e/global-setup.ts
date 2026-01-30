@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { FullConfig } from '@playwright/test';
 
 /**

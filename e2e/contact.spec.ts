@@ -50,7 +50,7 @@ test.describe('Contact Page', () => {
     // Submit
     await page.locator('button[type="submit"]').click();
     // Should show email validation error
-    const emailError = page.locator('text=/メール|email|Email/i');
+    const _emailError = page.locator('text=/メール|email|Email/i');
     // The form should not navigate away (still on contact page)
     await expect(page).toHaveURL(/contact/);
   });
